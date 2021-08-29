@@ -40,7 +40,7 @@ const config: C = {
         loader: 'babel-loader',
       },
       {
-        test: /.(eot|woff2?|svg|ttf|png|jpe?g)([?]?.*)$/,
+        test: /.(eot|woff2?|svg|ttf|png|jpe?g|glb|fbx|bvh)([?]?.*)$/,
         loader: 'file-loader',
         sideEffects: true,
       },
