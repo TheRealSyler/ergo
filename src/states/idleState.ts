@@ -2,18 +2,20 @@
 import { Input } from '../characterControllerInput';
 import { State, FiniteStateMachine } from './finiteStateMachine';
 import { getAnimAction } from "../utils";
-import { Animations, AnimationTypes } from './types';
-
+import { AnimationTypes } from './types';
+import { CharacterController } from '../characterController';
 
 export class IdleState extends State<AnimationTypes> {
-  constructor(private input: Input, private animations: Animations<AnimationTypes>) {
+  constructor(private input: Input, private charRef: CharacterController) {
     super('idle');
   }
 
   Enter(fsm: FiniteStateMachine<AnimationTypes>, prevState?: State<AnimationTypes>) {
-    const idleAction = getAnimAction(this.animations, 'idle');
+    this.charRef.stance = { type: 'idle' };
+
+    const idleAction = getAnimAction(this.charRef.animations, 'idle');
     if (prevState) {
-      const prevAction = getAnimAction(this.animations, prevState.Name);
+      const prevAction = getAnimAction(this.charRef.animations, prevState.Name);
       idleAction.time = 0.0;
       idleAction.enabled = true;
       idleAction.setEffectiveTimeScale(1.0);
@@ -42,5 +44,4 @@ export class IdleState extends State<AnimationTypes> {
       fsm.SetState('dodge_down');
     }
   }
-}
-;
+};

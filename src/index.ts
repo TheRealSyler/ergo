@@ -1,4 +1,6 @@
-import { startGame } from './game';
+import { Game } from './game';
 import './index.sass';
 
-startGame()
+window.addEventListener('DOMContentLoaded', () => {
+  new Game();
+});

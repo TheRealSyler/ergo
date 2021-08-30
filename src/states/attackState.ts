@@ -1,21 +1,36 @@
 import { LoopOnce } from 'three';
 import { State, FiniteStateMachine } from './finiteStateMachine';
 import { getAnimAction } from "../utils";
-import { Animations, AnimationTypes } from './types';
+import { AnimationTypes, AttackAnimations } from './types';
+import { CharacterController } from '../characterController';
 
 export class AttackState extends State<AnimationTypes> {
 
-  constructor(private direction: AnimationTypes, private animations: Animations<AnimationTypes>) {
+  startTime = 0;
+  timeToAttack = 800;
+  isAttacking = false;
+
+  constructor(private direction: AttackAnimations, private charRef: CharacterController) {
     super(direction);
   }
 
   Enter(fsm: FiniteStateMachine<AnimationTypes>, prevState?: State<AnimationTypes>) {
-    const curAction = getAnimAction(this.animations, this.direction);
-    const mixer = curAction.getMixer();
-    mixer.addEventListener('finished', () => fsm.SetState('idle'));
+    this.isAttacking = false;
+    this.startTime = performance.now();
 
+    this.charRef.stance = { type: 'attack', attackDirection: this.direction, attackProgress: 'started' }
+
+    const curAction = getAnimAction(this.charRef.animations, this.direction);
+    const mixer = curAction.getMixer();
+    mixer.timeScale = 2;
+    mixer.addEventListener('finished', () => {
+      fsm.SetState('idle')
+      mixer.timeScale = 1;
+    });
+
+    curAction.setEffectiveTimeScale(2);
     if (prevState) {
-      const prevAction = getAnimAction(this.animations, prevState.Name);
+      const prevAction = getAnimAction(this.charRef.animations, prevState.Name);
 
       curAction.reset();
       curAction.setLoop(LoopOnce, 1);
@@ -31,6 +46,11 @@ export class AttackState extends State<AnimationTypes> {
   }
 
   Update() {
+    if (!this.isAttacking && performance.now() - this.startTime > this.timeToAttack) {
+      this.isAttacking = true
+
+      this.charRef.stance = { type: 'attack', attackDirection: this.direction, attackProgress: 'active' }
+    }
   }
 }
 ;
