@@ -30,7 +30,6 @@ export class Game {
 
   constructor() {
 
-
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(this.renderer.domElement);
@@ -99,7 +98,6 @@ export class Game {
     });
   }
 
-
   private updateFightStuff() {
 
     const playerStance = this.playerChar.stance;
@@ -107,13 +105,11 @@ export class Game {
     if (playerStance.type === 'attack' && playerStance.attackProgress === 'active') {
       const result = this.attack(aiStance, playerStance);
       if (result) {
-        console.log('PLAYER HIT AI');
         playerStance.attackProgress = 'hit';
       }
     } else if (aiStance.type === 'attack' && aiStance.attackProgress === 'active') {
       const result = this.attack(playerStance, aiStance);
       if (result) {
-        console.log('ai HIT PLAYER');
         const a = document.createElement('div');
         a.style.position = 'absolute';
         a.textContent = 'hit';

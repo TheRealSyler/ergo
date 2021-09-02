@@ -5,14 +5,14 @@ export class AiCharacterControllerInput implements Input {
   keys: Input['keys'] = {
     attack_right: false,
     attack_left: false,
+    attack_up: false,
+    attack_down: false,
     dodge_down: false,
     dodge_left: false,
     dodge_right: false
   };
 
   constructor() {
-    // this.randomDodge()
-    // this.keys.dodge_left = true
     this.attack()
   }
   attack() {
@@ -22,7 +22,7 @@ export class AiCharacterControllerInput implements Input {
       setTimeout(() => {
 
         this.keys[a] = false;
-      }, 10);
+      }, 40);
       this.attack()
     }, 1000 + Math.random() * 1000);
   }

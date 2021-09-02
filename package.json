@@ -5,7 +5,8 @@
   "license": "MIT",
   "scripts": {
     "start": "webpack serve --mode development",
-    "build": "del ./dist && webpack --mode production"
+    "start:prod": "webpack serve --mode production",
+    "build": "del-cli ./dist && webpack --mode production"
   },
   "devDependencies": {
     "@babel/cli": "^7.14.8",

@@ -36,6 +36,10 @@ export class IdleState extends State<AnimationTypes> {
       fsm.SetState('attack_left');
     } else if (this.input.keys.attack_right) {
       fsm.SetState('attack_right');
+    } else if (this.input.keys.attack_up) {
+      fsm.SetState('attack_up');
+    } else if (this.input.keys.attack_down) {
+      fsm.SetState('attack_down');
     } else if (this.input.keys.dodge_left) {
       fsm.SetState('dodge_left');
     } else if (this.input.keys.dodge_right) {

@@ -1,6 +1,7 @@
 import { GLTF, GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
-import { AnimationMixer, Bone, Group, PerspectiveCamera, Scene, SkeletonHelper } from 'three';
-import glib from './assets/glib.glb';
+import { AnimationMixer, Bone, Group, LoadingManager, PerspectiveCamera, Scene, SkeletonHelper } from 'three';
+import glib_model from './assets/glib/glib_model.glb';
+import glib_animations from './assets/glib/glib_animations.glb';
 import { error } from './utils';
 import { AttackState } from "./states/attackState";
 import { DodgeState } from "./states/dodgeState";
@@ -9,6 +10,7 @@ import { FiniteStateMachine } from "./states/finiteStateMachine";
 import { Input, CharacterControllerInput } from './characterControllerInput';
 import { Animations, AnimationTypes, AttackAnimations, DodgeAnimations } from './states/types';
 import { degToRad } from 'three/src/math/MathUtils';
+import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader';
 
 export type CharStance = DodgeStance | AttackStance | IdleStance
 
@@ -20,7 +22,7 @@ export interface DodgeStance {
 
 export interface AttackStance {
   type: 'attack',
-  attackProgress: 'started' | 'active' | 'hit',
+  attackProgress: 'started' | 'active' | 'hit' | 'finished',
   attackDirection: AttackAnimations
 }
 export interface IdleStance {
@@ -42,16 +44,40 @@ export class CharacterController {
     this.stateMachine = new FiniteStateMachine({
       attack_left: new AttackState('attack_left', this),
       attack_right: new AttackState('attack_right', this),
-      attack_up: new AttackState('attack_right', this), // TODO change animation to attack up
-      attack_down: new AttackState('attack_right', this), // TODO change animation to attack down
+      attack_up: new AttackState('attack_up', this),
+      attack_down: new AttackState('attack_down', this),
       dodge_left: new DodgeState('dodge_left', 'dodge_left', this),
       dodge_right: new DodgeState('dodge_right', 'dodge_right', this),
       dodge_down: new DodgeState('dodge_down', 'dodge_down', this),
       idle: new IdleState(this.input, this)
     });
     this.scene.add(this.base);
-    const loader = new GLTFLoader();
-    loader.load(glib, (gltf) => {
+    let animations: GLTF | undefined;
+    const manager = new LoadingManager(() => {
+      if (this.charMesh && animations) {
+
+        this.mixer = new AnimationMixer(this.charMesh);
+
+        this.addAnimation('idle', animations);
+        this.addAnimation('attack_up', animations);
+        this.addAnimation('attack_down', animations);
+        this.addAnimation('attack_left', animations);
+        this.addAnimation('attack_right', animations);
+        this.addAnimation('dodge_left', animations);
+        this.addAnimation('dodge_down', animations);
+        this.addAnimation('dodge_right', animations);
+
+        this.stateMachine.SetState('idle');
+      } else {
+        error('Could not load character (TODO?, add better info)', 'CharacterController')
+      }
+    })
+
+    const loader = new GLTFLoader(manager);
+    const dracoLoader = new DRACOLoader();
+    dracoLoader.setDecoderPath('https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/js/libs/draco/');
+    loader.setDRACOLoader(dracoLoader)
+    loader.load(glib_model, (gltf) => {
       this.charMesh = gltf.scene;
       this.base.add(this.charMesh);
 
@@ -62,19 +88,12 @@ export class CharacterController {
         this.head.add(this.camera);
         this.camera.rotateY(degToRad(180));
       }
-      this.mixer = new AnimationMixer(this.charMesh);
 
-      this.addAnimation('idle', gltf);
-      // TODO change animation to attack up
-      // TODO change animation to attack down
-      this.addAnimation('attack_left', gltf);
-      this.addAnimation('attack_right', gltf);
-      this.addAnimation('dodge_left', gltf);
-      this.addAnimation('dodge_down', gltf);
-      this.addAnimation('dodge_right', gltf);
-
-      this.stateMachine.SetState('idle');
     });
+
+    loader.load(glib_animations, (gltf) => {
+      animations = gltf
+    })
 
   }
 
