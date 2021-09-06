@@ -23,7 +23,8 @@ export class Game {
   camera = new PerspectiveCamera(90, window.innerWidth / window.innerHeight, 0.15, 1000);
   scene = new Scene();
   playerChar: CharacterController;
-  aiChar = new CharacterController(this.scene, this.camera, new AiCharacterControllerInput(), false)
+  aiChar: CharacterController;
+
   debugCamera = false;
   /**the last requestAnimationFrame delta(time) */
   private previousRAF = 0;
@@ -58,6 +59,7 @@ export class Game {
     } else {
       this.playerChar = new CharacterController(this.scene, this.camera, undefined, true);
     }
+    this.aiChar = new CharacterController(this.scene, this.camera, this.playerChar)
 
     this.aiChar.base.translateZ(0.6)
     this.aiChar.base.rotateY(degToRad(180))
@@ -77,17 +79,13 @@ export class Game {
 
   private Update() {
     requestAnimationFrame((t) => {
-      this.Update();
+      const timeElapsedSeconds = (t - this.previousRAF) * 0.001;
 
       this.renderer.render(this.scene, this.camera);
-      const timeElapsedS = (t - this.previousRAF) * 0.001;
 
-
-      if (this.playerChar && this.aiChar) {
-        this.playerChar.Update(timeElapsedS);
-        this.aiChar.Update(timeElapsedS);
-        this.updateFightStuff();
-      }
+      this.playerChar.Update(timeElapsedSeconds);
+      this.aiChar.Update(timeElapsedSeconds);
+      this.updateFightStuff();
 
       if (!this.debugCamera) {
         const target = new Vector3(0, 1, 1);
@@ -95,6 +93,7 @@ export class Game {
       }
 
       this.previousRAF = t;
+      this.Update();
     });
   }
 
@@ -105,6 +104,7 @@ export class Game {
     if (playerStance.type === 'attack' && playerStance.attackProgress === 'active') {
       const result = this.attack(aiStance, playerStance);
       if (result) {
+        console.log('playerHitAi')
         playerStance.attackProgress = 'hit';
       }
     } else if (aiStance.type === 'attack' && aiStance.attackProgress === 'active') {

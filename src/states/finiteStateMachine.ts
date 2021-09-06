@@ -1,6 +1,6 @@
 export abstract class State<T extends string> {
 
-  constructor(public Name: T) { }
+  constructor(public name: T) { }
 
   Enter(fsm: FiniteStateMachine<T>, prevState?: State<T>) { };
   Exit(fsm: FiniteStateMachine<T>) { };
@@ -11,17 +11,17 @@ type States<T extends string> = {
   [key in T]: State<T>;
 };
 
-export class FiniteStateMachine<Anim extends string> {
+export class FiniteStateMachine<StateNames extends string> {
 
-  currentState?: State<Anim>;
-  constructor(private states: States<Anim>) {
+  currentState?: State<StateNames>;
+  constructor(private states: States<StateNames>) {
   }
 
-  SetState(name: Anim) {
+  SetState(name: StateNames) {
     const prevState = this.currentState;
 
     if (prevState) {
-      if (prevState.Name == name) {
+      if (prevState.name == name) {
         return;
       }
 
@@ -34,9 +34,9 @@ export class FiniteStateMachine<Anim extends string> {
     state.Enter(this, prevState);
   }
 
-  Update(timeElapsed: number) {
+  Update(timeElapsedInSeconds: number) {
     if (this.currentState) {
-      this.currentState.Update(this, timeElapsed);
+      this.currentState.Update(this, timeElapsedInSeconds);
     }
   }
 

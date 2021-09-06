@@ -41,7 +41,7 @@ export class AttackState extends State<AnimationTypes> {
 
     curAction.setEffectiveTimeScale(2);
     if (prevState) {
-      const prevAction = getAnimAction(this.charRef.animations, prevState.Name);
+      const prevAction = getAnimAction(this.charRef.animations, prevState.name);
 
       curAction.reset();
       curAction.setLoop(LoopOnce, 1);

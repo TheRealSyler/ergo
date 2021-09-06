@@ -12,3 +12,7 @@ export function getAnimAction<T extends string>(animations: Animations<T>, name:
 export function error(message: string, tip?: string) {
   console.error(`${tip ? `[${tip}] ` : ''}${message}`)
 }
+
+export function chooseRandomArrayEl<T>(arr: T[]): T {
+  return arr[Math.floor(Math.random() * arr.length)];
+}

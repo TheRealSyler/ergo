@@ -20,7 +20,7 @@ export class DodgeState extends State<AnimationTypes> {
     const curAction = getAnimAction(this.charRef.animations, this.direction);
     this.charRef.stance = { type: 'dodge', dodgeDirection: this.direction, dodgeProgress: 'started' }
     if (prevState) {
-      const prevAction = getAnimAction(this.charRef.animations, prevState.Name);
+      const prevAction = getAnimAction(this.charRef.animations, prevState.name);
 
       curAction.enabled = true;
 

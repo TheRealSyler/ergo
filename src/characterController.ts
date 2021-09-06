@@ -11,6 +11,7 @@ import { Input, CharacterControllerInput } from './characterControllerInput';
 import { Animations, AnimationTypes, AttackAnimations, DodgeAnimations } from './states/types';
 import { degToRad } from 'three/src/math/MathUtils';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader';
+import { AiCharacterControllerInput } from './aiCharacterInput';
 
 export type CharStance = DodgeStance | AttackStance | IdleStance
 
@@ -38,8 +39,15 @@ export class CharacterController {
   base = new Group();
 
   stance: CharStance = { type: 'idle' };
+  input: Input;
 
-  constructor(public scene: Scene, public camera: PerspectiveCamera, public input: Input = new CharacterControllerInput(), private attachCamera = false) {
+  constructor(public scene: Scene, public camera: PerspectiveCamera, /**If provided it's assumed that this is an ai char controller.*/isAi?: CharacterController, private attachCamera = false) {
+
+    if (isAi) {
+      this.input = new AiCharacterControllerInput(this, isAi)
+    } else {
+      this.input = new CharacterControllerInput()
+    }
 
     this.stateMachine = new FiniteStateMachine({
       attack_left: new AttackState('attack_left', this),
@@ -48,10 +56,14 @@ export class CharacterController {
       attack_down: new AttackState('attack_down', this),
       dodge_left: new DodgeState('dodge_left', 'dodge_left', this),
       dodge_right: new DodgeState('dodge_right', 'dodge_right', this),
-      dodge_down: new DodgeState('dodge_down', 'dodge_down', this),
-      idle: new IdleState(this.input, this)
+      idle: new IdleState(this)
     });
     this.scene.add(this.base);
+
+    this.loadMesh();
+  }
+
+  private loadMesh() {
     let animations: GLTF | undefined;
     const manager = new LoadingManager(() => {
       if (this.charMesh && animations) {
@@ -64,19 +76,18 @@ export class CharacterController {
         this.addAnimation('attack_left', animations);
         this.addAnimation('attack_right', animations);
         this.addAnimation('dodge_left', animations);
-        this.addAnimation('dodge_down', animations);
         this.addAnimation('dodge_right', animations);
 
         this.stateMachine.SetState('idle');
       } else {
-        error('Could not load character (TODO?, add better info)', 'CharacterController')
+        error('Could not load character (TODO?, add better info)', 'CharacterController');
       }
-    })
+    });
 
     const loader = new GLTFLoader(manager);
     const dracoLoader = new DRACOLoader();
     dracoLoader.setDecoderPath('https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/js/libs/draco/');
-    loader.setDRACOLoader(dracoLoader)
+    loader.setDRACOLoader(dracoLoader);
     loader.load(glib_model, (gltf) => {
       this.charMesh = gltf.scene;
       this.base.add(this.charMesh);
@@ -92,9 +103,8 @@ export class CharacterController {
     });
 
     loader.load(glib_animations, (gltf) => {
-      animations = gltf
-    })
-
+      animations = gltf;
+    });
   }
 
   private addAnimation(animName: AnimationTypes, anim: GLTF) {
@@ -117,7 +127,9 @@ export class CharacterController {
     }
 
     this.stateMachine.Update(timeInSeconds);
-
+    if (this.input instanceof AiCharacterControllerInput) {
+      this.input.Update(timeInSeconds)
+    }
     if (this.mixer) {
       this.mixer.update(timeInSeconds);
     }
