@@ -4,6 +4,8 @@ type InputKeys = (AttackAnimations | DodgeAnimations);
 
 export interface Input {
   keys: { [key in InputKeys]: boolean };
+  pause: () => void;
+  unpause: () => void;
   dispose: () => void;
 }
 export class PlayerInput implements Input {
@@ -17,14 +19,23 @@ export class PlayerInput implements Input {
   };
 
   constructor() {
+    this.addListeners();
+  }
+
+  private addListeners() {
     document.addEventListener('keydown', this.onKeyDown);
     document.addEventListener('keyup', this.onKeyUp);
   }
+
+  unpause() { this.addListeners() }
+  pause() { this.dispose() }
+
   dispose() {
     document.removeEventListener('keydown', this.onKeyDown)
     document.removeEventListener('keyup', this.onKeyUp)
   }
   private onKeyDown = (event: KeyboardEvent) => {
+    // TODO add keybindings
     switch (event.key) {
       case 'ArrowRight':
         this.keys.attack_right = true;
@@ -50,6 +61,7 @@ export class PlayerInput implements Input {
   }
 
   private onKeyUp = (event: KeyboardEvent) => {
+    // TODO add keybindings
     switch (event.key) {
       case 'ArrowRight':
         this.keys.attack_right = false;

@@ -19,20 +19,21 @@ export class FightUI {
     player2: <div className='bar stamina'></div>
   }
 
-  private main: HTMLElement
   constructor() {
+    this.HUD()
+  }
+  private barWidth = 100;
+
+  HUD() {
     MAIN_UI_ELEMENT.textContent = ''
 
-    this.main = <div className="hud">
+    MAIN_UI_ELEMENT.appendChild(<div className="hud">
       {this.health.player1}
       {this.stamina.player1}
       {this.health.player2}
       {this.stamina.player2}
-    </div>
-
-    MAIN_UI_ELEMENT.appendChild(this.main)
+    </div>)
   }
-  private barWidth = 100;
 
   update(type: 'health' | 'stamina', player: Player, ref: CharacterController) {
     const amount = ref.stats[type].current
@@ -42,15 +43,28 @@ export class FightUI {
   }
 
   endScreen(goToMainMenu: () => void, restart: () => void) {
-    const a = <div className="end-screen">
+    MAIN_UI_ELEMENT.textContent = ''
+    MAIN_UI_ELEMENT.appendChild(<div className="end-screen">
 
       <div className="button" onClick={goToMainMenu}>Main Menu</div>
       <div className="button" onClick={() => {
         restart()
-        a.remove()
+        this.HUD()
       }}>Restart</div>
 
-    </div>
-    MAIN_UI_ELEMENT.appendChild(a)
+    </div>)
+  }
+
+  pauseMenu(goToMainMenu: () => void, resume: () => void) {
+    MAIN_UI_ELEMENT.textContent = ''
+    MAIN_UI_ELEMENT.appendChild(<div className="pause-menu">
+
+      <div className="button" onClick={goToMainMenu}>Main Menu</div>
+      <div className="button" onClick={() => {
+        resume()
+        this.HUD()
+      }}>Resume</div>
+
+    </div>)
   }
 }

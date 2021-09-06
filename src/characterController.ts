@@ -82,8 +82,8 @@ export class CharacterController {
     attackStaminaCost: 50,
     damage: 55,
     health: {
-      current: 100,
-      max: 100
+      current: 1000,
+      max: 1000
     },
     stamina: {
       current: 100,
@@ -134,6 +134,13 @@ export class CharacterController {
   dispose() {
     this.input.dispose();
     this.scene.remove(this.base)
+  }
+
+  pause() {
+    this.input.pause()
+  }
+  unpause() {
+    this.input.unpause()
   }
 
   private loadMesh() {

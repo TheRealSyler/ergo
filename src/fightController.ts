@@ -15,7 +15,6 @@ import { degToRad } from 'three/src/math/MathUtils';
 import { Game } from './game';
 import { FightUI } from './ui/fightUI';
 
-
 export class FightController {
   renderer = new WebGLRenderer({
     antialias: true,
@@ -23,7 +22,9 @@ export class FightController {
   });
   camera = new PerspectiveCamera(90, window.innerWidth / window.innerHeight, 0.15, 1000);
   scene = new Scene();
+  /**aka player1 */
   playerChar: CharacterController;
+  /**aka player2 */
   aiChar: CharacterController;
 
   ui = new FightUI()
@@ -31,6 +32,7 @@ export class FightController {
   /**the last requestAnimationFrame delta(time) */
   private previousRAF = 0;
   private RAFref = -1;
+  private paused = false;
 
   resize = () => {
     this.camera.aspect = window.innerWidth / window.innerHeight;
@@ -54,7 +56,6 @@ export class FightController {
     light = new AmbientLight(0xFFFFFF, 1) as any;
     this.scene.add(light);
 
-
     this.playerChar = new CharacterController(this.scene, this.camera, undefined, true);
     this.aiChar = new CharacterController(this.scene, this.camera, this.playerChar)
 
@@ -72,7 +73,7 @@ export class FightController {
     this.initUi();
 
     this.Update()
-
+    window.addEventListener('keydown', this.keyListener)
   }
 
   private initUi() {
@@ -85,13 +86,41 @@ export class FightController {
   exit() {
     // TODO ? remove all objects, materials, geo etc, not sure if necessary though.
     cancelAnimationFrame(this.RAFref);
+    window.removeEventListener('keydown', this.keyListener)
     this.renderer.dispose();
     this.renderer.domElement.remove();
     window.removeEventListener('resize', this.resize);
     this.game.goToMainMenu();
   }
 
-  pause(setTimeOut = false) {
+  private keyListener = (e: KeyboardEvent) => {
+    if (e.key === 'Escape') { // TODO add keybindings
+      if (this.paused) {
+        this.unpause();
+        this.ui.HUD()
+      } else {
+        this.paused = true
+        this.pauseUpdate()
+        this.playerChar.pause()
+        this.aiChar.pause()
+        this.ui.pauseMenu(this.exit.bind(this), () => {
+          this.unpause();
+        })
+
+      }
+    }
+
+  }
+
+  private unpause() {
+    this.previousRAF = performance.now();
+    this.playerChar.unpause();
+    this.aiChar.unpause();
+    this.Update();
+    this.paused = false;
+  }
+
+  private pauseUpdate(setTimeOut = false) {
     if (setTimeOut) {
       setTimeout(() => {
         cancelAnimationFrame(this.RAFref);
@@ -102,7 +131,7 @@ export class FightController {
   }
 
   endScreen() {
-    this.pause(true); // TODO remove this and add victory/defeat states.
+    this.pauseUpdate(true); // TODO remove this and add victory/defeat states.
 
     this.ui.endScreen(this.exit.bind(this), () => {
       this.playerChar.dispose()
@@ -148,7 +177,6 @@ export class FightController {
     if (playerStance.type === 'attack' && playerStance.attackProgress === 'active') {
       const result = this.attack(aiStance, playerStance);
       if (result) {
-        console.log('playerHitAi')
         playerStance.attackProgress = 'hit';
         this.aiChar.stateMachine.SetState('hit')
         this.aiChar.hp -= this.playerChar.stats.damage;
@@ -160,17 +188,6 @@ export class FightController {
     } else if (aiStance.type === 'attack' && aiStance.attackProgress === 'active') {
       const result = this.attack(playerStance, aiStance);
       if (result) {
-        const a = document.createElement('div');
-        a.style.position = 'absolute';
-        a.textContent = 'hit';
-        a.style.top = '300px';
-        a.style.left = '500px';
-        a.style.color = '#f00';
-        a.style.fontSize = '5rem';
-        document.body.appendChild(a);
-        setTimeout(() => {
-          a.remove();
-        }, 400);
         aiStance.attackProgress = 'hit';
         this.playerChar.hp -= this.aiChar.stats.damage;
         this.ui.update('health', 'player1', this.playerChar)

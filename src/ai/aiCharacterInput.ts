@@ -35,6 +35,8 @@ export class AiCharacterControllerInput implements Input {
     this.aiStateMachine.SetState('idle')
   }
 
+  pause() { }
+  unpause() { }
   dispose() { }
 
   update(elapsedTimeInSeconds: number) {
