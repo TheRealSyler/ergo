@@ -1,6 +1,6 @@
 import { h } from 'dom-chef'
 import { MAIN_UI_ELEMENT } from './ui'
-import './uiMainMenu.sass'
+import './mainMenuUI.sass'
 
 export class UiMainMenu {
   main: HTMLElement

@@ -13,7 +13,7 @@ import {
 import { AttackStance, CharacterController, CharStance } from './characterController';
 import { degToRad } from 'three/src/math/MathUtils';
 import { Game } from './game';
-import { UiFight } from './ui/uiFight';
+import { FightUI } from './ui/fightUI';
 
 
 export class FightController {
@@ -26,7 +26,7 @@ export class FightController {
   playerChar: CharacterController;
   aiChar: CharacterController;
 
-  ui = new UiFight()
+  ui = new FightUI()
 
   /**the last requestAnimationFrame delta(time) */
   private previousRAF = 0;

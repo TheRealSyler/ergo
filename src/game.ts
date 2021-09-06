@@ -1,5 +1,5 @@
 import { FightController } from './fightController';
-import { UiMainMenu } from './ui/uiMainMenu';
+import { UiMainMenu } from './ui/mainMenuUI';
 
 export class Game {
   mainMenu?: UiMainMenu;

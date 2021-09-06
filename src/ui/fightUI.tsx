@@ -3,13 +3,13 @@ import { CharacterController } from '../characterController'
 import { toPx } from '../utils'
 import { MAIN_UI_ELEMENT } from './ui'
 
-import './uiFight.sass'
+import './fightUI.sass'
 
 type Player = 'player1' | 'player2'
 
 type HUDEl = { [key in Player]: HTMLElement }
 
-export class UiFight {
+export class FightUI {
   private health: HUDEl = {
     player1: <div className='bar health'></div>,
     player2: <div className='bar health'></div>
