@@ -12,8 +12,9 @@ import { Animations, AnimationTypes, AttackAnimations, DodgeAnimations } from '.
 import { degToRad } from 'three/src/math/MathUtils';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader';
 import { AiCharacterControllerInput } from './ai/aiCharacterInput';
+import { HitState } from './states/hitState';
 
-export type CharStance = DodgeStance | AttackStance | IdleStance
+export type CharStance = DodgeStance | AttackStance | IdleStance | HitStance
 
 export interface DodgeStance {
   type: 'dodge',
@@ -29,16 +30,21 @@ export interface AttackStance {
 export interface IdleStance {
   type: 'idle'
 }
+export interface HitStance {
+  type: 'hit'
+}
 
 export interface CharStats {
   /** The time the ai does nothing/waits for the player to attack. */
   aiTimeToAttack: NumberRange
   /**The time it takes for the ai to react to the player attack. */
   aiDodgeReactionTime: NumberRange
-  /**The attack animation speed */
+  /**The attack animation speed. */
   attackSpeed: number
-  /**The time it takes to go from idle to dodge state */
+  /**The time it takes to go from idle to dodge state. */
   dodgeSpeed: number
+  /** The hit animation speed. */
+  hitTime: number
 }
 
 export class CharacterController {
@@ -53,7 +59,8 @@ export class CharacterController {
     aiDodgeReactionTime: new NumberRange(0.1, 0.8),
     aiTimeToAttack: new NumberRange(1, 2.5),
     attackSpeed: 1,
-    dodgeSpeed: 0.3
+    dodgeSpeed: 0.3,
+    hitTime: 1.5,
   }
 
   stance: CharStance = { type: 'idle' };
@@ -74,7 +81,8 @@ export class CharacterController {
       attack_down: new AttackState('attack_down', this),
       dodge_left: new DodgeState('dodge_left', 'dodge_left', this),
       dodge_right: new DodgeState('dodge_right', 'dodge_right', this),
-      idle: new IdleState(this)
+      idle: new IdleState(this),
+      hit: new HitState(this)
     });
     this.scene.add(this.base);
 
@@ -89,6 +97,7 @@ export class CharacterController {
         this.mixer = new AnimationMixer(this.charMesh);
 
         this.addAnimation('idle', animations);
+        this.addAnimation('hit', animations);
         this.addAnimation('attack_up', animations);
         this.addAnimation('attack_down', animations);
         this.addAnimation('attack_left', animations);

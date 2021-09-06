@@ -106,6 +106,7 @@ export class Game {
       if (result) {
         console.log('playerHitAi')
         playerStance.attackProgress = 'hit';
+        this.aiChar.stateMachine.SetState('hit')
       }
     } else if (aiStance.type === 'attack' && aiStance.attackProgress === 'active') {
       const result = this.attack(playerStance, aiStance);
@@ -122,6 +123,7 @@ export class Game {
           a.remove();
         }, 400);
         aiStance.attackProgress = 'hit';
+        this.playerChar.stateMachine.SetState('hit')
       }
 
     }
