@@ -14,7 +14,7 @@ import {
 
 import { AttackStance, CharacterController, CharStance } from './characterController';
 import { degToRad } from 'three/src/math/MathUtils';
-import { AiCharacterControllerInput } from './aiCharacterInput';
+import { AiCharacterControllerInput } from './ai/aiCharacterInput';
 export class Game {
   renderer = new WebGLRenderer({
     antialias: true,

@@ -11,7 +11,7 @@ import { Input, CharacterControllerInput } from './characterControllerInput';
 import { Animations, AnimationTypes, AttackAnimations, DodgeAnimations } from './states/types';
 import { degToRad } from 'three/src/math/MathUtils';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader';
-import { AiCharacterControllerInput } from './aiCharacterInput';
+import { AiCharacterControllerInput } from './ai/aiCharacterInput';
 
 export type CharStance = DodgeStance | AttackStance | IdleStance
 
