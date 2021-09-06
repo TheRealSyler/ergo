@@ -49,5 +49,4 @@ export class AttackState extends State<AnimationTypes> {
     }
 
   }
-}
-;
+};
