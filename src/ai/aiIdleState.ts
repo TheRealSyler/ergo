@@ -1,5 +1,6 @@
 import { CharacterController } from '../characterController';
 import { FiniteStateMachine, State } from '../states/finiteStateMachine';
+import { randomInRange } from '../utils';
 import { AiStates } from './aiCharacterInput';
 
 export class AiIdleState extends State<AiStates> {
@@ -9,7 +10,7 @@ export class AiIdleState extends State<AiStates> {
     super('idle');
   }
   Enter() {
-    this.timeToAttack = 1 + (Math.random() * 1.5);
+    this.timeToAttack = randomInRange(this.playerChar.stats.aiTimeToAttack);
   }
   Update(fsm: FiniteStateMachine<AiStates>, timeElapsed: number) {
     switch (this.playerChar.stance.type) {

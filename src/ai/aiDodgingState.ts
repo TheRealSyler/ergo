@@ -2,7 +2,7 @@ import { CharacterController } from '../characterController';
 import { Input } from '../characterControllerInput';
 import { FiniteStateMachine, State } from '../states/finiteStateMachine';
 import { DodgeAnimations } from '../states/types';
-import { chooseRandomArrayEl, error } from '../utils';
+import { chooseRandomArrayEl, error, randomInRange } from '../utils';
 import { AiStates, DodgePossibilities } from './aiCharacterInput';
 
 export class AiDodgingState extends State<AiStates> {
@@ -10,23 +10,23 @@ export class AiDodgingState extends State<AiStates> {
     super('dodging');
   }
   private direction: DodgeAnimations = 'dodge_left';
-  private timeToDodge = -1;
+  private dodgeReactionTimeCounter = -1;
   Enter() {
     if (this.playerChar.stance.type === 'attack') {
       const dodge = DodgePossibilities[this.playerChar.stance.attackDirection];
       this.direction = Array.isArray(dodge) ? chooseRandomArrayEl(dodge) : dodge;
-      this.timeToDodge = 0.1 + (Math.random() * 0.2);
+      this.dodgeReactionTimeCounter = randomInRange(this.playerChar.stats.aiDodgeReactionTime);
     } else {
-      error('THIS SHOULD NOT HAPPEN', 'AiDodgingState');
+      error('THIS SHOULD NOT HAPPEN', AiDodgingState.name);
     }
   }
 
   Update(fsm: FiniteStateMachine<AiStates>, timeElapsedInSeconds: number) {
-    if (this.timeToDodge > 0) {
+    if (this.dodgeReactionTimeCounter > 0) {
 
-      this.timeToDodge -= timeElapsedInSeconds;
+      this.dodgeReactionTimeCounter -= timeElapsedInSeconds;
 
-      if (this.timeToDodge < 0) {
+      if (this.dodgeReactionTimeCounter < 0) {
         this.keysRef[this.direction] = true;
       }
     } else if (this.playerChar.stance.type !== 'attack') {

@@ -2,7 +2,7 @@ import { GLTF, GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { AnimationMixer, Bone, Group, LoadingManager, PerspectiveCamera, Scene, SkeletonHelper } from 'three';
 import glib_model from './assets/glib/glib_model.glb';
 import glib_animations from './assets/glib/glib_animations.glb';
-import { error } from './utils';
+import { error, NumberRange } from './utils';
 import { AttackState } from "./states/attackState";
 import { DodgeState } from "./states/dodgeState";
 import { IdleState } from "./states/idleState";
@@ -30,6 +30,17 @@ export interface IdleStance {
   type: 'idle'
 }
 
+export interface CharStats {
+  /** The time the ai does nothing/waits for the player to attack. */
+  aiTimeToAttack: NumberRange
+  /**The time it takes for the ai to react to the player attack. */
+  aiDodgeReactionTime: NumberRange
+  /**The attack animation speed */
+  attackSpeed: number
+  /**The time it takes to go from idle to dodge state */
+  dodgeSpeed: number
+}
+
 export class CharacterController {
   animations: Animations<AnimationTypes> = {};
   stateMachine: FiniteStateMachine<AnimationTypes>;
@@ -37,6 +48,13 @@ export class CharacterController {
   mixer?: AnimationMixer;
   head?: Bone;
   base = new Group();
+
+  stats: CharStats = {
+    aiDodgeReactionTime: new NumberRange(0.1, 0.8),
+    aiTimeToAttack: new NumberRange(1, 2.5),
+    attackSpeed: 1,
+    dodgeSpeed: 0.3
+  }
 
   stance: CharStance = { type: 'idle' };
   input: Input;
@@ -80,7 +98,7 @@ export class CharacterController {
 
         this.stateMachine.SetState('idle');
       } else {
-        error('Could not load character (TODO?, add better info)', 'CharacterController');
+        error('Could not load character (TODO?, add better info)', CharacterController.name);
       }
     });
 
@@ -117,7 +135,7 @@ export class CharacterController {
         action: action,
       };
     } else {
-      error(`Could not load animation: ${animName}`, 'CharacterController');
+      error(`Could not load animation: ${animName}`, CharacterController.name);
     }
   };
 

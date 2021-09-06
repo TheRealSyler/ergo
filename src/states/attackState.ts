@@ -33,13 +33,12 @@ export class AttackState extends State<AnimationTypes> {
     const curAction = getAnimAction(this.charRef.animations, this.direction);
     const mixer = curAction.getMixer();
     this.animationDuration = curAction.getClip().duration;
-    mixer.timeScale = 1.2;
+    mixer.timeScale = this.charRef.stats.attackSpeed;
     mixer.addEventListener('finished', () => {
       fsm.SetState('idle')
       mixer.timeScale = 1;
     });
 
-    curAction.setEffectiveTimeScale(2);
     if (prevState) {
       const prevAction = getAnimAction(this.charRef.animations, prevState.name);
 

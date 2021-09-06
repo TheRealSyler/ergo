@@ -6,29 +6,24 @@ import { AnimationTypes, DodgeAnimations } from './types';
 import { CharacterController } from '../characterController';
 
 export class DodgeState extends State<AnimationTypes> {
-  startTime = 0;
-  timeToDodge = 80;
-  hasDodged = false;
+
+  dodgeSpeedCounter = 0.1;
 
   constructor(private direction: DodgeAnimations, private key: keyof Input['keys'], private charRef: CharacterController) {
     super(direction);
   }
 
   Enter(fsm: FiniteStateMachine<AnimationTypes>, prevState?: State<AnimationTypes>) {
-    this.hasDodged = false
-    this.startTime = performance.now()
+    this.dodgeSpeedCounter = this.charRef.stats.dodgeSpeed
     const curAction = getAnimAction(this.charRef.animations, this.direction);
     this.charRef.stance = { type: 'dodge', dodgeDirection: this.direction, dodgeProgress: 'started' }
     if (prevState) {
       const prevAction = getAnimAction(this.charRef.animations, prevState.name);
 
       curAction.enabled = true;
-
       curAction.time = 0.0;
-      // curAction.setEffectiveTimeScale(1.0);
-      // curAction.setEffectiveWeight(1.0);
 
-      curAction.crossFadeFrom(prevAction, 0.1, true);
+      curAction.crossFadeFrom(prevAction, this.charRef.stats.dodgeSpeed, true);
       curAction.play();
     } else {
       curAction.play();
@@ -38,15 +33,19 @@ export class DodgeState extends State<AnimationTypes> {
   Exit() {
   }
 
-  Update(fsm: FiniteStateMachine<AnimationTypes>, timeElapsed: number) {
+  Update(fsm: FiniteStateMachine<AnimationTypes>, timeElapsedInSeconds: number) {
     if (this.charRef.input.keys[this.key]) {
-      if (!this.hasDodged && performance.now() - this.startTime > this.timeToDodge) {
-        this.hasDodged = true
-        this.charRef.stance = { type: 'dodge', dodgeDirection: this.direction, dodgeProgress: 'evaded' }
+      if (this.dodgeSpeedCounter > 0) {
+
+        this.dodgeSpeedCounter -= timeElapsedInSeconds;
+
+        if (this.dodgeSpeedCounter <= 0) {
+          this.charRef.stance = { type: 'dodge', dodgeDirection: this.direction, dodgeProgress: 'evaded' }
+        }
+
       }
       return;
     }
     fsm.SetState('idle');
   }
-}
-;
+};
