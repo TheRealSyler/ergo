@@ -3,16 +3,16 @@ import { AnimationMixer, Bone, Group, LoadingManager, PerspectiveCamera, Scene, 
 import glib_model from './assets/glib/glib_model.glb';
 import glib_animations from './assets/glib/glib_animations.glb';
 import { error, NumberRange } from './utils';
-import { AttackState } from "./states/attackState";
-import { DodgeState } from "./states/dodgeState";
-import { IdleState } from "./states/idleState";
-import { FiniteStateMachine } from "./states/finiteStateMachine";
+import { AttackState } from "./animation/attackState";
+import { DodgeState } from "./animation/dodgeState";
+import { IdleState } from "./animation/idleState";
+import { FiniteStateMachine } from "./finiteStateMachine";
 import { Input, PlayerInput } from './playerInput';
-import { Animations, AnimationTypes, AttackAnimations, DodgeAnimations } from './states/types';
+import { Animations, AnimationTypes, AttackAnimations, DodgeAnimations } from './animation/types';
 import { degToRad } from 'three/src/math/MathUtils';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader';
 import { AiCharacterControllerInput } from './ai/aiCharacterInput';
-import { HitState } from './states/hitState';
+import { HitState } from './animation/hitState';
 
 export type CharStance = DodgeStance | AttackStance | IdleStance | HitStance
 

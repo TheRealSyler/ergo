@@ -1,5 +1,5 @@
 import { AnimationAction } from 'three';
-import { Animations } from './states/types';
+import { Animations } from './animation/types';
 
 export function getAnimAction<T extends string>(animations: Animations<T>, name: T): AnimationAction {
   if (animations[name]) {

@@ -1,4 +1,4 @@
-import { State, FiniteStateMachine } from './finiteStateMachine';
+import { State, FiniteStateMachine } from '../finiteStateMachine';
 import { getAnimAction } from "../utils";
 import { AnimationTypes } from './types';
 import { CharacterController } from '../characterController';

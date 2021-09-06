@@ -1,7 +1,7 @@
 import { CharacterController } from '../characterController';
 import { Input } from '../playerInput';
-import { FiniteStateMachine, State } from '../states/finiteStateMachine';
-import { DodgeAnimations } from '../states/types';
+import { FiniteStateMachine, State } from '../finiteStateMachine';
+import { DodgeAnimations } from '../animation/types';
 import { chooseRandomArrayEl, error, randomInRange } from '../utils';
 import { AiStates, DodgePossibilities } from './aiCharacterInput';
 

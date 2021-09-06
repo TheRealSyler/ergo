@@ -1,19 +1,8 @@
 import { LoopOnce } from 'three';
-import { State, FiniteStateMachine } from './finiteStateMachine';
+import { State, FiniteStateMachine } from '../finiteStateMachine';
 import { getAnimAction } from "../utils";
 import { AnimationTypes, AttackAnimations } from './types';
 import { CharacterController } from '../characterController';
-
-// debug stuff.
-// const a = document.createElement('div');
-// a.style.position = 'absolute';
-
-// a.style.top = '30px';
-// a.style.left = '50px';
-// a.style.color = '#f00';
-// a.style.fontSize = '5rem';
-
-// document.body.appendChild(a)
 
 export class AttackState extends State<AnimationTypes> {
 
@@ -28,7 +17,6 @@ export class AttackState extends State<AnimationTypes> {
   Enter(fsm: FiniteStateMachine<AnimationTypes>, prevState?: State<AnimationTypes>) {
     this.hasSetToActive = false;
     this.hasSetToFinished = false;
-    // a.textContent = 'started';
     this.charRef.stance = { type: 'attack', attackDirection: this.direction, attackProgress: 'started' }
     this.charRef.stamina -= this.charRef.stats.attackStaminaCost;
 
@@ -62,7 +50,6 @@ export class AttackState extends State<AnimationTypes> {
       const curAction = getAnimAction(this.charRef.animations, this.direction);
       const percent = curAction.time / this.animationDuration;
       if (percent > 0.7) {
-        // a.textContent = 'active';
         this.hasSetToActive = true
         this.charRef.stance = { type: 'attack', attackDirection: this.direction, attackProgress: 'active' }
       }
@@ -70,7 +57,6 @@ export class AttackState extends State<AnimationTypes> {
       const curAction = getAnimAction(this.charRef.animations, this.direction);
       const percent = curAction.time / this.animationDuration;
       if (percent > 0.85) {
-        // a.textContent = 'finished';
         this.hasSetToActive = true
         this.charRef.stance = { type: 'attack', attackDirection: this.direction, attackProgress: 'finished' }
       }

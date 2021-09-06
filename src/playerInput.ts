@@ -1,4 +1,4 @@
-import { AttackAnimations, DodgeAnimations } from './states/types';
+import { AttackAnimations, DodgeAnimations } from './animation/types';
 
 type InputKeys = (AttackAnimations | DodgeAnimations);
 

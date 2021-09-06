@@ -1,5 +1,5 @@
 import { CharacterController } from '../characterController';
-import { FiniteStateMachine, State } from '../states/finiteStateMachine';
+import { FiniteStateMachine, State } from '../finiteStateMachine';
 import { randomInRange } from '../utils';
 import { AiStates } from './aiCharacterInput';
 

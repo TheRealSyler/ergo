@@ -1,7 +1,7 @@
 import { CharacterController } from '../characterController';
 import { Input } from '../playerInput';
-import { FiniteStateMachine } from '../states/finiteStateMachine';
-import { AttackAnimations, DodgeAnimations } from '../states/types';
+import { FiniteStateMachine } from '../finiteStateMachine';
+import { AttackAnimations, DodgeAnimations } from '../animation/types';
 import { AiAttackingState } from './aiAttackingState';
 import { AiDodgingState } from './aiDodgingState';
 import { AiIdleState } from './aiIdleState';
