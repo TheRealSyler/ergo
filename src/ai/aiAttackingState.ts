@@ -7,7 +7,7 @@ import { AiStates } from './aiCharacterInput';
 
 export class AiAttackingState extends State<AiStates> {
   constructor(private selfRef: CharacterController, private keysRef: Input['keys']) {
-    super('attacking');
+    super('ai_attacking');
   }
   private direction?: AttackAnimations;
   Enter() {
@@ -21,7 +21,7 @@ export class AiAttackingState extends State<AiStates> {
       this.direction = undefined;
     }
     if (this.selfRef.stateMachine.currentState?.name === 'idle') {
-      fsm.SetState('idle');
+      fsm.SetState('ai_idle');
     }
   }
 }

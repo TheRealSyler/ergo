@@ -5,9 +5,6 @@ import { AnimationTypes, AttackAnimations } from './types';
 import { CharacterController } from '../characterController';
 
 export class AttackState extends State<AnimationTypes> {
-
-  hasSetToActive = false;
-  hasSetToFinished = false;
   animationDuration = 0;
 
   constructor(private direction: AttackAnimations, private charRef: CharacterController) {
@@ -15,8 +12,6 @@ export class AttackState extends State<AnimationTypes> {
   }
 
   Enter(fsm: FiniteStateMachine<AnimationTypes>, prevState?: State<AnimationTypes>) {
-    this.hasSetToActive = false;
-    this.hasSetToFinished = false;
     this.charRef.stance = { type: 'attack', attackDirection: this.direction, attackProgress: 'started' }
     this.charRef.stamina -= this.charRef.stats.attackStaminaCost;
 
@@ -24,17 +19,14 @@ export class AttackState extends State<AnimationTypes> {
     const mixer = curAction.getMixer();
     this.animationDuration = curAction.getClip().duration;
     mixer.timeScale = this.charRef.stats.attackSpeed;
-    mixer.addEventListener('finished', () => {
-      fsm.SetState('idle')
-      mixer.timeScale = 1;
-    });
+
+    curAction.reset();
+    curAction.setLoop(LoopOnce, 1);
+    curAction.clampWhenFinished = true;
 
     if (prevState) {
       const prevAction = getAnimAction(this.charRef.animations, prevState.name);
 
-      curAction.reset();
-      curAction.setLoop(LoopOnce, 1);
-      curAction.clampWhenFinished = true;
       curAction.crossFadeFrom(prevAction, 0.2, true);
       curAction.play();
     } else {
@@ -42,25 +34,18 @@ export class AttackState extends State<AnimationTypes> {
     }
   }
 
-  Exit() {
-  }
+  Update(fsm: FiniteStateMachine<AnimationTypes>) {
+    const curAction = getAnimAction(this.charRef.animations, this.direction);
+    const percent = curAction.time / this.animationDuration;
 
-  Update() {
-    if (!this.hasSetToActive) {
-      const curAction = getAnimAction(this.charRef.animations, this.direction);
-      const percent = curAction.time / this.animationDuration;
-      if (percent > 0.7) {
-        this.hasSetToActive = true
-        this.charRef.stance = { type: 'attack', attackDirection: this.direction, attackProgress: 'active' }
-      }
-    } else if (!this.hasSetToFinished) {
-      const curAction = getAnimAction(this.charRef.animations, this.direction);
-      const percent = curAction.time / this.animationDuration;
-      if (percent > 0.85) {
-        this.hasSetToActive = true
-        this.charRef.stance = { type: 'attack', attackDirection: this.direction, attackProgress: 'finished' }
-      }
-
+    if (percent >= 1) {
+      const mixer = curAction.getMixer();
+      mixer.timeScale = 1
+      fsm.SetState('idle')
+    } else if (percent > 0.85) {
+      this.charRef.stance = { type: 'attack', attackDirection: this.direction, attackProgress: 'finished' }
+    } else if (percent > 0.7) {
+      this.charRef.stance = { type: 'attack', attackDirection: this.direction, attackProgress: 'active' }
     }
 
   }

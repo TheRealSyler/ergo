@@ -7,7 +7,7 @@ export class AiIdleState extends State<AiStates> {
   private timeToAttack = -1;
 
   constructor(private playerChar: CharacterController) {
-    super('idle');
+    super('ai_idle');
   }
   Enter() {
     this.timeToAttack = randomInRange(this.playerChar.stats.aiTimeToAttack);
@@ -20,12 +20,12 @@ export class AiIdleState extends State<AiStates> {
           this.timeToAttack -= timeElapsed;
 
           if (this.timeToAttack < 0) {
-            fsm.SetState('attacking');
+            fsm.SetState('ai_attacking');
           }
         }
         return;
       case 'attack':
-        fsm.SetState('dodging');
+        fsm.SetState('ai_dodging');
         return;
     }
   }

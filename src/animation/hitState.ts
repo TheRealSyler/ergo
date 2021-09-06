@@ -5,26 +5,26 @@ import { CharacterController } from '../characterController';
 import { LoopOnce } from 'three';
 
 export class HitState extends State<AnimationTypes> {
+  private animationDuration = -1;
 
   constructor(private charRef: CharacterController) {
     super('hit');
   }
 
   Enter(fsm: FiniteStateMachine<AnimationTypes>, prevState?: State<AnimationTypes>) {
-    const curAction = getAnimAction(this.charRef.animations, 'hit');
     this.charRef.stance = { type: 'hit' }
+
+    const curAction = getAnimAction(this.charRef.animations, 'hit');
+    this.animationDuration = curAction.getClip().duration;
     const mixer = curAction.getMixer();
     mixer.timeScale = this.charRef.stats.hitTime;
-    mixer.addEventListener('finished', () => {
-      fsm.SetState('idle')
-      mixer.timeScale = 1;
-    });
+
+    curAction.reset();
+    curAction.setLoop(LoopOnce, 1);
+    curAction.clampWhenFinished = true;
+
     if (prevState) {
       const prevAction = getAnimAction(this.charRef.animations, prevState.name);
-
-      curAction.reset();
-      curAction.setLoop(LoopOnce, 1);
-      curAction.clampWhenFinished = true;
       curAction.crossFadeFrom(prevAction, 0.2, true);
       curAction.play();
     } else {
@@ -32,4 +32,13 @@ export class HitState extends State<AnimationTypes> {
     }
   }
 
+  Update(fsm: FiniteStateMachine<AnimationTypes>,) {
+    const curAction = getAnimAction(this.charRef.animations, 'hit');
+    const percent = curAction.time / this.animationDuration;
+    if (percent >= 1) {
+      const mixer = curAction.getMixer();
+      mixer.timeScale = 1
+      fsm.SetState('idle')
+    }
+  }
 };

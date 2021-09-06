@@ -13,8 +13,10 @@ import { degToRad } from 'three/src/math/MathUtils';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader';
 import { AiCharacterControllerInput } from './ai/aiCharacterInput';
 import { HitState } from './animation/hitState';
+import { VictoryState } from './animation/victoryState';
+import { DeathState } from './animation/deathState';
 
-export type CharStance = DodgeStance | AttackStance | IdleStance | HitStance
+export type CharStance = DodgeStance | AttackStance | IdleStance | HitStance | EndStance
 
 export interface DodgeStance {
   type: 'dodge',
@@ -32,6 +34,9 @@ export interface IdleStance {
 }
 export interface HitStance {
   type: 'hit'
+}
+export interface EndStance {
+  type: 'end'
 }
 // TODO rename this.
 type HealthOrStamina = {
@@ -82,8 +87,8 @@ export class CharacterController {
     attackStaminaCost: 50,
     damage: 55,
     health: {
-      current: 1000,
-      max: 1000
+      current: 250,
+      max: 250
     },
     stamina: {
       current: 100,
@@ -124,7 +129,9 @@ export class CharacterController {
       dodge_left: new DodgeState('dodge_left', 'dodge_left', this),
       dodge_right: new DodgeState('dodge_right', 'dodge_right', this),
       idle: new IdleState(this),
-      hit: new HitState(this)
+      hit: new HitState(this),
+      victory: new VictoryState(this),
+      death: new DeathState(this),
     });
     this.scene.add(this.base);
 
@@ -152,6 +159,7 @@ export class CharacterController {
 
         this.addAnimation('idle', animations);
         this.addAnimation('hit', animations);
+        this.addAnimation('death', animations);
         this.addAnimation('attack_up', animations);
         this.addAnimation('attack_down', animations);
         this.addAnimation('attack_left', animations);
@@ -203,7 +211,7 @@ export class CharacterController {
   };
 
   Update(timeInSeconds: number) {
-    if (!this.charMesh) {
+    if (!this.charMesh) { // TODO load mesh externally.
       return;
     }
 
@@ -220,5 +228,4 @@ export class CharacterController {
     }
 
   }
-}
-;
+};

@@ -3,7 +3,7 @@ export abstract class State<T extends string> {
   constructor(public name: T) { }
 
   Enter(fsm: FiniteStateMachine<T>, prevState?: State<T>) { };
-  Exit(fsm: FiniteStateMachine<T>) { };
+  Exit(fsm: FiniteStateMachine<T>, newState?: State<T>) { };
   Update(fsm: FiniteStateMachine<T>, timeElapsed: number) { };
 }
 
@@ -19,16 +19,14 @@ export class FiniteStateMachine<StateNames extends string> {
 
   SetState(name: StateNames) {
     const prevState = this.currentState;
-
+    const state = this.states[name];
     if (prevState) {
       if (prevState.name == name) {
         return;
       }
 
-      prevState.Exit(this);
+      prevState.Exit(this, state);
     }
-
-    const state = this.states[name];
 
     this.currentState = state;
     state.Enter(this, prevState);

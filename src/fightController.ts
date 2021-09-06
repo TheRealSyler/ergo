@@ -131,7 +131,6 @@ export class FightController {
   }
 
   endScreen() {
-    this.pauseUpdate(true); // TODO remove this and add victory/defeat states.
 
     this.ui.endScreen(this.exit.bind(this), () => {
       this.playerChar.dispose()
@@ -178,12 +177,16 @@ export class FightController {
       const result = this.attack(aiStance, playerStance);
       if (result) {
         playerStance.attackProgress = 'hit';
-        this.aiChar.stateMachine.SetState('hit')
+
         this.aiChar.hp -= this.playerChar.stats.damage;
+        this.ui.update('health', 'player2', this.aiChar)
         if (this.aiChar.hp <= 0) {
           this.endScreen()
+          this.playerChar.stateMachine.SetState('victory')
+          this.aiChar.stateMachine.SetState('death')
+        } else {
+          this.aiChar.stateMachine.SetState('hit')
         }
-        this.ui.update('health', 'player2', this.aiChar)
       }
     } else if (aiStance.type === 'attack' && aiStance.attackProgress === 'active') {
       const result = this.attack(playerStance, aiStance);
@@ -194,9 +197,11 @@ export class FightController {
 
         if (this.playerChar.hp <= 0) {
           this.endScreen()
+          this.playerChar.stateMachine.SetState('death')
+          this.aiChar.stateMachine.SetState('victory')
+        } else {
+          this.playerChar.stateMachine.SetState('hit')
         }
-
-        this.playerChar.stateMachine.SetState('hit')
       }
 
     }
