@@ -28,3 +28,7 @@ export class NumberRange {
 export function randomInRange(range: NumberRange) {
   return range.min + (Math.random() * (range.max - range.min))
 }
+
+export function toPx(t: string | number) {
+  return `${t}px`
+}

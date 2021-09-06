@@ -1,5 +1,5 @@
 import { CharacterController } from '../characterController';
-import { Input } from '../characterControllerInput';
+import { Input } from '../playerInput';
 import { FiniteStateMachine, State } from '../states/finiteStateMachine';
 import { DodgeAnimations } from '../states/types';
 import { chooseRandomArrayEl, error, randomInRange } from '../utils';

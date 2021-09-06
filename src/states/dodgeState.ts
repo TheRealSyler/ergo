@@ -1,5 +1,5 @@
 
-import { Input } from '../characterControllerInput';
+import { Input } from '../playerInput';
 import { State, FiniteStateMachine } from './finiteStateMachine';
 import { getAnimAction } from "../utils";
 import { AnimationTypes, DodgeAnimations } from './types';

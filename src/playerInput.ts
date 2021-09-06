@@ -4,8 +4,9 @@ type InputKeys = (AttackAnimations | DodgeAnimations);
 
 export interface Input {
   keys: { [key in InputKeys]: boolean };
+  dispose: () => void;
 }
-export class CharacterControllerInput implements Input {
+export class PlayerInput implements Input {
   keys: Input['keys'] = {
     attack_right: false,
     attack_left: false,
@@ -16,11 +17,14 @@ export class CharacterControllerInput implements Input {
   };
 
   constructor() {
-    document.addEventListener('keydown', (e) => this.onKeyDown(e), false);
-    document.addEventListener('keyup', (e) => this.onKeyUp(e), false);
+    document.addEventListener('keydown', this.onKeyDown);
+    document.addEventListener('keyup', this.onKeyUp);
   }
-
-  private onKeyDown(event: KeyboardEvent) {
+  dispose() {
+    document.removeEventListener('keydown', this.onKeyDown)
+    document.removeEventListener('keyup', this.onKeyUp)
+  }
+  private onKeyDown = (event: KeyboardEvent) => {
     switch (event.key) {
       case 'ArrowRight':
         this.keys.attack_right = true;
@@ -45,7 +49,7 @@ export class CharacterControllerInput implements Input {
     }
   }
 
-  private onKeyUp(event: KeyboardEvent) {
+  private onKeyUp = (event: KeyboardEvent) => {
     switch (event.key) {
       case 'ArrowRight':
         this.keys.attack_right = false;

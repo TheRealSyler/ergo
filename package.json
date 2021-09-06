@@ -14,6 +14,7 @@
     "@babel/preset-env": "^7.15.0",
     "@babel/preset-typescript": "^7.15.0",
     "@types/three": "^0.131.0",
+    "@babel/plugin-transform-react-jsx": "^7.14.9",
     "@types/webpack": "^5.28.0",
     "@types/webpack-dev-server": "^4.0.3",
     "babel-loader": "^8.2.2",
@@ -33,6 +34,7 @@
     "webpack-dev-server": "^4.0.0"
   },
   "dependencies": {
+    "dom-chef": "^5.0.0",
     "three": "^0.132.2"
   }
 }

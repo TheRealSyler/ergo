@@ -30,6 +30,8 @@ export class AttackState extends State<AnimationTypes> {
     this.hasSetToFinished = false;
     // a.textContent = 'started';
     this.charRef.stance = { type: 'attack', attackDirection: this.direction, attackProgress: 'started' }
+    this.charRef.stamina -= this.charRef.stats.attackStaminaCost;
+
     const curAction = getAnimAction(this.charRef.animations, this.direction);
     const mixer = curAction.getMixer();
     this.animationDuration = curAction.getClip().duration;

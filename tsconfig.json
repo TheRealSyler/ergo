@@ -4,7 +4,8 @@
     "module": "commonjs",
     "esModuleInterop": true,
     "strict": true,
-    // "noImplicitAny": false,
+    "jsx": "react",
+    "jsxFactory": "h",
     "forceConsistentCasingInFileNames": true
   }
 }

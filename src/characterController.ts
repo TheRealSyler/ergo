@@ -7,7 +7,7 @@ import { AttackState } from "./states/attackState";
 import { DodgeState } from "./states/dodgeState";
 import { IdleState } from "./states/idleState";
 import { FiniteStateMachine } from "./states/finiteStateMachine";
-import { Input, CharacterControllerInput } from './characterControllerInput';
+import { Input, PlayerInput } from './playerInput';
 import { Animations, AnimationTypes, AttackAnimations, DodgeAnimations } from './states/types';
 import { degToRad } from 'three/src/math/MathUtils';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader';
@@ -33,6 +33,12 @@ export interface IdleStance {
 export interface HitStance {
   type: 'hit'
 }
+// TODO rename this.
+type HealthOrStamina = {
+  max: number;
+  current: number;
+};
+
 
 export interface CharStats {
   /** The time the ai does nothing/waits for the player to attack. */
@@ -45,6 +51,16 @@ export interface CharStats {
   dodgeSpeed: number
   /** The hit animation speed. */
   hitTime: number
+
+  /**Stamina Regeneration Per second */
+  staminaRegenRate: number
+
+  attackStaminaCost: number
+
+  damage: number
+
+  health: HealthOrStamina
+  stamina: HealthOrStamina
 }
 
 export class CharacterController {
@@ -55,12 +71,38 @@ export class CharacterController {
   head?: Bone;
   base = new Group();
 
+
   stats: CharStats = {
     aiDodgeReactionTime: new NumberRange(0.1, 0.8),
     aiTimeToAttack: new NumberRange(1, 2.5),
     attackSpeed: 1,
     dodgeSpeed: 0.3,
     hitTime: 1.5,
+    staminaRegenRate: 5,
+    attackStaminaCost: 50,
+    damage: 55,
+    health: {
+      current: 100,
+      max: 100
+    },
+    stamina: {
+      current: 100,
+      max: 100
+    },
+  }
+
+  public get hp(): number {
+    return this.stats.health.current
+  }
+  public set hp(v: number) {
+    this.stats.health.current = v;
+  }
+  public get stamina(): number {
+    return this.stats.stamina.current
+  }
+
+  public set stamina(v: number) {
+    this.stats.stamina.current = v;
   }
 
   stance: CharStance = { type: 'idle' };
@@ -71,7 +113,7 @@ export class CharacterController {
     if (isAi) {
       this.input = new AiCharacterControllerInput(this, isAi)
     } else {
-      this.input = new CharacterControllerInput()
+      this.input = new PlayerInput()
     }
 
     this.stateMachine = new FiniteStateMachine({
@@ -87,6 +129,11 @@ export class CharacterController {
     this.scene.add(this.base);
 
     this.loadMesh();
+  }
+
+  dispose() {
+    this.input.dispose();
+    this.scene.remove(this.base)
   }
 
   private loadMesh() {
@@ -155,10 +202,14 @@ export class CharacterController {
 
     this.stateMachine.Update(timeInSeconds);
     if (this.input instanceof AiCharacterControllerInput) {
-      this.input.Update(timeInSeconds)
+      this.input.update(timeInSeconds)
     }
     if (this.mixer) {
       this.mixer.update(timeInSeconds);
+    }
+
+    if (this.stance.type === 'idle' && this.stamina < this.stats.stamina.max) {
+      this.stamina = Math.min(this.stamina + this.stats.staminaRegenRate * timeInSeconds, this.stats.stamina.max)
     }
 
   }

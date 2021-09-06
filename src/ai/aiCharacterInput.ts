@@ -1,5 +1,5 @@
 import { CharacterController } from '../characterController';
-import { Input } from '../characterControllerInput';
+import { Input } from '../playerInput';
 import { FiniteStateMachine } from '../states/finiteStateMachine';
 import { AttackAnimations, DodgeAnimations } from '../states/types';
 import { AiAttackingState } from './aiAttackingState';
@@ -35,7 +35,9 @@ export class AiCharacterControllerInput implements Input {
     this.aiStateMachine.SetState('idle')
   }
 
-  Update(elapsedTimeInSeconds: number) {
+  dispose() { }
+
+  update(elapsedTimeInSeconds: number) {
     this.aiStateMachine.Update(elapsedTimeInSeconds)
   }
 };
