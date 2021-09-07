@@ -63,8 +63,8 @@ export class FightController {
 
     light = new AmbientLight(0xFFFFFF, 1) as any;
     this.scene.add(light);
-    const playerChar = new CharacterController('player1', this.scene, this.camera, undefined, true);
-    const aiChar = new CharacterController('player2', this.scene, this.camera, playerChar)
+    const playerChar = new CharacterController('player1', this.scene, this.camera, this.ui, undefined, true);
+    const aiChar = new CharacterController('player2', this.scene, this.camera, this.ui, playerChar)
 
     this.players = {
       player1: playerChar,
@@ -143,9 +143,9 @@ export class FightController {
 
     this.ui.endScreen(this.exit.bind(this), () => {
       this.players.player1.dispose()
-      this.players.player1 = new CharacterController('player1', this.scene, this.camera, undefined, true);
+      this.players.player1 = new CharacterController('player1', this.scene, this.camera, this.ui, undefined, true);
       this.players.player2.dispose()
-      this.players.player2 = new CharacterController('player2', this.scene, this.camera, this.players.player1)
+      this.players.player2 = new CharacterController('player2', this.scene, this.camera, this.ui, this.players.player1)
 
       this.setPlayerPositions();
       this.initUi();

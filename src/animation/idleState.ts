@@ -11,34 +11,50 @@ export class IdleState extends State<AnimationTypes> {
   Enter(fsm: FiniteStateMachine<AnimationTypes>, prevState?: State<AnimationTypes>) {
     this.charRef.stance = { type: 'idle' };
 
-    const idleAction = getAnimAction(this.charRef.animations, 'idle');
+    const curAction = getAnimAction(this.charRef.animations, 'idle');
+    const mixer = curAction.getMixer();
+    mixer.timeScale = 0.8
     if (prevState) {
       const prevAction = getAnimAction(this.charRef.animations, prevState.name);
-      idleAction.time = 0.0;
-      idleAction.enabled = true;
-      idleAction.setEffectiveTimeScale(1.0);
-      idleAction.setEffectiveWeight(1.0);
-      idleAction.crossFadeFrom(prevAction, 0.2, true);
-      idleAction.play();
+      curAction.time = 0.0;
+      curAction.enabled = true;
+      curAction.setEffectiveTimeScale(1.0);
+      curAction.setEffectiveWeight(1.0);
+      curAction.crossFadeFrom(prevAction, 0.2, true);
+      curAction.play();
     } else {
-      idleAction.play();
+      curAction.play();
     }
   }
 
-  Update(fsm: FiniteStateMachine<AnimationTypes>, _: number) {
+  Exit() {
+    const curAction = getAnimAction(this.charRef.animations, 'idle');
+    const mixer = curAction.getMixer();
+    mixer.timeScale = 1
+  }
+
+  Update(fsm: FiniteStateMachine<AnimationTypes>) {
 
     if (this.charRef.input.keys.attack_left) {
-      fsm.SetState('attack_left');
+      this.checkStaminaCost(fsm, 'attack_left', this.charRef.stats.attackStaminaCost)
     } else if (this.charRef.input.keys.attack_right) {
-      fsm.SetState('attack_right');
+      this.checkStaminaCost(fsm, 'attack_right', this.charRef.stats.attackStaminaCost)
     } else if (this.charRef.input.keys.attack_up) {
-      fsm.SetState('attack_up');
+      this.checkStaminaCost(fsm, 'attack_up', this.charRef.stats.attackStaminaCost)
     } else if (this.charRef.input.keys.attack_down) {
-      fsm.SetState('attack_down');
+      this.checkStaminaCost(fsm, 'attack_up', this.charRef.stats.attackStaminaCost)
     } else if (this.charRef.input.keys.dodge_left) {
-      fsm.SetState('dodge_left');
+      this.checkStaminaCost(fsm, 'dodge_left', this.charRef.stats.dodgeStaminaCost)
     } else if (this.charRef.input.keys.dodge_right) {
-      fsm.SetState('dodge_right');
+      this.checkStaminaCost(fsm, 'dodge_right', this.charRef.stats.dodgeStaminaCost)
+    }
+  }
+
+  private checkStaminaCost(fsm: FiniteStateMachine<AnimationTypes>, state: AnimationTypes, cost: number) {
+    if (this.charRef.stamina - cost > 0) {
+      this.charRef.stamina -= cost
+      this.charRef.ui.update('stamina', this.charRef)
+      fsm.SetState(state);
     }
   }
 };

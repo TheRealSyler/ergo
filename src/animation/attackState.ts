@@ -13,13 +13,11 @@ export class AttackState extends State<AnimationTypes> {
 
   Enter(fsm: FiniteStateMachine<AnimationTypes>, prevState?: State<AnimationTypes>) {
     this.charRef.stance = { type: 'attack', attackDirection: this.direction, attackProgress: 'started' }
-    this.charRef.stamina -= this.charRef.stats.attackStaminaCost;
 
     const curAction = getAnimAction(this.charRef.animations, this.direction);
     const mixer = curAction.getMixer();
     this.animationDuration = curAction.getClip().duration;
     mixer.timeScale = this.charRef.stats.attackSpeed;
-
     curAction.reset();
     curAction.setLoop(LoopOnce, 1);
     curAction.clampWhenFinished = true;
