@@ -16,6 +16,7 @@ import { HitState } from './animation/hitState';
 import { VictoryState } from './animation/victoryState';
 import { DeathState } from './animation/deathState';
 import { Player } from './game';
+import { FightUI } from './ui/fightUI';
 
 export type CharStance = DodgeStance | AttackStance | IdleStance | HitStance | EndStance
 
@@ -62,6 +63,7 @@ export interface CharStats {
   staminaRegenRate: number
 
   attackStaminaCost: number
+  dodgeStaminaCost: number
 
   damage: number
 
@@ -79,12 +81,13 @@ export class CharacterController {
 
   stats: CharStats = {
     aiDodgeReactionTime: new NumberRange(0.1, 0.8),
-    aiTimeToAttack: new NumberRange(1, 2.5),
+    aiTimeToAttack: new NumberRange(0.5, 1.5),
     attackSpeed: 1,
-    dodgeSpeed: 0.3,
+    dodgeSpeed: 0.2,
     hitTime: 1.5,
-    staminaRegenRate: 5,
+    staminaRegenRate: 10,
     attackStaminaCost: 50,
+    dodgeStaminaCost: 15,
     damage: 55,
     health: {
       current: 250,
@@ -113,7 +116,7 @@ export class CharacterController {
   stance: CharStance = { type: 'idle' };
   input: Input;
 
-  constructor(public player: Player, public scene: Scene, public camera: PerspectiveCamera, /**If provided it's assumed that this is an ai char controller.*/isAi?: CharacterController, private attachCamera = false) {
+  constructor(public player: Player, public scene: Scene, public camera: PerspectiveCamera, public ui: FightUI, /**If provided it's assumed that this is an ai char controller.*/isAi?: CharacterController, private attachCamera = false) {
 
     if (isAi) {
       this.input = new AiCharacterControllerInput(this, isAi)
@@ -166,6 +169,28 @@ export class CharacterController {
         this.addAnimation('attack_right', animations);
         this.addAnimation('dodge_left', animations);
         this.addAnimation('dodge_right', animations);
+
+        for (const key in this.animations) {
+          if (Object.prototype.hasOwnProperty.call(this.animations, key)) {
+
+            const anim = this.animations[key as AnimationTypes];
+            if (anim) {
+              const duration = anim.action.getClip().duration;
+              if (duration < 1) {
+                error(`
+READ ALL OF THIS
+the animation "${key}" is not 1 second long,
+make sure to add any keyframe at frame 24.`, CharacterController.name)
+              } else if (duration > 1) {
+                error(`
+READ ALL OF THIS
+the animation "${key}" is over 1 second long,
+make sure the blender frame rate is set to 24 and that the frame range is set from 0 to 24 in the blender timeline, and that there are no keyframes outside that range.`, CharacterController.name)
+
+              }
+            }
+          }
+        }
 
         this.stateMachine.SetState('idle');
       } else {
@@ -225,6 +250,7 @@ export class CharacterController {
 
     if (this.stance.type === 'idle' && this.stamina < this.stats.stamina.max) {
       this.stamina = Math.min(this.stamina + this.stats.staminaRegenRate * timeInSeconds, this.stats.stamina.max)
+      this.ui.update('stamina', this)
     }
 
   }
