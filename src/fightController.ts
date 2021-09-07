@@ -84,7 +84,7 @@ export class FightController {
 
     this.initUi();
 
-    this.Update()
+    this.Update(0)
     window.addEventListener('keydown', this.keyListener)
   }
 
@@ -126,16 +126,15 @@ export class FightController {
     this.previousRAF = performance.now();
     this.players.player1.unpause()
     this.players.player2.unpause()
-    this.Update();
+    this.Update(performance.now());
     this.paused = false;
   }
 
   private pauseUpdate() {
-    // do it twice just to be sure, don't change this.
-    setTimeout(() => {
-      cancelAnimationFrame(this.RAFref);
-    }, 0);
-
+    // do it twice just to be sure ???.
+    // setTimeout(() => {
+    //   cancelAnimationFrame(this.RAFref);
+    // }, 0);
 
     cancelAnimationFrame(this.RAFref);
   }
@@ -151,7 +150,6 @@ export class FightController {
       this.setPlayerPositions();
       this.initUi();
 
-      this.Update()
     })
   }
 
@@ -161,21 +159,19 @@ export class FightController {
     this.players.player1.base.translateZ(-0.6);
   }
 
-  private Update() {
-    this.RAFref = requestAnimationFrame((t) => {
-      const timeElapsedSeconds = (t - this.previousRAF) * 0.001;
-      this.renderer.render(this.scene, this.camera);
+  private Update(delta: number) {
+    const timeElapsedSeconds = (delta - this.previousRAF) * 0.001;
+    this.renderer.render(this.scene, this.camera);
 
-      this.players.player1.Update(timeElapsedSeconds);
-      this.players.player2.Update(timeElapsedSeconds);
-      this.updateFightStuff();
+    this.players.player1.Update(timeElapsedSeconds);
+    this.players.player2.Update(timeElapsedSeconds);
+    this.updateFightStuff();
 
-      const target = new Vector3(0, 1, 1);
-      this.camera.lookAt(target)
+    const target = new Vector3(0, 1, 1);
+    this.camera.lookAt(target)
 
-      this.previousRAF = t;
-      this.Update();
-    });
+    this.previousRAF = delta;
+    this.RAFref = requestAnimationFrame(this.Update.bind(this));
   }
 
   private updateFightStuff() {
