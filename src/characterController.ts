@@ -15,6 +15,7 @@ import { AiCharacterControllerInput } from './ai/aiCharacterInput';
 import { HitState } from './animation/hitState';
 import { VictoryState } from './animation/victoryState';
 import { DeathState } from './animation/deathState';
+import { Player } from './game';
 
 export type CharStance = DodgeStance | AttackStance | IdleStance | HitStance | EndStance
 
@@ -76,7 +77,6 @@ export class CharacterController {
   head?: Bone;
   base = new Group();
 
-
   stats: CharStats = {
     aiDodgeReactionTime: new NumberRange(0.1, 0.8),
     aiTimeToAttack: new NumberRange(1, 2.5),
@@ -113,7 +113,7 @@ export class CharacterController {
   stance: CharStance = { type: 'idle' };
   input: Input;
 
-  constructor(public scene: Scene, public camera: PerspectiveCamera, /**If provided it's assumed that this is an ai char controller.*/isAi?: CharacterController, private attachCamera = false) {
+  constructor(public player: Player, public scene: Scene, public camera: PerspectiveCamera, /**If provided it's assumed that this is an ai char controller.*/isAi?: CharacterController, private attachCamera = false) {
 
     if (isAi) {
       this.input = new AiCharacterControllerInput(this, isAi)

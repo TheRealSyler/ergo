@@ -4,17 +4,14 @@ import { toPx } from '../utils'
 import { MAIN_UI_ELEMENT } from './ui'
 
 import './fightUI.sass'
-
-type Player = 'player1' | 'player2'
-
-type HUDEl = { [key in Player]: HTMLElement }
+import { Player } from '../game'
 
 export class FightUI {
-  private health: HUDEl = {
+  private health: Record<Player, HTMLElement> = {
     player1: <div className='bar health'></div>,
     player2: <div className='bar health'></div>
   }
-  private stamina: HUDEl = {
+  private stamina: Record<Player, HTMLElement> = {
     player1: <div className='bar stamina'></div>,
     player2: <div className='bar stamina'></div>
   }
@@ -35,11 +32,11 @@ export class FightUI {
     </div>)
   }
 
-  update(type: 'health' | 'stamina', player: Player, ref: CharacterController) {
+  update(type: 'health' | 'stamina', ref: CharacterController) {
     const amount = ref.stats[type].current
     const max = ref.stats[type].max
-    this[type][player].textContent = amount.toFixed(0)
-    this[type][player].style.width = toPx(Math.max((amount / max) * this.barWidth, 0))
+    this[type][ref.player].textContent = amount.toFixed(0)
+    this[type][ref.player].style.width = toPx(Math.max((amount / max) * this.barWidth, 0))
   }
 
   endScreen(goToMainMenu: () => void, restart: () => void) {

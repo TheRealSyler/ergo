@@ -1,6 +1,8 @@
 import { FightController } from './fightController';
 import { UiMainMenu } from './ui/mainMenuUI';
 
+export type Player = 'player1' | 'player2'
+
 export class Game {
   mainMenu?: UiMainMenu;
   fightController?: FightController;

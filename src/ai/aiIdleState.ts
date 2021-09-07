@@ -25,6 +25,7 @@ export class AiIdleState extends State<AiStates> {
         }
         return;
       case 'attack':
+        // TODO add chance to block and counter attack.
         fsm.SetState('ai_dodging');
         return;
     }
