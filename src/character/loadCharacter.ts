@@ -1,10 +1,14 @@
 import { SkinnedMesh, AnimationMixer, Group } from 'three';
 import { GLTF, GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
-import { Animations, AnimationTypes } from './animation/types';
-import { error } from './utils';
+import { Animations, AnimationTypes } from '../animation/types';
+import { error } from '../utils';
 
-interface ModelInfo {
+export interface ModelLocation {
+  /**webpack import location. */
   location: string,
+}
+export interface ModelInfo extends ModelLocation {
+  /**mesh name in blender */
   name: string
 }
 
@@ -16,7 +20,7 @@ export type LoadedCharacter = {
 
 export type LoadedCharacterFunc = () => LoadedCharacter;
 
-export function loadCharacter(loader: GLTFLoader, items: ModelInfo[], mainModelInfo: ModelInfo, animationsInfo: ModelInfo): LoadedCharacterFunc {
+export function loadCharacter(loader: GLTFLoader, items: ModelInfo[], mainModelInfo: ModelInfo, animationsInfo: ModelLocation): LoadedCharacterFunc {
   let mainModel: Group
   let animationsMesh: GLTF
 
