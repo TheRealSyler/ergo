@@ -1,5 +1,5 @@
 import { h } from 'dom-chef'
-import { CharacterController } from '../characterController'
+import { CharacterController } from '../character/characterController'
 import { toPx } from '../utils'
 import { MAIN_UI_ELEMENT } from './ui'
 

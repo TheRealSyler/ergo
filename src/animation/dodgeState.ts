@@ -3,7 +3,7 @@ import { Input } from '../playerInput';
 import { State, FiniteStateMachine } from '../finiteStateMachine';
 import { getAnimAction } from "../utils";
 import { AnimationTypes, DodgeAnimations } from './types';
-import { CharacterController } from '../characterController';
+import { CharacterController } from '../character/characterController';
 
 export class DodgeState extends State<AnimationTypes> {
 

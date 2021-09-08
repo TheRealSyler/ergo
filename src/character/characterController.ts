@@ -1,18 +1,18 @@
 import { AnimationMixer, Group } from 'three';
-import { AttackState } from "./animation/attackState";
-import { DodgeState } from "./animation/dodgeState";
-import { IdleState } from "./animation/idleState";
-import { FiniteStateMachine } from "./finiteStateMachine";
-import { EMPTY_INPUT, Input } from './playerInput';
-import { Animations, AnimationTypes, AttackAnimations, DodgeAnimations } from './animation/types';
-import { AiInput } from './ai/aiCharacterInput';
-import { HitState } from './animation/hitState';
-import { VictoryState } from './animation/victoryState';
-import { DeathState } from './animation/deathState';
-import { Player } from './game';
-import { FightUI } from './ui/fightUI';
-import { LoadedCharacter } from './character/loadCharacter';
-import { CharacterStats, createStats } from './character/stats';
+import { AttackState } from "../animation/attackState";
+import { DodgeState } from "../animation/dodgeState";
+import { IdleState } from "../animation/idleState";
+import { FiniteStateMachine } from "../finiteStateMachine";
+import { EMPTY_INPUT, Input } from '../playerInput';
+import { Animations, AnimationTypes, AttackAnimations, DodgeAnimations } from '../animation/types';
+import { AiInput } from '../ai/aiCharacterInput';
+import { HitState } from '../animation/hitState';
+import { VictoryState } from '../animation/victoryState';
+import { DeathState } from '../animation/deathState';
+import { Player } from '../game';
+import { FightUI } from '../ui/fightUI';
+import { LoadedCharacter } from './loadCharacter';
+import { CharacterStats, createStats } from './stats';
 
 export type CharStance = DodgeStance | AttackStance | IdleStance | HitStance | EndStance
 

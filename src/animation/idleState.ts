@@ -1,7 +1,7 @@
 import { State, FiniteStateMachine } from '../finiteStateMachine';
 import { getAnimAction } from "../utils";
 import { AnimationTypes } from './types';
-import { CharacterController } from '../characterController';
+import { CharacterController } from '../character/characterController';
 
 export class IdleState extends State<AnimationTypes> {
   constructor(private charRef: CharacterController) {

@@ -11,7 +11,7 @@ import {
   WebGLRenderer
 } from 'three';
 
-import { AttackStance, CharacterController, CharStance } from './characterController';
+import { AttackStance, CharacterController, CharStance } from './character/characterController';
 import { degToRad } from 'three/src/math/MathUtils';
 import { Game, Player } from './game';
 import { FightUI } from './ui/fightUI';

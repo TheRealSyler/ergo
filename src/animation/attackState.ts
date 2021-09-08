@@ -2,7 +2,7 @@ import { LoopOnce } from 'three';
 import { State, FiniteStateMachine } from '../finiteStateMachine';
 import { getAnimAction } from "../utils";
 import { AnimationTypes, AttackAnimations } from './types';
-import { CharacterController } from '../characterController';
+import { CharacterController } from '../character/characterController';
 
 export class AttackState extends State<AnimationTypes> {
   animationDuration = 0;

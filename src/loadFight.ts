@@ -4,7 +4,7 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { loadCharacter, LoadedCharacterFunc } from './character/loadCharacter';
 
 import { Game, Player } from './game';
-import { CharacterController } from './characterController';
+import { CharacterController } from './character/characterController';
 import { FightUI } from './ui/fightUI';
 import { FightController } from './fightController';
 import { LoaderUI } from './ui/loaderUI';

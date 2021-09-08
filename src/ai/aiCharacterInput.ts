@@ -1,4 +1,4 @@
-import { CharacterController } from '../characterController';
+import { CharacterController } from '../character/characterController';
 import { Input } from '../playerInput';
 import { FiniteStateMachine } from '../finiteStateMachine';
 import { AttackAnimations, DodgeAnimations } from '../animation/types';

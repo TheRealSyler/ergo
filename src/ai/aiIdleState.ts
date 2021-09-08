@@ -1,4 +1,4 @@
-import { CharacterController } from '../characterController';
+import { CharacterController } from '../character/characterController';
 import { FiniteStateMachine, State } from '../finiteStateMachine';
 import { randomInRange } from '../utils';
 import { AiStates } from './aiCharacterInput';
