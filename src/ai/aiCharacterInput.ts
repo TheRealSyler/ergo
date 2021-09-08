@@ -15,7 +15,7 @@ export const DodgePossibilities: { [key in AttackAnimations]: DodgeAnimations | 
   attack_up: ['dodge_right', 'dodge_left']
 }
 
-export class AiCharacterControllerInput implements Input {
+export class AiInput implements Input {
   keys = {
     attack_right: false,
     attack_left: false,

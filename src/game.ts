@@ -1,4 +1,5 @@
 import { FightController } from './fightController';
+import { LoadFight } from './loadFight';
 import { UiMainMenu } from './ui/mainMenuUI';
 
 export type Player = 'player1' | 'player2'
@@ -21,9 +22,9 @@ export class Game {
     this.mainMenu = new UiMainMenu(this.goToFight.bind(this))
   }
 
-  goToFight() {
+  async goToFight() {
     this.mainMenu = undefined;
-    this.fightController = new FightController(this)
+    this.fightController = await LoadFight('player1', this);
   }
 
 }

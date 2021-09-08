@@ -8,15 +8,26 @@ export interface Input {
   unpause: () => void;
   dispose: () => void;
 }
-export class PlayerInput implements Input {
-  keys: Input['keys'] = {
+
+export const EMPTY_INPUT: Input = {
+  dispose: () => { },
+  pause: () => { },
+  unpause: () => { },
+  keys: {
     attack_right: false,
     attack_left: false,
     attack_up: false,
     attack_down: false,
     dodge_left: false,
     dodge_right: false
-  };
+  }
+}
+
+Object.freeze(EMPTY_INPUT)
+Object.freeze(EMPTY_INPUT.keys)
+
+export class PlayerInput implements Input {
+  keys = { ...EMPTY_INPUT.keys };
 
   constructor() {
     this.addListeners();

@@ -4,7 +4,7 @@ export type DodgeAnimations = 'dodge_left' | 'dodge_right'
 export type AnimationTypes = AttackAnimations | DodgeAnimations | 'idle' | 'hit' | 'death' | 'victory'
 
 export type Animations<T extends string> = {
-  [key in T]?: {
+  [key in T]: {
     clip: AnimationClip;
     action: AnimationAction;
   };

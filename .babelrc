@@ -1,6 +1,15 @@
 {
   "presets": [
-    "@babel/env",
+    [
+      "@babel/env",
+      {
+        "targets": {
+          "browsers": [
+            "last 2 chrome versions, last 2 firefox versions"
+          ]
+        }
+      }
+    ],
     [
       "@babel/typescript",
       {
@@ -12,11 +21,11 @@
     "@babel/proposal-class-properties",
     "@babel/proposal-object-rest-spread",
     [
-      '@babel/plugin-transform-react-jsx',
+      "@babel/plugin-transform-react-jsx",
       {
-        pragma: 'h',
-        pragmaFrag: 'DocumentFragment',
-      },
-    ],
+        "pragma": "h",
+        "pragmaFrag": "DocumentFragment"
+      }
+    ]
   ]
 }

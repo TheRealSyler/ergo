@@ -1,0 +1,26 @@
+.loader
+  position: fixed
+  top: 0
+  bottom: 0
+  right: 0
+  left: 0
+
+  &-spinner
+    position: fixed
+    border: 5px solid lighten(#212127, 15)
+    border-top: 5px solid #f26
+    border-radius: 50%
+    background: #0000
+    width: 25px
+    height: 25px
+    animation: loader 1s linear infinite
+    top: 50%
+    left: 50%
+    transform: translate(-50%, -50%)
+
+@keyframes loader
+  from
+    transform: rotate(0deg)
+
+  to
+    transform: rotate(360deg)

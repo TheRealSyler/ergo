@@ -1,22 +1,18 @@
-import { GLTF, GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
-import { AnimationMixer, Bone, Group, LoadingManager, PerspectiveCamera, Scene, SkeletonHelper } from 'three';
-import glib_model from './assets/glib/glib_model.glb';
-import glib_animations from './assets/glib/glib_animations.glb';
-import { error, NumberRange } from './utils';
+import { AnimationMixer, Group } from 'three';
+import { NumberRange } from './utils';
 import { AttackState } from "./animation/attackState";
 import { DodgeState } from "./animation/dodgeState";
 import { IdleState } from "./animation/idleState";
 import { FiniteStateMachine } from "./finiteStateMachine";
-import { Input, PlayerInput } from './playerInput';
+import { EMPTY_INPUT, Input } from './playerInput';
 import { Animations, AnimationTypes, AttackAnimations, DodgeAnimations } from './animation/types';
-import { degToRad } from 'three/src/math/MathUtils';
-import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader';
-import { AiCharacterControllerInput } from './ai/aiCharacterInput';
+import { AiInput } from './ai/aiCharacterInput';
 import { HitState } from './animation/hitState';
 import { VictoryState } from './animation/victoryState';
 import { DeathState } from './animation/deathState';
 import { Player } from './game';
 import { FightUI } from './ui/fightUI';
+import { LoadedCharacter } from './loadCharacter';
 
 export type CharStance = DodgeStance | AttackStance | IdleStance | HitStance | EndStance
 
@@ -46,7 +42,6 @@ type HealthOrStamina = {
   current: number;
 };
 
-
 export interface CharStats {
   /** The time the ai does nothing/waits for the player to attack. */
   aiTimeToAttack: NumberRange
@@ -72,11 +67,11 @@ export interface CharStats {
 }
 
 export class CharacterController {
-  animations: Animations<AnimationTypes> = {};
+  animations: Animations<AnimationTypes>;
   stateMachine: FiniteStateMachine<AnimationTypes>;
-  charMesh?: Group;
-  mixer?: AnimationMixer;
-  head?: Bone;
+  model: Group;
+  mixer: AnimationMixer;
+  input: Input = EMPTY_INPUT;
   base = new Group();
 
   stats: CharStats = {
@@ -114,15 +109,12 @@ export class CharacterController {
   }
 
   stance: CharStance = { type: 'idle' };
-  input: Input;
 
-  constructor(public player: Player, public scene: Scene, public camera: PerspectiveCamera, public ui: FightUI, /**If provided it's assumed that this is an ai char controller.*/isAi?: CharacterController, private attachCamera = false) {
+  constructor(public player: Player, public ui: FightUI, char: LoadedCharacter) {
 
-    if (isAi) {
-      this.input = new AiCharacterControllerInput(this, isAi)
-    } else {
-      this.input = new PlayerInput()
-    }
+    this.mixer = char.mixer;
+    this.animations = char.animations;
+    this.model = char.model;
 
     this.stateMachine = new FiniteStateMachine({
       attack_left: new AttackState('attack_left', this),
@@ -136,14 +128,11 @@ export class CharacterController {
       victory: new VictoryState(this),
       death: new DeathState(this),
     });
-    this.scene.add(this.base);
-
-    this.loadMesh();
+    this.stateMachine.SetState('idle')
   }
 
   dispose() {
     this.input.dispose();
-    this.scene.remove(this.base)
   }
 
   pause() {
@@ -153,100 +142,14 @@ export class CharacterController {
     this.input.unpause()
   }
 
-  private loadMesh() {
-    let animations: GLTF | undefined;
-    const manager = new LoadingManager(() => {
-      if (this.charMesh && animations) {
-
-        this.mixer = new AnimationMixer(this.charMesh);
-
-        this.addAnimation('idle', animations);
-        this.addAnimation('hit', animations);
-        this.addAnimation('death', animations);
-        this.addAnimation('attack_up', animations);
-        this.addAnimation('attack_down', animations);
-        this.addAnimation('attack_left', animations);
-        this.addAnimation('attack_right', animations);
-        this.addAnimation('dodge_left', animations);
-        this.addAnimation('dodge_right', animations);
-
-        for (const key in this.animations) {
-          if (Object.prototype.hasOwnProperty.call(this.animations, key)) {
-
-            const anim = this.animations[key as AnimationTypes];
-            if (anim) {
-              const duration = anim.action.getClip().duration;
-              if (duration < 1) {
-                error(`
-READ ALL OF THIS
-the animation "${key}" is not 1 second long,
-make sure to add any keyframe at frame 24.`, CharacterController.name)
-              } else if (duration > 1) {
-                error(`
-READ ALL OF THIS
-the animation "${key}" is over 1 second long,
-make sure the blender frame rate is set to 24 and that the frame range is set from 0 to 24 in the blender timeline, and that there are no keyframes outside that range.`, CharacterController.name)
-
-              }
-            }
-          }
-        }
-
-        this.stateMachine.SetState('idle');
-      } else {
-        error('Could not load character (TODO?, add better info)', CharacterController.name);
-      }
-    });
-
-    const loader = new GLTFLoader(manager);
-    const dracoLoader = new DRACOLoader();
-    dracoLoader.setDecoderPath('https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/js/libs/draco/');
-    loader.setDRACOLoader(dracoLoader);
-    loader.load(glib_model, (gltf) => {
-      this.charMesh = gltf.scene;
-      this.base.add(this.charMesh);
-
-      const skeleton = new SkeletonHelper(this.charMesh);
-      skeleton.visible = false;
-      this.head = skeleton.bones.find((bone) => bone.name === 'head');
-      if (this.head && this.attachCamera) {
-        this.head.add(this.camera);
-        this.camera.rotateY(degToRad(180));
-      }
-
-    });
-
-    loader.load(glib_animations, (gltf) => {
-      animations = gltf;
-    });
-  }
-
-  private addAnimation(animName: AnimationTypes, anim: GLTF) {
-    const clip = anim.animations.find(a => a.name === animName);
-    if (this.mixer && clip) {
-      const action = this.mixer.clipAction(clip);
-
-      this.animations[animName] = {
-        clip: clip,
-        action: action,
-      };
-    } else {
-      error(`Could not load animation: ${animName}`, CharacterController.name);
-    }
-  };
-
   Update(timeInSeconds: number) {
-    if (!this.charMesh) { // TODO load mesh externally.
-      return;
-    }
 
     this.stateMachine.Update(timeInSeconds);
-    if (this.input instanceof AiCharacterControllerInput) {
+    if (this.input instanceof AiInput) {
       this.input.update(timeInSeconds)
     }
-    if (this.mixer) {
-      this.mixer.update(timeInSeconds);
-    }
+
+    this.mixer.update(timeInSeconds);
 
     if (this.stance.type === 'idle' && this.stamina < this.stats.stamina.max) {
       this.stamina = Math.min(this.stamina + this.stats.staminaRegenRate * timeInSeconds, this.stats.stamina.max)
