@@ -1,5 +1,4 @@
 import { AnimationMixer, Group } from 'three';
-import { NumberRange } from './utils';
 import { AttackState } from "./animation/attackState";
 import { DodgeState } from "./animation/dodgeState";
 import { IdleState } from "./animation/idleState";
@@ -12,7 +11,8 @@ import { VictoryState } from './animation/victoryState';
 import { DeathState } from './animation/deathState';
 import { Player } from './game';
 import { FightUI } from './ui/fightUI';
-import { LoadedCharacter } from './loadCharacter';
+import { LoadedCharacter } from './character/loadCharacter';
+import { CharacterStats, createStats } from './character/stats';
 
 export type CharStance = DodgeStance | AttackStance | IdleStance | HitStance | EndStance
 
@@ -36,76 +36,28 @@ export interface HitStance {
 export interface EndStance {
   type: 'end'
 }
-// TODO rename this.
-type HealthOrStamina = {
-  max: number;
-  current: number;
-};
-
-export interface CharStats {
-  /** The time the ai does nothing/waits for the player to attack. */
-  aiTimeToAttack: NumberRange
-  /**The time it takes for the ai to react to the player attack. */
-  aiDodgeReactionTime: NumberRange
-  /**The attack animation speed. */
-  attackSpeed: number
-  /**The time it takes to go from idle to dodge state. */
-  dodgeSpeed: number
-  /** The hit animation speed. */
-  hitTime: number
-
-  /**Stamina Regeneration Per second */
-  staminaRegenRate: number
-
-  attackStaminaCost: number
-  dodgeStaminaCost: number
-
-  damage: number
-
-  health: HealthOrStamina
-  stamina: HealthOrStamina
-}
 
 export class CharacterController {
   animations: Animations<AnimationTypes>;
   stateMachine: FiniteStateMachine<AnimationTypes>;
   model: Group;
-  mixer: AnimationMixer;
   input: Input = EMPTY_INPUT;
-  base = new Group();
+  private mixer: AnimationMixer;
 
-  stats: CharStats = {
-    aiDodgeReactionTime: new NumberRange(0.1, 0.8),
-    aiTimeToAttack: new NumberRange(0.5, 1.5),
-    attackSpeed: 1,
-    dodgeSpeed: 0.2,
-    hitTime: 1.5,
-    staminaRegenRate: 10,
-    attackStaminaCost: 50,
-    dodgeStaminaCost: 15,
-    damage: 55,
-    health: {
-      current: 250,
-      max: 250
-    },
-    stamina: {
-      current: 100,
-      max: 100
-    },
-  }
+  stats: CharacterStats;
 
   public get hp(): number {
-    return this.stats.health.current
+    return this.stats.health
   }
   public set hp(v: number) {
-    this.stats.health.current = v;
+    this.stats.health = v;
   }
   public get stamina(): number {
-    return this.stats.stamina.current
+    return this.stats.stamina
   }
 
   public set stamina(v: number) {
-    this.stats.stamina.current = v;
+    this.stats.stamina = v;
   }
 
   stance: CharStance = { type: 'idle' };
@@ -115,6 +67,7 @@ export class CharacterController {
     this.mixer = char.mixer;
     this.animations = char.animations;
     this.model = char.model;
+    this.stats = createStats(char.character);
 
     this.stateMachine = new FiniteStateMachine({
       attack_left: new AttackState('attack_left', this),
@@ -151,8 +104,8 @@ export class CharacterController {
 
     this.mixer.update(timeInSeconds);
 
-    if (this.stance.type === 'idle' && this.stamina < this.stats.stamina.max) {
-      this.stamina = Math.min(this.stamina + this.stats.staminaRegenRate * timeInSeconds, this.stats.stamina.max)
+    if (this.stance.type === 'idle' && this.stamina < this.stats.maxStamina) {
+      this.stamina = Math.min(this.stamina + this.stats.staminaRegenRate * timeInSeconds, this.stats.maxStamina)
       this.ui.update('stamina', this)
     }
 

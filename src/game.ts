@@ -1,3 +1,4 @@
+import { Character } from './character/character';
 import { FightController } from './fightController';
 import { LoadFight } from './loadFight';
 import { UiMainMenu } from './ui/mainMenuUI';
@@ -22,9 +23,9 @@ export class Game {
     this.mainMenu = new UiMainMenu(this.goToFight.bind(this))
   }
 
-  async goToFight() {
+  async goToFight(player1?: Character, player2?: Character) {
     this.mainMenu = undefined;
-    this.fightController = await LoadFight('player1', this);
+    this.fightController = await LoadFight('player1', this, player1 || { class: 'base', items: {} }, player2 || { class: 'base', items: {} });
   }
 
 }

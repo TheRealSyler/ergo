@@ -18,6 +18,7 @@ import { FightUI } from './ui/fightUI';
 import { AttackAnimations } from './animation/types';
 import { AiInput } from './ai/aiCharacterInput';
 import { PlayerInput } from './playerInput';
+import { randomInRange } from './utils';
 
 const oppositeAttackDir: Record<AttackAnimations, AttackAnimations> = {
   attack_down: 'attack_up',
@@ -224,7 +225,7 @@ export class FightController {
     switch (result) {
       case 'hit':
         (this.players[attacker].stance as AttackStance).attackProgress = 'hit';
-        this.players[defender].hp -= this.players[attacker].stats.damage;
+        this.players[defender].hp -= randomInRange(this.players[attacker].stats.damage);
         this.ui.update('health', this.players[defender])
 
         if (this.players[defender].hp <= 0) {

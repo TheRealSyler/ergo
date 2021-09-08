@@ -2,6 +2,10 @@ import { SkinnedMesh, AnimationMixer, Group } from 'three';
 import { GLTF, GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { Animations, AnimationTypes } from '../animation/types';
 import { error } from '../utils';
+import { getCharacterAnimationInfo } from './animationInfo';
+import { Character } from './character';
+import { ITEM_MODEL_INFO } from './itemModelInfo';
+import { CLASS_MODEL_INFO } from './classModelInfo';
 
 export interface ModelLocation {
   /**webpack import location. */
@@ -16,30 +20,35 @@ export type LoadedCharacter = {
   mixer: AnimationMixer;
   animations: Animations<AnimationTypes>;
   model: Group;
+  character: Character;
 };
 
 export type LoadedCharacterFunc = () => LoadedCharacter;
 
-export function loadCharacter(loader: GLTFLoader, items: ModelInfo[], mainModelInfo: ModelInfo, animationsInfo: ModelLocation): LoadedCharacterFunc {
+export function loadCharacter(loader: GLTFLoader, character: Character): LoadedCharacterFunc {
   let mainModel: Group
   let animationsMesh: GLTF
 
   const loadedItems: Record<string, { group: Group, info: ModelInfo }> = {}
-
+  const mainModelInfo = CLASS_MODEL_INFO[character.class]
   loader.load(mainModelInfo.location, (gltf) => {
     mainModel = gltf.scene;
   });
 
-  loader.load(animationsInfo.location, (gltf) => {
+  loader.load(getCharacterAnimationInfo(character).location, (gltf) => {
     animationsMesh = gltf;
   });
 
-  for (let i = 0; i < items.length; i++) {
-    const info = items[i];
-    loader.load(info.location, (gltf) => {
-      loadedItems[info.name] = { group: gltf.scene, info }
-    })
-
+  for (const key in character.items) {
+    if (Object.prototype.hasOwnProperty.call(character.items, key)) {
+      const item = character.items[key as keyof Character['items']];
+      if (item) {
+        const info = ITEM_MODEL_INFO[item];
+        loader.load(info.location, (gltf) => {
+          loadedItems[info.name] = { group: gltf.scene, info }
+        })
+      }
+    }
   }
 
   return () => {
@@ -80,7 +89,8 @@ export function loadCharacter(loader: GLTFLoader, items: ModelInfo[], mainModelI
     return {
       mixer,
       animations: animations,
-      model
+      model,
+      character
     }
   }
 }

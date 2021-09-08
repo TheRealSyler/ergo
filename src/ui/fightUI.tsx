@@ -33,8 +33,9 @@ export class FightUI {
   }
 
   update(type: 'health' | 'stamina', ref: CharacterController) {
-    const amount = ref.stats[type].current
-    const max = ref.stats[type].max
+    const amount = ref.stats[type]
+    const maxType = type === 'health' ? 'maxHealth' : 'maxStamina'
+    const max = ref.stats[maxType]
     this[type][ref.player].textContent = amount.toFixed(0)
     this[type][ref.player].style.width = toPx(Math.max((amount / max) * this.barWidth, 0))
   }
