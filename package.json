@@ -24,7 +24,6 @@
     "fork-ts-checker-webpack-plugin": "^6.3.2",
     "html-webpack-plugin": "^5.3.2",
     "sass-loader": "^12.1.0",
-    "sass-node": "^4.11.2",
     "style-loader": "^3.2.1",
     "suf-cli": "^0.3.0",
     "ts-node": "^10.2.1",
@@ -35,6 +34,7 @@
   },
   "dependencies": {
     "dom-chef": "^5.0.0",
+    "sass": "^1.39.0",
     "three": "^0.132.2"
   }
 }
