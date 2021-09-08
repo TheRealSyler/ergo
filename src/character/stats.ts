@@ -63,7 +63,7 @@ function getCharacterBaseStats(charClass: CharacterClass): CharacterStats {
     case 'base':
       return baseCopy
     case 'awd':
-      baseCopy.damage = new NumberRange(20, 22);
+      baseCopy.maxHealth = 50
       return baseCopy
   }
 }

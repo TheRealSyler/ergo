@@ -38,7 +38,7 @@ function playerSelector(player: Character) {
     awd: null,
     base: null
   }
-
+  // TODO select default option
   return <div>
     <label >Select Glove:</label>
     <select>
@@ -50,20 +50,30 @@ function playerSelector(player: Character) {
       })}
     </select>
     <br />
+    <label >Select Sword:</label>
+    <select>
+      <option value="None" onClick={() => {
+        player.items.weapon = undefined
+      }}> None</option>
+      {createOptions(ITEMS.weapon, (key) => {
+        player.items.weapon = key as any
+      })}
+    </select>
+    <br />
     <label >Select Class:</label>
     <select>
       {createOptions(classes, (key) => {
         player.class = key as any
-      })}
+      }, 'base')}
     </select>
   </div>
 }
 
-function createOptions(obj: Record<string, any>, onClick: (key: string) => void) {
+function createOptions(obj: Record<string, any>, onClick: (key: string) => void, defaultKey?: string) {
   const items = []
   for (const key in obj) {
     if (Object.prototype.hasOwnProperty.call(obj, key)) {
-      items.push(<option value={key} onClick={() => onClick(key)}>{key}</option>)
+      items.push(<option selected={defaultKey === key} value={key} onClick={() => onClick(key)}>{key}</option>)
     }
   }
   return items
