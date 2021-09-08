@@ -1,6 +1,6 @@
 import { Character } from './character/character';
-import { FightController } from './fightController';
-import { LoadFight } from './loadFight';
+import { FightController } from './fight/fightController';
+import { LoadFight } from './fight/loadFight';
 import { UiMainMenu } from './ui/mainMenuUI';
 
 export type Player = 'player1' | 'player2'

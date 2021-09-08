@@ -11,14 +11,14 @@ import {
   WebGLRenderer
 } from 'three';
 
-import { AttackStance, CharacterController, CharStance } from './character/characterController';
+import { AttackStance, CharacterController, CharStance } from '../character/characterController';
 import { degToRad } from 'three/src/math/MathUtils';
-import { Game, Player } from './game';
-import { FightUI } from './ui/fightUI';
-import { AttackAnimations } from './animation/types';
-import { AiInput } from './ai/aiCharacterInput';
-import { PlayerInput } from './playerInput';
-import { randomInRange } from './utils';
+import { Game, Player } from '../game';
+import { FightUI } from '../ui/fightUI';
+import { AttackAnimations } from '../animation/types';
+import { AiInput } from '../ai/aiCharacterInput';
+import { PlayerInput } from '../playerInput';
+import { randomInRange } from '../utils';
 
 const oppositeAttackDir: Record<AttackAnimations, AttackAnimations> = {
   attack_down: 'attack_up',

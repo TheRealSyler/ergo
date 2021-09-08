@@ -1,14 +1,14 @@
 import { LoadingManager } from 'three';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
-import { loadCharacter, LoadedCharacterFunc } from './character/loadCharacter';
+import { loadCharacter, LoadedCharacterFunc } from '../character/loadCharacter';
 
-import { Game, Player } from './game';
-import { CharacterController } from './character/characterController';
-import { FightUI } from './ui/fightUI';
+import { Game, Player } from '../game';
+import { CharacterController } from '../character/characterController';
+import { FightUI } from '../ui/fightUI';
 import { FightController } from './fightController';
-import { LoaderUI } from './ui/loaderUI';
-import { Character } from './character/character';
+import { LoaderUI } from '../ui/loaderUI';
+import { Character } from '../character/character';
 
 export async function LoadFight(humanPlayer: Player, game: Game, player1: Character, player2: Character): Promise<FightController> {
   LoaderUI()
