@@ -20,7 +20,7 @@ export class Game {
   }
   goToMainMenu() {
     this.fightController = undefined;
-    CustomBattleUI(this.goToFight.bind(this))
+    UiMainMenu(this.goToFight.bind(this))
   }
 
   async goToFight(humanPlayer?: Player, player1?: Character, player2?: Character) {
