@@ -55,8 +55,8 @@ export function loadCharacter(loader: GLTFLoader, character: Character): LoadedC
     // TODO validate that the meshes have been loaded.
 
     const model = new Group()
-    const glib = mainModel.getObjectByName(mainModelInfo.name) as any as SkinnedMesh
-    let sharedSkeleton = glib.skeleton
+    const mainModelMesh = mainModel.getObjectByName(mainModelInfo.name) as any as SkinnedMesh
+    let sharedSkeleton = mainModelMesh.skeleton
 
     for (const key in loadedItems) {
       if (Object.prototype.hasOwnProperty.call(loadedItems, key)) {
@@ -71,7 +71,7 @@ export function loadCharacter(loader: GLTFLoader, character: Character): LoadedC
 
     model.add(mainModel);
 
-    const mixer = new AnimationMixer(glib);
+    const mixer = new AnimationMixer(mainModelMesh);
 
     const animations: Animations<AnimationTypes> = {
       attack_down: addAndValidateAnimation('attack_down', animationsMesh, mixer)!,
