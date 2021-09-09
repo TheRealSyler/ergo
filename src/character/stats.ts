@@ -36,7 +36,7 @@ const BASE_STATS: CharacterStats = {
   attackSpeed: 1,
   dodgeSpeed: 0.2,
   hitTime: 1.5,
-  staminaRegenRate: 1,
+  staminaRegenRate: 5,
   attackStaminaCost: 5,
   dodgeStaminaCost: 1,
   damage: new NumberRange(3, 7),
