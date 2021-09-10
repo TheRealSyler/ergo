@@ -1,10 +1,6 @@
 import {
-  PerspectiveCamera,
-  Scene,
   SkeletonHelper,
-  sRGBEncoding,
   Vector3,
-  WebGLRenderer
 } from 'three';
 
 import { AttackStance, CharacterController, CharStance } from '../character/characterController';
@@ -17,6 +13,7 @@ import { AiInput } from '../ai/aiCharacterInput';
 import { PlayerInput } from '../playerInput';
 import { randomInRange } from '../utils';
 import { Stage } from './stage';
+import { Renderer } from '../renderer';
 
 const oppositeAttackDir: Record<AttackAnimations, AttackAnimations> = {
   attack_down: 'attack_up',
@@ -26,33 +23,12 @@ const oppositeAttackDir: Record<AttackAnimations, AttackAnimations> = {
 }
 type AttackResult = 'hit' | 'not_hit' | 'blocked';
 
-export class FightController {
-  renderer = new WebGLRenderer({
-    antialias: true,
-    powerPreference: 'high-performance'
-  });
-  scene = new Scene();
-  camera = new PerspectiveCamera(90, window.innerWidth / window.innerHeight, 0.15, 1000);
-
-  /**the last requestAnimationFrame delta(time) */
-  private previousRAF = 0;
-  private RAFref = -1;
+export class FightController extends Renderer {
   private paused = false;
   private lookAtPoint = new Vector3(0, 1, 0)
-  private resize = () => {
-    this.camera.aspect = window.innerWidth / window.innerHeight;
-    this.camera.updateProjectionMatrix();
-    this.renderer.setSize(window.innerWidth, window.innerHeight);
-  };
-
 
   constructor(private game: Game, private players: Record<Player, CharacterController>, public ui: FightUI, private humanPlayer: Player, stage: Stage) {
-    this.renderer.setPixelRatio(window.devicePixelRatio);
-    this.renderer.setSize(window.innerWidth, window.innerHeight);
-    this.renderer.outputEncoding = sRGBEncoding; // TODO research this setting.
-    document.body.appendChild(this.renderer.domElement);
-
-    window.addEventListener('resize', this.resize,);
+    super()
     // TODO add shadows.
     this.scene.add(stage.scene)
     if (stage.background) {
@@ -106,7 +82,7 @@ export class FightController {
       this.lookAtPoint.z = -1
     }
 
-    this.Update(0)
+    this.updateRenderer(0)
     window.addEventListener('keydown', this.keyListener)
   }
 
@@ -130,11 +106,11 @@ export class FightController {
 
   exit() {
     // TODO ? remove all objects, materials, geo etc, not sure if necessary though.
-    cancelAnimationFrame(this.RAFref);
+    this.disposeRenderer()
+    this.players.player1.dispose()
+    this.players.player2.dispose()
     window.removeEventListener('keydown', this.keyListener)
-    window.removeEventListener('resize', this.resize);
-    this.renderer.dispose();
-    this.renderer.domElement.remove();
+
     this.game.goToMainMenu();
   }
 
@@ -159,7 +135,7 @@ export class FightController {
     this.previousRAF = performance.now();
     this.players.player1.unpause()
     this.players.player2.unpause()
-    this.Update(performance.now());
+    this.updateRenderer(performance.now());
     this.paused = false;
   }
 
@@ -194,19 +170,13 @@ export class FightController {
 
   }
 
-  private Update(delta: number) {
+  protected update(delta: number) {
     const timeElapsedSeconds = (delta - this.previousRAF) * 0.001;
-    this.renderer.render(this.scene, this.camera);
-
-    this.players.player1.Update(timeElapsedSeconds);
-    this.players.player2.Update(timeElapsedSeconds);
+    this.players.player1.update(timeElapsedSeconds);
+    this.players.player2.update(timeElapsedSeconds);
     this.updateFightStuff();
 
-
     this.camera.lookAt(this.lookAtPoint)
-
-    this.previousRAF = delta;
-    this.RAFref = requestAnimationFrame(this.Update.bind(this));
   }
 
   private updateFightStuff() {
