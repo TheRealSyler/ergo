@@ -1,4 +1,6 @@
-import { AnimationAction } from 'three';
+import { AnimationAction, LoadingManager } from 'three';
+import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { Animations } from './animation/types';
 
 export function getAnimAction<T extends string>(animations: Animations<T>, name: T): AnimationAction {
@@ -31,4 +33,12 @@ export function randomInRange(range: NumberRange) {
 
 export function toPx(t: string | number) {
   return `${t}px`
+}
+
+export function getGLTFLoader(manager?: LoadingManager) {
+  const loader = new GLTFLoader(manager);
+  const dracoLoader = new DRACOLoader();
+  dracoLoader.setDecoderPath('https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/js/libs/draco/');
+  loader.setDRACOLoader(dracoLoader);
+  return loader;
 }

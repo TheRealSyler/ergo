@@ -10,6 +10,7 @@ import { FightController } from './fightController';
 import { LoaderUI } from '../ui/loaderUI';
 import { Character } from '../character/character';
 import { getStage, StageNames } from './stage';
+import { getGLTFLoader } from '../utils';
 
 export async function LoadFight(humanPlayer: Player, game: Game, player1: Character, player2: Character, stageName: StageNames): Promise<FightController> {
   LoaderUI()
@@ -22,10 +23,7 @@ export async function LoadFight(humanPlayer: Player, game: Game, player1: Charac
 
     const manager = new LoadingManager()
 
-    const loader = new GLTFLoader(manager);
-    const dracoLoader = new DRACOLoader();
-    dracoLoader.setDecoderPath('https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/js/libs/draco/');
-    loader.setDRACOLoader(dracoLoader);
+    const loader = getGLTFLoader(manager);
 
     playerCharacters.player1 = loadCharacter(loader, player1)
     playerCharacters.player2 = loadCharacter(loader, player2)
@@ -49,3 +47,4 @@ export async function LoadFight(humanPlayer: Player, game: Game, player1: Charac
   })
 
 }
+
