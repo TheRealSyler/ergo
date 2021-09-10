@@ -1,24 +1,22 @@
 import {
-  AmbientLight,
-  DirectionalLight,
-  Mesh,
-  MeshStandardMaterial,
   PerspectiveCamera,
-  PlaneGeometry,
   Scene,
   SkeletonHelper,
+  sRGBEncoding,
   Vector3,
   WebGLRenderer
 } from 'three';
 
 import { AttackStance, CharacterController, CharStance } from '../character/characterController';
 import { degToRad } from 'three/src/math/MathUtils';
+// import { RoughnessMipmapper } from 'three/examples/jsm/utils/RoughnessMipmapper';
 import { Game, Player } from '../game';
 import { FightUI } from '../ui/fightUI';
 import { AttackAnimations } from '../animation/types';
 import { AiInput } from '../ai/aiCharacterInput';
 import { PlayerInput } from '../playerInput';
 import { randomInRange } from '../utils';
+import { Stage } from './stage';
 
 const oppositeAttackDir: Record<AttackAnimations, AttackAnimations> = {
   attack_down: 'attack_up',
@@ -48,34 +46,39 @@ export class FightController {
   };
 
 
-  constructor(private game: Game, private players: Record<Player, CharacterController>, public ui: FightUI, private humanPlayer: Player) {
+  constructor(private game: Game, private players: Record<Player, CharacterController>, public ui: FightUI, private humanPlayer: Player, stage: Stage) {
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.renderer.setSize(window.innerWidth, window.innerHeight);
+    this.renderer.outputEncoding = sRGBEncoding; // TODO research this setting.
     document.body.appendChild(this.renderer.domElement);
 
     window.addEventListener('resize', this.resize,);
+    // TODO add shadows.
+    this.scene.add(stage.scene)
+    if (stage.background) {
+      // this.scene.background = stage.background
+      this.scene.environment = stage.background
 
-    let light = new DirectionalLight(0xFFFFFF, 0.4);
-    light.position.set(-10, 10, 10);
-    light.target.position.set(0, 0, 0);
+      // TODO research this RoughnessMipmapper thing.
+      // the code is from https://github.com/mrdoob/three.js/blob/master/examples/webgl_loader_gltf.html
+      // const roughnessMipmapper = new RoughnessMipmapper( renderer );
 
-    this.scene.add(light);
+      // this.scene.traverse( function ( child ) {
 
-    light = new AmbientLight(0xFFFFFF, 1) as any;
-    this.scene.add(light);
+      //   if ( child.isMesh ) {
 
+      //     roughnessMipmapper.generateMipmaps( child.material );
 
-    const plane = new Mesh(
-      new PlaneGeometry(40, 40, 1, 1),
-      new MeshStandardMaterial({
-        color: 0x808080,
-      }));
+      //   }
 
-    plane.rotation.x = -Math.PI / 2;
-    this.scene.add(plane);
+      // } );
+
+      // roughnessMipmapper.dispose();
+    }
 
     this.scene.add(players.player1.model);
     this.scene.add(players.player2.model);
+
     this.setPlayerPositions();
 
     const skeleton = new SkeletonHelper(this.players[this.humanPlayer].model);
