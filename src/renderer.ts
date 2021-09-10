@@ -1,8 +1,6 @@
 import { WebGLRenderer, Scene, PerspectiveCamera, sRGBEncoding } from 'three';
 
-
 export class Renderer {
-
   renderer = new WebGLRenderer({
     antialias: true,
     powerPreference: 'high-performance'
@@ -19,10 +17,12 @@ export class Renderer {
     this.renderer.setSize(window.innerWidth, window.innerHeight);
   };
   constructor() {
-
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     this.renderer.outputEncoding = sRGBEncoding; // TODO research this setting.
+    // this.renderer.shadowMap.enabled = true // TODO shadows
+    // this.scene.castShadow = true;
+    // this.renderer.physicallyCorrectLights = true
     document.body.appendChild(this.renderer.domElement);
     window.addEventListener('resize', this.resize);
   }

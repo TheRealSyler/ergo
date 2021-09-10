@@ -29,25 +29,24 @@ export class FightController extends Renderer {
 
   constructor(private game: Game, private players: Record<Player, CharacterController>, public ui: FightUI, private humanPlayer: Player, stage: Stage) {
     super()
-    // TODO add shadows.
     this.scene.add(stage.scene)
     if (stage.background) {
       // this.scene.background = stage.background
       this.scene.environment = stage.background
-
       // TODO research this RoughnessMipmapper thing.
       // the code is from https://github.com/mrdoob/three.js/blob/master/examples/webgl_loader_gltf.html
-      // const roughnessMipmapper = new RoughnessMipmapper( renderer );
+      // const roughnessMipmapper = new RoughnessMipmapper(this.renderer);
 
-      // this.scene.traverse( function ( child ) {
+      // this.scene.traverse(function (child) {
+      //   // @ts-ignore
+      //   if (child.isMesh) {
 
-      //   if ( child.isMesh ) {
-
-      //     roughnessMipmapper.generateMipmaps( child.material );
+      //     // @ts-ignore
+      //     roughnessMipmapper.generateMipmaps(child.material);
 
       //   }
 
-      // } );
+      // });
 
       // roughnessMipmapper.dispose();
     }

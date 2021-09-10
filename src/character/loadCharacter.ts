@@ -57,14 +57,16 @@ export function loadCharacter(loader: GLTFLoader, character: Character): LoadedC
     const model = new Group()
     const mainModelMesh = mainModel.getObjectByName(mainModelInfo.name) as any as SkinnedMesh
     let sharedSkeleton = mainModelMesh.skeleton
-
+    // mainModelMesh.castShadow = true
+    // mainModelMesh.receiveShadow = true
     for (const key in loadedItems) {
       if (Object.prototype.hasOwnProperty.call(loadedItems, key)) {
         const item = loadedItems[key];
 
         const itemMesh = item.group.getObjectByName(item.info.name) as any as SkinnedMesh
         itemMesh.bind(sharedSkeleton, itemMesh.matrixWorld);
-
+        // itemMesh.castShadow = true
+        // itemMesh.receiveShadow = true
         model.add(itemMesh)
       }
     }

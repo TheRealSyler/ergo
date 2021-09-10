@@ -15,9 +15,9 @@ export function getStage(stage: StageNames, manager: LoadingManager): Stage {
     case 'basic':
       {
         let light = new DirectionalLight(0xFFFFFF, 0.4);
-        light.position.set(-10, 10, 10);
+        light.position.set(-10, 10, 0);
         light.target.position.set(0, 0, 0);
-
+        // light.castShadow = true;
         group.add(light);
 
         light = new AmbientLight(0xFFFFFF, 1) as any;
@@ -28,7 +28,7 @@ export function getStage(stage: StageNames, manager: LoadingManager): Stage {
           new MeshStandardMaterial({
             color: 0x808080,
           }));
-
+        // plane.receiveShadow = true
         plane.rotation.x = degToRad(-90);
         group.add(plane);
         return {
@@ -37,22 +37,27 @@ export function getStage(stage: StageNames, manager: LoadingManager): Stage {
       }
     case 'test':
       {
-
         const textureLoader = new TextureLoader(manager);
 
         const textureEquirectangular = textureLoader.load(awd);
         textureEquirectangular.mapping = EquirectangularReflectionMapping;
         textureEquirectangular.encoding = sRGBEncoding;
-
+        // let light = new DirectionalLight(0xFFFFFF, 0.4);
+        // light.position.set(-5, 5, 0);
+        // light.target.position.set(0, 0, 0);
+        // light.castShadow = true;
+        // light.shadow.mapSize.width = 1024 * 4
+        // light.shadow.mapSize.height = 1024 * 4
+        // light.shadow.radius = 2
+        // group.add(light);
         const plane = new Mesh(
           new PlaneGeometry(40, 40, 1, 1),
           new MeshStandardMaterial({
             color: 0x608080,
-
           }));
 
         plane.rotation.x = degToRad(-90);
-
+        // plane.receiveShadow = true
         group.add(plane);
         return {
           scene: group,
