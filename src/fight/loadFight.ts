@@ -9,7 +9,7 @@ import { FightUI } from '../ui/fightUI';
 import { FightController } from './fightController';
 import { LoaderUI } from '../ui/loaderUI';
 import { Character } from '../character/character';
-import { getRoom, RoomNames } from '../rooms';
+import { loadRoom, RoomNames } from '../rooms';
 import { getGLTFLoader } from '../utils';
 
 export async function LoadFight(humanPlayer: Player, game: Game, player1: Character, player2: Character, stageName: RoomNames): Promise<FightController> {
@@ -27,7 +27,7 @@ export async function LoadFight(humanPlayer: Player, game: Game, player1: Charac
 
     playerCharacters.player1 = loadCharacter(loader, player1)
     playerCharacters.player2 = loadCharacter(loader, player2)
-    const stage = getRoom(stageName, manager)
+    const room = loadRoom(stageName, manager)
     manager.onLoad = () => {
       if (playerCharacters.player1 && playerCharacters.player2) {
         const ui = new FightUI()
@@ -40,7 +40,7 @@ export async function LoadFight(humanPlayer: Player, game: Game, player1: Charac
           player2: new CharacterController('player2', ui, createdChar2)
         }
 
-        res(new FightController(game, players, ui, humanPlayer, stage))
+        res(new FightController(game, players, ui, humanPlayer, room))
       }
 
     }

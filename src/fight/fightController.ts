@@ -27,12 +27,12 @@ export class FightController extends Renderer {
   private paused = false;
   private lookAtPoint = new Vector3(0, 1, 0)
 
-  constructor(private game: Game, private players: Record<Player, CharacterController>, public ui: FightUI, private humanPlayer: Player, stage: Room) {
+  constructor(private game: Game, private players: Record<Player, CharacterController>, public ui: FightUI, private humanPlayer: Player, room: Room) {
     super()
-    this.scene.add(stage.scene)
-    if (stage.background) {
+    this.scene.add(room.scene)
+    if (room.background) {
       // this.scene.background = stage.background
-      this.scene.environment = stage.background
+      this.scene.environment = room.background
       // TODO research this RoughnessMipmapper thing.
       // the code is from https://github.com/mrdoob/three.js/blob/master/examples/webgl_loader_gltf.html
       // const roughnessMipmapper = new RoughnessMipmapper(this.renderer);
