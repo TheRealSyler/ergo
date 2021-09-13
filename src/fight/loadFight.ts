@@ -9,7 +9,7 @@ import { FightUI } from '../ui/fightUI';
 import { FightController } from './fightController';
 import { LoaderUI } from '../ui/loaderUI';
 import { Character } from '../character/character';
-import { getStage, StageNames } from './stage';
+import { getStage, StageNames } from '../stage';
 import { getGLTFLoader } from '../utils';
 
 export async function LoadFight(humanPlayer: Player, game: Game, player1: Character, player2: Character, stageName: StageNames): Promise<FightController> {
