@@ -6,7 +6,7 @@ export class Renderer {
     powerPreference: 'high-performance'
   });
   scene = new Scene();
-  camera = new PerspectiveCamera(90, window.innerWidth / window.innerHeight, 0.15, 1000);
+  camera: PerspectiveCamera;
 
   /**the last requestAnimationFrame delta(time) */
   protected previousRAF = 0;
@@ -16,13 +16,14 @@ export class Renderer {
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(window.innerWidth, window.innerHeight);
   };
-  constructor() {
+  constructor(cameraNear?: number) {
+    this.camera = new PerspectiveCamera(90, window.innerWidth / window.innerHeight, cameraNear || 0.15, 1000);
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     this.renderer.outputEncoding = sRGBEncoding; // TODO research this setting.
     // this.renderer.shadowMap.enabled = true // TODO shadows
     // this.scene.castShadow = true;
-    // this.renderer.physicallyCorrectLights = true
+    this.renderer.physicallyCorrectLights = true
     document.body.appendChild(this.renderer.domElement);
     window.addEventListener('resize', this.resize);
   }
