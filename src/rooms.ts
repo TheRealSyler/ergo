@@ -1,15 +1,15 @@
 import { AmbientLight, DirectionalLight, EquirectangularReflectionMapping, Group, LoadingManager, Mesh, MeshStandardMaterial, PlaneGeometry, sRGBEncoding, Texture, TextureLoader } from 'three';
 import { degToRad } from 'three/src/math/MathUtils';
 
-export type StageNames = 'basic' | 'test';
+export type RoomNames = 'basic' | 'test';
 
-export interface Stage {
+export interface Room {
   scene: Group,
   background?: Texture
 }
-import awd from '../assets/awd.jpg'
+import awd from './assets/awd.jpg'
 
-export function getStage(stage: StageNames, manager: LoadingManager): Stage {
+export function getRoom(stage: RoomNames, manager: LoadingManager): Room {
   const group = new Group()
   switch (stage) {
     case 'basic':

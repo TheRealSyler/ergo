@@ -2,7 +2,7 @@ import { h } from 'dom-chef'
 import { Character } from '../character/character'
 import { ITEMS } from '../character/items'
 import { CharacterClass } from '../character/stats'
-import { StageNames } from '../stage'
+import { RoomNames } from '../rooms'
 import { Game, Player } from '../game'
 import './customBattleUI.sass'
 import { UiMainMenu } from './mainMenuUI'
@@ -19,10 +19,10 @@ export function CustomBattleUI(goToFight: Game['goToFight']) {
     items: {}
   }
 
-  let stage: StageNames = 'test'
+  let stage: RoomNames = 'test'
   let humanPlayer: Player = 'player1'
 
-  const stages: Record<StageNames, number> = {
+  const stages: Record<RoomNames, number> = {
     basic: 0,
     test: 0
   }
@@ -31,7 +31,7 @@ export function CustomBattleUI(goToFight: Game['goToFight']) {
       <label >Select Stage:</label>
       <select>
         {createOptions(stages, (key) => {
-          stage = key as StageNames
+          stage = key as RoomNames
         }, stage)}
       </select>
 

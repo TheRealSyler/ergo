@@ -12,7 +12,7 @@ import { AttackAnimations } from '../animation/types';
 import { AiInput } from '../ai/aiCharacterInput';
 import { PlayerInput } from '../playerInput';
 import { randomInRange } from '../utils';
-import { Stage } from '../stage';
+import { Room } from '../rooms';
 import { Renderer } from '../renderer';
 
 const oppositeAttackDir: Record<AttackAnimations, AttackAnimations> = {
@@ -27,7 +27,7 @@ export class FightController extends Renderer {
   private paused = false;
   private lookAtPoint = new Vector3(0, 1, 0)
 
-  constructor(private game: Game, private players: Record<Player, CharacterController>, public ui: FightUI, private humanPlayer: Player, stage: Stage) {
+  constructor(private game: Game, private players: Record<Player, CharacterController>, public ui: FightUI, private humanPlayer: Player, stage: Room) {
     super()
     this.scene.add(stage.scene)
     if (stage.background) {
