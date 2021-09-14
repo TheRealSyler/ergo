@@ -40,7 +40,7 @@ export async function loadCharacter(loader: GLTFLoader, character: Character): P
               group: gltf.scene,
               info,
             })
-          }, () => rej())
+          }, undefined, (e) => rej(e))
         }))
       }
     }
