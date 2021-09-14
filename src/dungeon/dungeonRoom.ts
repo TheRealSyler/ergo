@@ -2,12 +2,11 @@ import { Character } from '../character/character';
 import { ItemName } from '../character/items';
 import { RoomNames } from '../rooms/rooms';
 import { Position3 } from '../utils';
-import { DungeonDirections } from './dungeon';
+import { RoomDoorName } from './doors';
+import { DungeonDir } from './dungeon';
 import { RoomItemNames } from './dungeonRoomItem';
 
-type DungeonDoor<Rooms extends string> = { type: 'exit'; } | { type: 'room'; roomId: Rooms; };
-
-
+export type DungeonDoor<Rooms extends string> = { type: 'exit'; asset: RoomDoorName } | { type: 'room'; roomId: Rooms; asset: RoomDoorName };
 
 export interface RoomItemInfo {
   asset: RoomItemNames,
@@ -17,7 +16,7 @@ export interface RoomItemInfo {
 }
 
 export interface DungeonRoom<Rooms extends string> {
-  doors: Partial<Record<DungeonDirections, DungeonDoor<Rooms>>>;
+  doors: Partial<Record<DungeonDir, DungeonDoor<Rooms>>>;
   fight?: Character;
   objects: RoomItemInfo[],
   name: RoomNames;

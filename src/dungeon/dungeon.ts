@@ -2,7 +2,7 @@ import { Renderer } from '../renderer';
 import { Object3D, Raycaster, Vector3, LoadingManager, Mesh, BoxGeometry, MeshBasicMaterial } from 'three';
 import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls'
 import { loadRoom } from '../rooms/rooms';
-import { DungeonRoom, DungeonRooms, RoomItemInfo } from './dungeonRoom';
+import { DungeonDoor, DungeonRoom, DungeonRooms, RoomItemInfo } from './dungeonRoom';
 import { LoaderUI } from '../ui/loaderUI';
 import { Character } from '../character/character';
 import { loadCharacter } from '../character/loadCharacter';
@@ -15,6 +15,7 @@ import { loadRoomItem, RoomItemAsset } from './dungeonRoomItem';
 import { DungeonUI } from '../ui/dungeonUI';
 import { degToRad } from 'three/src/math/MathUtils';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+import { loadRoomDoor, RoomDoorAsset } from './doors';
 
 
 interface InterActableObject {
@@ -23,11 +24,16 @@ interface InterActableObject {
   func: (self: InterActableObject) => void
 }
 
-export type DungeonDirections = 'north' | 'east' | 'west' | 'south';
+export type DungeonDir = 'north' | 'east' | 'west' | 'south';
 
 type RoomItemInfoAndAsset = {
   asset: RoomItemAsset;
   info: RoomItemInfo;
+};
+
+type RoomDoorAssetAndDir = {
+  asset: RoomDoorAsset;
+  dir: DungeonDir;
 };
 export class Dungeon<Rooms extends string> extends Renderer {
   private collisionObjects: Object3D[] = []
@@ -57,7 +63,7 @@ export class Dungeon<Rooms extends string> extends Renderer {
 
   private ui = new DungeonUI()
 
-  constructor(private rooms: DungeonRooms<Rooms>, firstRoom: Rooms, entryDir: DungeonDirections) {
+  constructor(private rooms: DungeonRooms<Rooms>, firstRoom: Rooms, entryDir: DungeonDir) {
     super(0.01)
 
     this.load(this.rooms[firstRoom], entryDir);
@@ -75,7 +81,7 @@ export class Dungeon<Rooms extends string> extends Renderer {
     window.removeEventListener('keyup', this.keyup)
   }
 
-  private async load(dungeonRoom: DungeonRoom<Rooms>, dir: DungeonDirections) {
+  private async load(dungeonRoom: DungeonRoom<Rooms>, dir: DungeonDir) {
     this.reset()
     this.setCamera(dir);
     const manager = new LoadingManager();
@@ -83,9 +89,10 @@ export class Dungeon<Rooms extends string> extends Renderer {
 
     const loader = getGLTFLoader(manager)
 
-    const [room, roomItems, fight] = await Promise.all([
+    const [room, roomItems, doors, fight] = await Promise.all([
       loadRoom(dungeonRoom.name, manager, loader),
       Promise.all(this.extractRoomItemPromisees(dungeonRoom, loader)),
+      Promise.all(this.extractRoomDoorPromisees(dungeonRoom, loader)),
       dungeonRoom.fight ? Promise.all([loadCharacter(loader, this.playerChar), loadCharacter(loader, dungeonRoom.fight)]) : undefined
     ])
 
@@ -97,7 +104,7 @@ export class Dungeon<Rooms extends string> extends Renderer {
 
     this.loadRoomItems(roomItems)
 
-    this.loadRoomDoors(dungeonRoom);
+    this.loadRoomDoor(dungeonRoom, doors);
 
     if (fight) {
       this.controls.disconnect()
@@ -141,6 +148,26 @@ export class Dungeon<Rooms extends string> extends Renderer {
     return roomItemPromises
   }
 
+  private extractRoomDoorPromisees(dungeonRoom: DungeonRoom<Rooms>, loader: GLTFLoader) {
+    const roomDoorPromises: Promise<RoomDoorAssetAndDir>[] = [];
+    for (const key in dungeonRoom.doors) {
+      if (Object.prototype.hasOwnProperty.call(dungeonRoom.doors, key)) {
+        const door = dungeonRoom.doors[key as DungeonDir];
+        if (door) {
+
+          roomDoorPromises.push(new Promise(async (res) => {
+            res({
+              asset: await loadRoomDoor(loader, door.asset),
+              dir: key as DungeonDir,
+            });
+          }));
+        }
+      }
+    }
+
+    return roomDoorPromises
+  }
+
   private loadRoomItems(roomItems: RoomItemInfoAndAsset[]) {
     for (let i = 0; i < roomItems.length; i++) {
       const item = roomItems[i];
@@ -164,38 +191,29 @@ export class Dungeon<Rooms extends string> extends Renderer {
     }
   }
 
-  private loadRoomDoors(dungeonRoom: DungeonRoom<Rooms>) {
-    for (const key in dungeonRoom.doors) {
-      if (Object.prototype.hasOwnProperty.call(dungeonRoom.doors, key)) {
-        const door = dungeonRoom.doors[key as DungeonDirections];
-        if (door) {
-
-          const interActable: InterActableObject = {
-            collision: new Mesh(new BoxGeometry(1, 1), new MeshBasicMaterial({
-              color: 0x0fffff
-            })),
-            name: door.type === 'exit' ? 'Exit ' + key : door.roomId + ' ' + key,
-            func: () => {
-              if (door.type === 'exit') {
-                console.log('EXIT (TODO)');
-              } else {
-                this.load(this.rooms[door.roomId], key as DungeonDirections);
-              }
-            }
-          };
-          this.scene.add(interActable.collision);
-          this.collisionObjects.push(interActable.collision);
-          interActable.collision.rotateY(dirToRadians(key as DungeonDirections));
-          interActable.collision.translateZ(-4.5);
-          interActable.collision.translateY(0.5);
-
-          this.interActableObjects.push(interActable);
+  private loadRoomDoor(dungeonRoom: DungeonRoom<Rooms>, doors: RoomDoorAssetAndDir[]) {
+    for (let i = 0; i < doors.length; i++) {
+      const { asset, dir } = doors[i];
+      const door = dungeonRoom.doors[dir]!
+      this.scene.add(asset.scene)
+      this.collisionObjects.push(asset.collision);
+      asset.scene.rotateY(dirToRadians(dir));
+      asset.scene.translateZ(-5);
+      this.interActableObjects.push({
+        collision: asset.collision,
+        name: door.type === 'exit' ? 'Exit ' + dir : door.roomId + ' ' + dir,
+        func: () => {
+          if (door.type === 'exit') {
+            console.log('EXIT (TODO)');
+          } else {
+            this.load(this.rooms[door.roomId], dir);
+          }
         }
-      }
+      })
     }
   }
 
-  private setCamera(dir: DungeonDirections) {
+  private setCamera(dir: DungeonDir) {
     this.camera.near = 0.01
     this.camera.updateProjectionMatrix()
     this.camera.rotation.set(0, dirToRadians(dir) + degToRad(180), 0);

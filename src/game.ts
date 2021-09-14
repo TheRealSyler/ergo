@@ -18,9 +18,9 @@ export class Game {
     const rooms: DungeonRooms<'awd' | 'awd2' | 'awd3'> = {
       awd: {
         doors: {
-          north: { type: 'room', roomId: 'awd2' },
-          south: { type: 'exit' },
-          west: { type: 'room', roomId: 'awd3' }
+          north: { type: 'room', roomId: 'awd2', asset: 'basic' },
+          south: { type: 'exit', asset: 'basic' },
+          west: { type: 'room', roomId: 'awd3', asset: 'basic' }
         },
         objects: [{ asset: 'chest', items: ['BasicGloves'], position: new Vector3(-2, 0, 0), rotation: new Vector3(0, degToRad(-90)) }],
         name: 'test'
@@ -29,11 +29,11 @@ export class Game {
         objects: [],
         name: 'test3',
         doors: {
-          south: { type: 'room', roomId: 'awd' }
+          south: { type: 'room', roomId: 'awd', asset: 'basic' }
         }
       },
       awd3: {
-        doors: { east: { roomId: 'awd', type: 'room' } },
+        doors: { east: { roomId: 'awd', type: 'room', asset: 'basic' } },
         name: 'basic',
         fight: { class: 'awd', items: { gloves: 'BasicGloves' } },
         objects: []

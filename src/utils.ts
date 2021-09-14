@@ -3,7 +3,7 @@ import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader';
 import { GLTF, GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { degToRad } from 'three/src/math/MathUtils';
 import { Animations } from './animation/types';
-import { DungeonDirections } from './dungeon/dungeon';
+import { DungeonDir } from './dungeon/dungeon';
 
 export interface Position3 {
   x: number,
@@ -73,7 +73,7 @@ export function addModelWithCollision(gltf: GLTF, collisionObjects: Object3D[], 
 
 }
 
-export function dirToRadians(dir: DungeonDirections) {
+export function dirToRadians(dir: DungeonDir) {
   switch (dir) {
     case 'north':
       return 0
