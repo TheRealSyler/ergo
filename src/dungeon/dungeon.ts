@@ -1,13 +1,15 @@
 import { Renderer } from '../renderer';
 import { MAIN_UI_ELEMENT } from '../ui/ui';
-import { Object3D, Raycaster, Vector2, Vector3, LoadingManager, Mesh, BoxGeometry, MeshBasicMaterial, ArrowHelper, Color, Intersection, Box3, TextGeometry, Font, FontLoader, Group, Clock } from 'three';
+import { Object3D, Raycaster, Vector2, Vector3, LoadingManager, Mesh, BoxGeometry, MeshBasicMaterial, Box3, TextGeometry, Font, Group } from 'three';
 import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls'
-import { loadRoom, RoomNames } from '../rooms';
+import { loadRoom } from '../rooms/rooms';
 
 import fontLocation from '../assets/font.json'
+import { degToRad } from 'three/src/math/MathUtils';
+import { DungeonRoom, DoorDir } from './dungeonRoom';
+import { LoaderUI } from '../ui/loaderUI';
+import { loadObstacle, Obstacle } from '../rooms/roomObstacles';
 
-interface DungeonMap {
-}
 interface InterActableObject {
   obj: Object3D;
   name: string
@@ -16,9 +18,7 @@ interface InterActableObject {
 }
 
 export class Dungeon extends Renderer {
-  map: DungeonMap = {
 
-  }
   raycaster = new Raycaster(undefined, undefined, undefined, 5);
   raycasterVec = new Vector3();
   mouse = new Vector2(1, 1);
@@ -35,7 +35,7 @@ export class Dungeon extends Renderer {
   activeObj?: InterActableObject
   activeObjUi: Object3D
   font = new Font(fontLocation)
-  constructor() {
+  constructor(private room: DungeonRoom) {
     super(0.01)
     MAIN_UI_ELEMENT.textContent = '';
 
@@ -44,7 +44,7 @@ export class Dungeon extends Renderer {
     this.activeObjUi.translateY(-1)
 
 
-    this.load('test');
+    this.load(this.room);
     window.addEventListener('click', () => this.controls.lock())
 
 
@@ -97,67 +97,70 @@ export class Dungeon extends Renderer {
 
   }
 
-  private load(roomName: RoomNames) {
+  private async load(dungeonRoom: DungeonRoom) {
+    this.reset()
+    const manager = new LoadingManager();
+    LoaderUI(manager, `Loading Dungeon Room ${dungeonRoom.name}`)
+
     this.camera.position.set(0, 0.9, 0);
     this.scene.add(this.activeObjUi)
-    const manager = new LoadingManager();
-    const room = loadRoom(roomName, manager);
-    manager.onLoad = () => {
-      this.scene.add(room.scene);
-      this.scene.environment = room.background || null;
-      if (room.collisions) {
-        this.collisionObjects.push(...room.collisions);
+
+    const obstaclePromises: Promise<Obstacle>[] = []
+    for (let i = 0; i < dungeonRoom.obstacles.length; i++) {
+      const obstacle = dungeonRoom.obstacles[i];
+      obstaclePromises.push(loadObstacle(obstacle, manager));
+    }
+
+    const [room, obstacles] = await Promise.all([loadRoom(dungeonRoom.name, manager), Promise.all(obstaclePromises)])
+    MAIN_UI_ELEMENT.textContent = '';
+    for (let i = 0; i < obstacles.length; i++) {
+      const obstacle = obstacles[i];
+      this.scene.add(obstacle.obj)
+      this.collisionObjects.push(...obstacle.collisions)
+    }
+
+    this.scene.add(room.scene);
+    this.scene.environment = room.background || null;
+    if (room.collisions) {
+      this.collisionObjects.push(...room.collisions);
+    }
+
+    this.updateRenderer(0);
+
+    for (const key in dungeonRoom.doors) {
+      if (Object.prototype.hasOwnProperty.call(dungeonRoom.doors, key)) {
+        const door = dungeonRoom.doors[key as DoorDir];
+        if (door) {
+
+          const interActable: InterActableObject = {
+            dist: 2,
+            obj: new Mesh(new BoxGeometry(1, 1), new MeshBasicMaterial({
+              color: 0x0fffff
+            })),
+            name: door.type === 'exit' ? 'Exit ' + key : door.room.name + ' ' + key + ' ' + door.room._count,
+            func: () => {
+              if (door.type === 'exit') {
+                console.log('EXIT (TODO)');
+              } else {
+                this.load(door.room);
+              }
+            }
+          };
+          this.scene.add(interActable.obj);
+
+          interActable.obj.rotateY(this.dirToRadians(key as DoorDir))
+          interActable.obj.translateZ(-4.5)
+          interActable.obj.translateY(0.5)
+
+          this.interActableObjects.push(interActable);
+        }
+
       }
-      this.updateRenderer(0);
-    };
+    }
 
-    const a = new Mesh(new BoxGeometry(0.5, 0.5, 0.5), new MeshBasicMaterial({
-      color: 0xffffff
-    }));
-    this.interActableObjects.push({
-      dist: 2,
-      obj: a,
-      name: 'awd',
-      func: () => console.log('a')
-    });
-    const a2 = new Mesh(new BoxGeometry(0.5, 0.5, 0.5), new MeshBasicMaterial({
-      color: 0xffffff
-    }));
-    this.interActableObjects.push({
-      dist: 2,
-      obj: a2,
-      name: 'awd2',
-      func: () => console.log('a2')
-    });
-    const b = new Mesh(new BoxGeometry(1, 1), new MeshBasicMaterial({
-      color: 0x0fffff
-    }));
-    this.interActableObjects.push({
-      dist: 2,
-      obj: b,
-      name: 'b',
-      func: () => {
-        this.reset()
-        this.load(roomName === 'basic' ? 'test' : 'basic')
-      }
-    });
-
-    this.scene.add(a);
-    this.scene.add(b);
-    a.translateY(0.5);
-    a.translateZ(-2);
-    this.scene.add(a2);
-    a2.translateY(0.5);
-    a2.translateZ(-2);
-    a2.translateX(1);
-    b.translateY(0.5);
-    b.translateX(3);
-
-    this.collisionObjects.push(b)
-    this.collisionObjects.push(a)
-    this.collisionObjects.push(a2)
   }
   reset() {
+    MAIN_UI_ELEMENT.textContent = '';
     this.collisionObjects = [];
     this.interActableObjects = []
     this.scene.clear()
@@ -212,6 +215,7 @@ export class Dungeon extends Renderer {
       if (this.activeObj) {
         const activeObjBounds = new Box3().setFromObject(this.activeObj.obj);
         this.activeObjUi.position.set(this.activeObj.obj.position.x, activeObjBounds.max.y + 0.2, this.activeObj.obj.position.z);
+        // TODO draw text on canvas and use a plain with the text of the canvas as texture.
         const m = new Mesh(new TextGeometry(this.activeObj.name, { font: this.font, size: 0.1, height: 0.01, }), new MeshBasicMaterial({ color: 0xffffff }))
         const textBounds = new Box3().setFromObject(m);
         // console.log(this.activeObjUi.children)
@@ -258,4 +262,18 @@ export class Dungeon extends Renderer {
   //   this.arrows.push(new ArrowHelper(this.raycasterVec.subVectors(intersection.point, this.raycasterVec), this.camera.position, intersection.distance, new Color('red')));
   //   this.scene.add(this.arrows[this.arrows.length - 1]);
   // }
+
+  private dirToRadians(dir: DoorDir) {
+    switch (dir) {
+      case 'north':
+        return 0
+      case 'east':
+        return degToRad(90)
+      case 'west':
+        return degToRad(-90)
+      case 'south':
+        return degToRad(180)
+
+    }
+  }
 }

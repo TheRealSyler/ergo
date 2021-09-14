@@ -1,6 +1,6 @@
-import { AnimationAction, LoadingManager } from 'three';
+import { AnimationAction, Group, LoadingManager, Mesh, Object3D, PointLight } from 'three';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+import { GLTF, GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { Animations } from './animation/types';
 
 export function getAnimAction<T extends string>(animations: Animations<T>, name: T): AnimationAction {
@@ -42,3 +42,24 @@ export function getGLTFLoader(manager?: LoadingManager) {
   loader.setDRACOLoader(dracoLoader);
   return loader;
 }
+
+
+export function addModelWithCollision(gltf: GLTF, collisionObjects: Object3D[], group: Group) {
+  const objects: Object3D[] = [];
+  gltf.scene.traverse((o) => {
+    if ((o as Mesh).isMesh) {
+      if (o.name.startsWith('collision_')) {
+        collisionObjects.push(o);
+        o.visible = false;
+      }
+      objects.push(o); // DO NOT directly add to group, it will mess with the traverse function.
+    } else if ((o as PointLight).isLight) {
+      objects.push(o);
+    }
+
+  });
+
+  group.add(...objects);
+
+}
+
