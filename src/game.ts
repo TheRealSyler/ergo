@@ -40,7 +40,7 @@ export class Game {
       }
     }
 
-    new Dungeon(rooms, 'awd')
+    new Dungeon(rooms, 'awd', 'north')
 
     // if (this.startInFight) {
     //   this.goToFight()

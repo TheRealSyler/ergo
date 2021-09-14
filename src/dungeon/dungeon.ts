@@ -2,8 +2,7 @@ import { Renderer } from '../renderer';
 import { Object3D, Raycaster, Vector3, LoadingManager, Mesh, BoxGeometry, MeshBasicMaterial } from 'three';
 import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls'
 import { loadRoom } from '../rooms/rooms';
-
-import { DungeonRoom, DoorDir, DungeonRooms, RoomItemInfo } from './dungeonRoom';
+import { DungeonRoom, DungeonRooms, RoomItemInfo } from './dungeonRoom';
 import { LoaderUI } from '../ui/loaderUI';
 import { Character } from '../character/character';
 import { loadCharacter } from '../character/loadCharacter';
@@ -23,6 +22,8 @@ interface InterActableObject {
   name: string
   func: (self: InterActableObject) => void
 }
+
+export type DungeonDirections = 'north' | 'east' | 'west' | 'south';
 
 type RoomItemInfoAndAsset = {
   asset: RoomItemAsset;
@@ -56,7 +57,7 @@ export class Dungeon<Rooms extends string> extends Renderer {
 
   private ui = new DungeonUI()
 
-  constructor(private rooms: DungeonRooms<Rooms>, firstRoom: Rooms, entryDir: DoorDir) {
+  constructor(private rooms: DungeonRooms<Rooms>, firstRoom: Rooms, entryDir: DungeonDirections) {
     super(0.01)
 
     this.load(this.rooms[firstRoom], entryDir);
@@ -74,7 +75,7 @@ export class Dungeon<Rooms extends string> extends Renderer {
     window.removeEventListener('keyup', this.keyup)
   }
 
-  private async load(dungeonRoom: DungeonRoom<Rooms>, dir: DoorDir) {
+  private async load(dungeonRoom: DungeonRoom<Rooms>, dir: DungeonDirections) {
     this.reset()
     this.setCamera(dir);
     const manager = new LoadingManager();
@@ -166,7 +167,7 @@ export class Dungeon<Rooms extends string> extends Renderer {
   private loadRoomDoors(dungeonRoom: DungeonRoom<Rooms>) {
     for (const key in dungeonRoom.doors) {
       if (Object.prototype.hasOwnProperty.call(dungeonRoom.doors, key)) {
-        const door = dungeonRoom.doors[key as DoorDir];
+        const door = dungeonRoom.doors[key as DungeonDirections];
         if (door) {
 
           const interActable: InterActableObject = {
@@ -178,13 +179,13 @@ export class Dungeon<Rooms extends string> extends Renderer {
               if (door.type === 'exit') {
                 console.log('EXIT (TODO)');
               } else {
-                this.load(this.rooms[door.roomId], key as DoorDir);
+                this.load(this.rooms[door.roomId], key as DungeonDirections);
               }
             }
           };
           this.scene.add(interActable.collision);
           this.collisionObjects.push(interActable.collision);
-          interActable.collision.rotateY(dirToRadians(key as DoorDir));
+          interActable.collision.rotateY(dirToRadians(key as DungeonDirections));
           interActable.collision.translateZ(-4.5);
           interActable.collision.translateY(0.5);
 
@@ -194,7 +195,7 @@ export class Dungeon<Rooms extends string> extends Renderer {
     }
   }
 
-  private setCamera(dir: DoorDir) {
+  private setCamera(dir: DungeonDirections) {
     this.camera.near = 0.01
     this.camera.updateProjectionMatrix()
     this.camera.rotation.set(0, dirToRadians(dir) + degToRad(180), 0);
@@ -329,7 +330,7 @@ export class Dungeon<Rooms extends string> extends Renderer {
     }
   }
 
-  private keyup(e: KeyboardEvent) {
+  private keyup = (e: KeyboardEvent) => {
     switch (e.key) {
       case 'w':
       case 'W':
