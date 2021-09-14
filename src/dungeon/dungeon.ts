@@ -1,5 +1,5 @@
 import { Renderer } from '../renderer';
-import { Object3D, Raycaster, Vector3, LoadingManager, Mesh, BoxGeometry, MeshBasicMaterial } from 'three';
+import { Object3D, Raycaster, Vector3, LoadingManager } from 'three';
 import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls'
 import { loadRoom } from '../rooms/rooms';
 import { DungeonDoor, DungeonRoom, DungeonRooms, RoomItemInfo } from './dungeonRoom';

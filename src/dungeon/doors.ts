@@ -1,7 +1,7 @@
 import { Group, Object3D } from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { addModelWithCollision } from '../utils';
-import chest from '../assets/doors/basic_door.glb'
+import door from '../assets/doors/basic_door.glb'
 
 export type RoomDoorName = 'basic'
 
@@ -15,7 +15,7 @@ export async function loadRoomDoor(loader: GLTFLoader, name: RoomDoorName): Prom
   switch (name) {
     case 'basic':
       const collisionObjects: Object3D[] = []
-      addModelWithCollision(await loader.loadAsync(chest), collisionObjects, group)
+      addModelWithCollision(await loader.loadAsync(door), collisionObjects, group)
       return {
         collision: collisionObjects[0],
         scene: group
