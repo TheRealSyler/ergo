@@ -1,7 +1,5 @@
 import { LoadingManager } from 'three';
-import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
-import { loadCharacter, LoadedCharacterFunc } from '../character/loadCharacter';
+import { loadCharacter } from '../character/loadCharacter';
 
 import { Game, Player } from '../game';
 import { CharacterController } from '../character/characterController';
@@ -13,37 +11,23 @@ import { loadRoom, RoomNames } from '../rooms/rooms';
 import { getGLTFLoader } from '../utils';
 
 export async function LoadFight(humanPlayer: Player, game: Game, player1: Character, player2: Character, stageName: RoomNames): Promise<FightController> {
-  LoaderUI()
-  return new Promise((res) => {
-
-    const playerCharacters: Record<Player, undefined | LoadedCharacterFunc> = {
-      player1: undefined,
-      player2: undefined
-    }
-
-    const manager = new LoadingManager()
+  const manager = new LoadingManager()
+  LoaderUI(manager)
+  return new Promise(async (res) => {
 
     const loader = getGLTFLoader(manager);
 
-    playerCharacters.player1 = loadCharacter(loader, player1)
-    playerCharacters.player2 = loadCharacter(loader, player2)
-    const room = loadRoom(stageName, manager)
-    manager.onLoad = () => {
-      if (playerCharacters.player1 && playerCharacters.player2) {
-        const ui = new FightUI()
+    const [playerChar1, playerChar2, room] = await Promise.all([loadCharacter(loader, player1), loadCharacter(loader, player2), loadRoom(stageName, manager)])
 
-        const createdChar1 = playerCharacters.player1()
-        const createdChar2 = playerCharacters.player2()
+    const ui = new FightUI()
 
-        const players: Record<Player, CharacterController> = {
-          player1: new CharacterController('player1', ui, createdChar1),
-          player2: new CharacterController('player2', ui, createdChar2)
-        }
-
-        res(new FightController(game, players, ui, humanPlayer, room))
-      }
-
+    const players: Record<Player, CharacterController> = {
+      player1: new CharacterController('player1', ui, playerChar1),
+      player2: new CharacterController('player2', ui, playerChar2)
     }
+
+    res(new FightController(game, players, ui, humanPlayer, room))
+
   })
 
 }
