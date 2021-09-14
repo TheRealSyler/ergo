@@ -3,7 +3,7 @@ import { degToRad } from 'three/src/math/MathUtils';
 
 import test from './assets/test.glb'
 import awd from './assets/awd.jpg'
-import { getGLTFLoader } from './utils';
+import { getGLTFLoader } from '../utils';
 
 export type RoomNames = 'basic' | 'test';
 
@@ -55,7 +55,7 @@ export function loadRoom(room: RoomNames, manager: LoadingManager): Room {
         loader.load(test, (gltf) => {
           gltf.scene.traverse((o) => {
             if ((o as Mesh).isMesh) {
-              if (o.name.endsWith('_collision')) {
+              if (o.name.startsWith('collision_')) {
                 collisionObjects.push(o)
                 o.visible = false
               }

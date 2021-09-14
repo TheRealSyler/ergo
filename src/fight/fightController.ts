@@ -12,7 +12,7 @@ import { AttackAnimations } from '../animation/types';
 import { AiInput } from '../ai/aiCharacterInput';
 import { PlayerInput } from '../playerInput';
 import { randomInRange } from '../utils';
-import { Room } from '../rooms';
+import { Room } from '../rooms/rooms';
 import { Renderer } from '../renderer';
 
 const oppositeAttackDir: Record<AttackAnimations, AttackAnimations> = {
