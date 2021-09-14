@@ -25,13 +25,14 @@ type AttackResult = 'hit' | 'not_hit' | 'blocked';
 
 export class FightController {
   private paused = false;
+  private isInEndScreen = false;
   private lookAtPoint = new Vector3(0, 1, 0)
 
   constructor(private exitFunc: () => void, private players: Record<Player, CharacterController>, public ui: FightUI, private humanPlayer: Player, private renderer: Renderer) {
 
     this.setPlayerPositions();
 
-    this.attachCamera(humanPlayer, renderer.camera);
+    this.attachCamera(humanPlayer);
 
     this.initUi();
 
@@ -42,25 +43,28 @@ export class FightController {
 
     if (humanPlayer === 'player1') {
       // this.lookAtPoint = new Vector3(0, 1, 1)
-      this.lookAtPoint.z = 1
-    } else {
       this.lookAtPoint.z = -1
+    } else {
+      this.lookAtPoint.z = 1
     }
 
     window.addEventListener('keydown', this.keyListener)
   }
 
-  private attachCamera(humanPlayer: string, camera: PerspectiveCamera) {
-    camera.rotation.set(0, 0, 0);
-    camera.position.set(0, 0, 0);
+  private attachCamera(humanPlayer: string) {
+    this.renderer.camera.position.set(0, 0, 0);
+    this.renderer.camera.rotation.set(0, 0, 0);
+    this.renderer.camera.near = 0.15
+    this.renderer.camera.updateProjectionMatrix()
+
     const skeleton = new SkeletonHelper(this.players[this.humanPlayer].model);
     skeleton.visible = false;
     const head = skeleton.bones.find((bone) => bone.name === 'head');
     if (head) {
-      head.add(camera);
-      if (humanPlayer === 'player1') {
-        camera.rotateY(degToRad(180));
-      }
+      head.add(this.renderer.camera);
+      // if (humanPlayer === 'player1') { 
+      //   this.renderer.camera.rotateY(degToRad(180));
+      // }
     }
   }
 
@@ -93,15 +97,15 @@ export class FightController {
   }
 
   private keyListener = (e: KeyboardEvent) => {
-    if (e.key === 'Escape') { // TODO add keybindings
+    if (e.key === 'Escape' && !this.isInEndScreen) { // TODO add keybindings
       if (this.paused) {
         this.unpause();
         this.ui.HUD()
       } else {
         this.paused = true
-        this.renderer.pause()
         this.players.player1.pause()
         this.players.player2.pause()
+        this.renderer.pause()
         this.ui.pauseMenu(this.exit.bind(this), () => {
           this.unpause();
         })
@@ -118,9 +122,9 @@ export class FightController {
   }
 
   endScreen() {
-
+    this.isInEndScreen = true
     this.ui.endScreen(this.exit.bind(this), () => {
-      // TODO RESET characters.
+      // TODO RESET characters if in standalone mode.
       // this.players.player1.dispose()
       // this.players.player1 = new CharacterController('player1',this.ui);
       // this.players.player2.dispose()
@@ -133,9 +137,9 @@ export class FightController {
   }
 
   private setPlayerPositions() {
-    this.players.player2.model.translateZ(0.6);
-    this.players.player2.model.rotateY(degToRad(180));
-    this.players.player1.model.translateZ(-0.6);
+    this.players.player1.model.translateZ(0.6);
+    this.players.player1.model.rotateY(degToRad(180));
+    this.players.player2.model.translateZ(-0.6);
 
   }
 

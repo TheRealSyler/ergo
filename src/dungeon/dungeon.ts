@@ -5,10 +5,15 @@ import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockCont
 import { loadRoom } from '../rooms/rooms';
 
 import fontLocation from '../assets/font.json'
-import { degToRad } from 'three/src/math/MathUtils';
 import { DungeonRoom, DoorDir } from './dungeonRoom';
 import { LoaderUI } from '../ui/loaderUI';
-import { loadObstacle, Obstacle } from '../rooms/roomObstacles';
+import { Character } from '../character/character';
+import { loadCharacter } from '../character/loadCharacter';
+import { dirToRadians, getGLTFLoader } from '../utils';
+import { FightController } from '../fight/fightController';
+import { FightUI } from '../ui/fightUI';
+import { CharacterController } from '../character/characterController';
+import { Player } from '../game';
 
 interface InterActableObject {
   obj: Object3D;
@@ -35,6 +40,9 @@ export class Dungeon extends Renderer {
   activeObj?: InterActableObject
   activeObjUi: Object3D
   font = new Font(fontLocation)
+
+  fightCon?: FightController;
+
   constructor(private room: DungeonRoom) {
     super(0.01)
     MAIN_UI_ELEMENT.textContent = '';
@@ -45,7 +53,11 @@ export class Dungeon extends Renderer {
 
 
     this.load(this.room);
-    window.addEventListener('click', () => this.controls.lock())
+    window.addEventListener('click', () => {
+      if (!this.fightCon) {
+        this.controls.lock()
+      }
+    })
 
 
     window.addEventListener('keydown', e => {
@@ -102,22 +114,22 @@ export class Dungeon extends Renderer {
     const manager = new LoadingManager();
     LoaderUI(manager, `Loading Dungeon Room ${dungeonRoom.name}`)
 
-    this.camera.position.set(0, 0.9, 0);
+    this.setCamera();
     this.scene.add(this.activeObjUi)
+    const loader = getGLTFLoader(manager)
 
-    const obstaclePromises: Promise<Obstacle>[] = []
-    for (let i = 0; i < dungeonRoom.obstacles.length; i++) {
-      const obstacle = dungeonRoom.obstacles[i];
-      obstaclePromises.push(loadObstacle(obstacle, manager));
+
+    const playerChar: Character = {
+      class: 'base',
+      items: { gloves: 'BasicGloves', weapon: 'BasicSword' }
     }
+    const [room, playerChars] = await Promise.all([
+      loadRoom(dungeonRoom.name, manager, loader),
 
-    const [room, obstacles] = await Promise.all([loadRoom(dungeonRoom.name, manager), Promise.all(obstaclePromises)])
+      dungeonRoom.fight ? Promise.all([loadCharacter(loader, playerChar), loadCharacter(loader, dungeonRoom.fight)]) : undefined
+    ])
+
     MAIN_UI_ELEMENT.textContent = '';
-    for (let i = 0; i < obstacles.length; i++) {
-      const obstacle = obstacles[i];
-      this.scene.add(obstacle.obj)
-      this.collisionObjects.push(...obstacle.collisions)
-    }
 
     this.scene.add(room.scene);
     this.scene.environment = room.background || null;
@@ -125,7 +137,6 @@ export class Dungeon extends Renderer {
       this.collisionObjects.push(...room.collisions);
     }
 
-    this.updateRenderer(0);
 
     for (const key in dungeonRoom.doors) {
       if (Object.prototype.hasOwnProperty.call(dungeonRoom.doors, key)) {
@@ -148,7 +159,7 @@ export class Dungeon extends Renderer {
           };
           this.scene.add(interActable.obj);
 
-          interActable.obj.rotateY(this.dirToRadians(key as DoorDir))
+          interActable.obj.rotateY(dirToRadians(key as DoorDir))
           interActable.obj.translateZ(-4.5)
           interActable.obj.translateY(0.5)
 
@@ -157,8 +168,39 @@ export class Dungeon extends Renderer {
 
       }
     }
+    if (playerChars) {
+      this.controls.disconnect()
+      this.controls.unlock()
+      const ui = new FightUI()
+      const [playerChar1, playerChar2] = playerChars
+
+      const players: Record<Player, CharacterController> = {
+        player1: new CharacterController('player1', ui, playerChar1),
+        player2: new CharacterController('player2', ui, playerChar2)
+      }
+      this.scene.add(players.player1.model);
+      this.scene.add(players.player2.model);
+      this.fightCon = new FightController(() => {
+        MAIN_UI_ELEMENT.textContent = ''
+        this.fightCon = undefined;
+        this.camera.removeFromParent();
+        this.scene.remove(players.player1.model);
+        // this.scene.remove(players.player2.model);
+        this.setCamera();
+        this.controls.connect()
+
+      }, players, ui, 'player1', this)
+    }
+    this.updateRenderer(0);
+  }
+  private setCamera() {
+    this.camera.near = 0.01
+    this.camera.updateProjectionMatrix()
+    this.camera.position.set(0, 1.6, 0);
+    this.camera.rotation.set(0, 0, 0);
 
   }
+
   reset() {
     MAIN_UI_ELEMENT.textContent = '';
     this.collisionObjects = [];
@@ -167,6 +209,13 @@ export class Dungeon extends Renderer {
   }
   update(delta: number) {
     const timeElapsedSeconds = (delta - this.previousRAF) * 0.001;
+    if (this.fightCon) {
+      this.fightCon.update(timeElapsedSeconds)
+    } else {
+      this.updateDungeonLogic(timeElapsedSeconds)
+    }
+  }
+  updateDungeonLogic(timeElapsedSeconds: number) {
     const speed = 3 * timeElapsedSeconds
     if (this.keys.forward) {
       this.raycasterVec.setFromMatrixColumn(this.camera.matrix, 0);
@@ -263,17 +312,4 @@ export class Dungeon extends Renderer {
   //   this.scene.add(this.arrows[this.arrows.length - 1]);
   // }
 
-  private dirToRadians(dir: DoorDir) {
-    switch (dir) {
-      case 'north':
-        return 0
-      case 'east':
-        return degToRad(90)
-      case 'west':
-        return degToRad(-90)
-      case 'south':
-        return degToRad(180)
-
-    }
-  }
 }

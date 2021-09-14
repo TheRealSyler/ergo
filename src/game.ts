@@ -17,8 +17,8 @@ export class Game {
 
     const room1 = new DungeonRoom('test')
     const room2 = new DungeonRoom('basic')
-    const room3 = new DungeonRoom('test')
-    const room4 = new DungeonRoom('basic')
+    const room3 = new DungeonRoom('test3')
+    const room4 = new DungeonRoom('test')
     room1.addDoor('north', room2)
     room2.addDoor('south', room1)
     room2.addDoor('east', room3)
@@ -28,8 +28,10 @@ export class Game {
     room4.addDoor('west', room1)
     room1.addDoor('east', room4)
 
-    room1.obstacles.push('test')
-
+    // room2.fight = {
+    //   class: 'base',
+    //   items: {}
+    // }
     new Dungeon(room1)
 
     // if (this.startInFight) {

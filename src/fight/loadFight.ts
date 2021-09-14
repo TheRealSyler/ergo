@@ -17,7 +17,7 @@ export async function LoadFight(humanPlayer: Player, game: Game, player1: Charac
 
     const loader = getGLTFLoader(manager);
 
-    const [playerChar1, playerChar2, room] = await Promise.all([loadCharacter(loader, player1), loadCharacter(loader, player2), loadRoom(stageName, manager)])
+    const [playerChar1, playerChar2, room] = await Promise.all([loadCharacter(loader, player1), loadCharacter(loader, player2), loadRoom(stageName, manager, loader)])
 
     const ui = new FightUI()
 

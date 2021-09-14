@@ -22,15 +22,16 @@ export function CustomBattleUI(goToFight: Game['goToFight']) {
   let stage: RoomNames = 'test'
   let humanPlayer: Player = 'player1'
 
-  const stages: Record<RoomNames, number> = {
+  const rooms: Record<RoomNames, number> = {
     basic: 0,
-    test: 0
+    test: 0,
+    test3: 0
   }
   MAIN_UI_ELEMENT.appendChild(<div className="custom-battle" >
     <div >
       <label >Select Stage:</label>
       <select>
-        {createOptions(stages, (key) => {
+        {createOptions(rooms, (key) => {
           stage = key as RoomNames
         }, stage)}
       </select>

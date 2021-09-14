@@ -11,6 +11,7 @@ export class Renderer {
   /**the last requestAnimationFrame delta(time) */
   protected previousRAF = 0;
   protected RAFref = -1;
+  private _paused = false
   private resize = () => {
     this.camera.aspect = window.innerWidth / window.innerHeight;
     this.camera.updateProjectionMatrix();
@@ -27,7 +28,7 @@ export class Renderer {
     document.body.appendChild(this.renderer.domElement);
     window.addEventListener('resize', this.resize);
   }
-  /**this function get automagically called by the render loop */
+
   protected update(delta: number) { }
 
   disposeRenderer() {
@@ -43,13 +44,15 @@ export class Renderer {
 
     this.renderer.render(this.scene, this.camera);
     this.previousRAF = delta;
-    this.RAFref = requestAnimationFrame(this.updateRenderer.bind(this));
+    this.RAFref = this._paused ? -1 : requestAnimationFrame(this.updateRenderer.bind(this));
   }
 
   pause() {
+    this._paused = true
     cancelAnimationFrame(this.RAFref);
   }
   unpause() {
+    this._paused = false
     this.previousRAF = performance.now();
     this.updateRenderer(performance.now());
   }

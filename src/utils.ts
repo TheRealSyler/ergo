@@ -1,7 +1,9 @@
 import { AnimationAction, Group, LoadingManager, Mesh, Object3D, PointLight } from 'three';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader';
 import { GLTF, GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+import { degToRad } from 'three/src/math/MathUtils';
 import { Animations } from './animation/types';
+import { DoorDir } from './dungeon/dungeonRoom';
 
 export function getAnimAction<T extends string>(animations: Animations<T>, name: T): AnimationAction {
   if (animations[name]) {
@@ -63,3 +65,15 @@ export function addModelWithCollision(gltf: GLTF, collisionObjects: Object3D[], 
 
 }
 
+export function dirToRadians(dir: DoorDir) {
+  switch (dir) {
+    case 'north':
+      return 0
+    case 'east':
+      return degToRad(90)
+    case 'west':
+      return degToRad(-90)
+    case 'south':
+      return degToRad(180)
+  }
+}
