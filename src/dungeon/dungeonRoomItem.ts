@@ -7,7 +7,7 @@ export type RoomItemNames = 'chest'
 
 export interface RoomItemAsset {
   scene: Group,
-  collisions: Object3D[]
+  collision: Object3D
 }
 
 export async function loadRoomItem(loader: GLTFLoader, name: RoomItemNames): Promise<RoomItemAsset> {
@@ -17,7 +17,7 @@ export async function loadRoomItem(loader: GLTFLoader, name: RoomItemNames): Pro
       const collisionObjects: Object3D[] = []
       addModelWithCollision(await loader.loadAsync(chest), collisionObjects, group)
       return {
-        collisions: collisionObjects,
+        collision: collisionObjects[0],
         scene: group
       }
   }

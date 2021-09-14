@@ -1,9 +1,8 @@
 import { Renderer } from '../renderer';
-import { Object3D, Raycaster, Vector2, Vector3, LoadingManager, Mesh, BoxGeometry, MeshBasicMaterial, Box3, TextGeometry, Font, Group } from 'three';
+import { Object3D, Raycaster, Vector3, LoadingManager, Mesh, BoxGeometry, MeshBasicMaterial } from 'three';
 import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls'
 import { loadRoom } from '../rooms/rooms';
 
-import fontLocation from '../assets/font.json'
 import { DungeonRoom, DoorDir, DungeonRooms, RoomItemInfo } from './dungeonRoom';
 import { LoaderUI } from '../ui/loaderUI';
 import { Character } from '../character/character';
@@ -15,47 +14,48 @@ import { CharacterController } from '../character/characterController';
 import { Player } from '../game';
 import { loadRoomItem, RoomItemAsset } from './dungeonRoomItem';
 import { DungeonUI } from '../ui/dungeonUI';
+import { degToRad, radToDeg } from 'three/src/math/MathUtils';
+
 
 interface InterActableObject {
-  obj: Object3D;
+  collision: Object3D;
   name: string
   func: (self: InterActableObject) => void
 }
 
 export class Dungeon<Rooms extends string> extends Renderer {
+  private collisionRaycaster = new Raycaster(undefined, undefined, undefined, 5);
+  private activeItemRaycaster = new Raycaster(undefined, undefined, undefined, 1.8);
+  private readonly activeItemRayCasterCoords = { x: 0, y: 0 };
+  private reusableVec = new Vector3();
 
-  raycaster = new Raycaster(undefined, undefined, undefined, 5);
-  raycasterVec = new Vector3();
-  mouse = new Vector2(1, 1);
-
-  keys = {
+  private keys = {
     forward: false,
     back: false,
     left: false,
     right: false
   }
-  collisionObjects: Object3D[] = []
-  controls = new PointerLockControls(this.camera, this.renderer.domElement)
-  interActableObjects: InterActableObject[] = []
-  activeObj?: InterActableObject
 
-  font = new Font(fontLocation)
+  private collisionObjects: Object3D[] = []
+  private controls = new PointerLockControls(this.camera, this.renderer.domElement)
 
-  fightCon?: FightController;
+  private interActableObjects: InterActableObject[] = []
 
-  playerChar: Character = {
+  private activeObj?: InterActableObject
+
+  private fightCon?: FightController;
+
+  private playerChar: Character = {
     class: 'base',
     items: { gloves: 'BasicGloves', weapon: 'BasicSword' }
   }
 
-  ui = new DungeonUI()
-
-  private readonly itemActivationDistance = 2;
+  private ui = new DungeonUI()
 
   constructor(private rooms: DungeonRooms<Rooms>, firstRoom: Rooms) {
     super(0.01)
 
-    this.load(this.rooms[firstRoom]);
+    this.load(this.rooms[firstRoom], 'north');
 
     window.addEventListener('click', () => {
       if (!this.fightCon) {
@@ -113,12 +113,12 @@ export class Dungeon<Rooms extends string> extends Renderer {
 
   }
 
-  private async load(dungeonRoom: DungeonRoom<Rooms>) {
+  private async load(dungeonRoom: DungeonRoom<Rooms>, dir: DoorDir) {
     this.reset()
     const manager = new LoadingManager();
     LoaderUI(manager, `Loading Dungeon Room ${dungeonRoom.name}`)
 
-    this.setCamera();
+    this.setCamera(dir);
     const loader = getGLTFLoader(manager)
 
     const roomItemPromises: Promise<{ asset: RoomItemAsset, info: RoomItemInfo }>[] = [];
@@ -157,13 +157,13 @@ export class Dungeon<Rooms extends string> extends Renderer {
         const { x, y, z } = item.info.rotation;
         item.asset.scene.rotation.set(x, y, z)
       }
-      this.collisionObjects.push(...item.asset.collisions);
+      this.collisionObjects.push(item.asset.collision);
       this.interActableObjects.push({
         func: (self) => {
           console.log('TODO OPEN Inventory')
         },
         name: 'Chest',
-        obj: item.asset.scene
+        collision: item.asset.collision
       })
     }
     for (const key in dungeonRoom.doors) {
@@ -173,7 +173,7 @@ export class Dungeon<Rooms extends string> extends Renderer {
 
           const interActable: InterActableObject = {
 
-            obj: new Mesh(new BoxGeometry(1, 1), new MeshBasicMaterial({
+            collision: new Mesh(new BoxGeometry(1, 1), new MeshBasicMaterial({
               color: 0x0fffff
             })),
             name: door.type === 'exit' ? 'Exit ' + key : door.roomId + ' ' + key,
@@ -181,15 +181,15 @@ export class Dungeon<Rooms extends string> extends Renderer {
               if (door.type === 'exit') {
                 console.log('EXIT (TODO)');
               } else {
-                this.load(this.rooms[door.roomId]);
+                this.load(this.rooms[door.roomId], key as DoorDir);
               }
             }
           };
-          this.scene.add(interActable.obj);
-
-          interActable.obj.rotateY(dirToRadians(key as DoorDir))
-          interActable.obj.translateZ(-4.5)
-          interActable.obj.translateY(0.5)
+          this.scene.add(interActable.collision);
+          this.collisionObjects.push(interActable.collision)
+          interActable.collision.rotateY(dirToRadians(key as DoorDir))
+          interActable.collision.translateZ(-4.5)
+          interActable.collision.translateY(0.5)
 
           this.interActableObjects.push(interActable);
         }
@@ -214,18 +214,20 @@ export class Dungeon<Rooms extends string> extends Renderer {
         this.camera.removeFromParent();
         this.scene.remove(players.player1.model);
         // this.scene.remove(players.player2.model);
-        this.setCamera();
+        this.setCamera(dir);
         this.controls.connect()
 
       }, players, ui, 'player1', this)
     }
     this.updateRenderer(0);
   }
-  private setCamera() {
+  private setCamera(dir: DoorDir) {
     this.camera.near = 0.01
     this.camera.updateProjectionMatrix()
+    this.camera.rotation.set(0, dirToRadians(dir) + degToRad(180), 0);
     this.camera.position.set(0, 1.6, 0);
-    this.camera.rotation.set(0, 0, 0);
+    this.camera.translateZ(-4)
+    this.camera.rotateY(degToRad(180))
 
   }
 
@@ -245,43 +247,45 @@ export class Dungeon<Rooms extends string> extends Renderer {
   updateDungeonLogic(timeElapsedSeconds: number) {
     const speed = 3 * timeElapsedSeconds
     if (this.keys.forward) {
-      this.raycasterVec.setFromMatrixColumn(this.camera.matrix, 0);
-      this.raycasterVec.crossVectors(this.camera.up, this.raycasterVec);
-      if (this.checkCollision(this.camera.position, this.raycasterVec)) {
+      this.reusableVec.setFromMatrixColumn(this.camera.matrix, 0);
+      this.reusableVec.crossVectors(this.camera.up, this.reusableVec);
+      if (this.checkCollision(this.camera.position, this.reusableVec)) {
         this.controls.moveForward(speed)
       }
     }
     if (this.keys.back) {
-      this.raycasterVec.setFromMatrixColumn(this.camera.matrix, 0);
-      this.raycasterVec.crossVectors(this.raycasterVec, this.camera.up);
-      if (this.checkCollision(this.camera.position, this.raycasterVec)) {
+      this.reusableVec.setFromMatrixColumn(this.camera.matrix, 0);
+      this.reusableVec.crossVectors(this.reusableVec, this.camera.up);
+      if (this.checkCollision(this.camera.position, this.reusableVec)) {
         this.controls.moveForward(-speed)
       }
     }
     if (this.keys.right) {
-      this.raycasterVec.setFromMatrixColumn(this.camera.matrix, 1);
-      this.raycasterVec.crossVectors(this.raycasterVec, this.camera.up);
-      if (this.checkCollision(this.camera.position, this.raycasterVec)) {
+      this.reusableVec.setFromMatrixColumn(this.camera.matrix, 1);
+      this.reusableVec.crossVectors(this.reusableVec, this.camera.up);
+      if (this.checkCollision(this.camera.position, this.reusableVec)) {
         this.controls.moveRight(speed)
       }
     }
     if (this.keys.left) {
-      this.raycasterVec.setFromMatrixColumn(this.camera.matrix, 1);
-      this.raycasterVec.crossVectors(this.camera.up, this.raycasterVec);
-      if (this.checkCollision(this.camera.position, this.raycasterVec)) {
+      this.reusableVec.setFromMatrixColumn(this.camera.matrix, 1);
+      this.reusableVec.crossVectors(this.camera.up, this.reusableVec);
+      if (this.checkCollision(this.camera.position, this.reusableVec)) {
         this.controls.moveRight(-speed)
       }
     }
 
+    this.activeItemRaycaster.setFromCamera(this.activeItemRayCasterCoords, this.camera)
+    const intersections = this.activeItemRaycaster.intersectObjects(this.collisionObjects)
+
     let closestObj: { i: InterActableObject, dist: number } | undefined;
 
-    for (let i = 0; i < this.interActableObjects.length; i++) {
-      const interActable = this.interActableObjects[i];
-
-      const distance = interActable.obj.position.distanceTo(this.camera.position)
-      if (distance < this.itemActivationDistance) {
-        if (!closestObj || closestObj.dist > distance) {
-          closestObj = { i: interActable, dist: distance }
+    for (let i = 0; i < intersections.length; i++) {
+      const intersection = intersections[i];
+      const interActableItem = this.interActableObjects.find((item) => item.collision === intersection.object);
+      if (interActableItem) {
+        if (!closestObj || closestObj.dist > intersection.distance) {
+          closestObj = { i: interActableItem, dist: intersection.distance }
         }
       }
     }
@@ -294,16 +298,13 @@ export class Dungeon<Rooms extends string> extends Renderer {
         this.ui.showActiveObject('')
       }
     }
-
-
-
   }
 
   private checkCollision(pos: Vector3, dir: Vector3) {
 
-    this.raycaster.set(pos, dir);
+    this.collisionRaycaster.set(pos, dir);
 
-    const interSections = this.raycaster.intersectObjects(this.collisionObjects);
+    const interSections = this.collisionRaycaster.intersectObjects(this.collisionObjects);
 
     if (interSections.length > 0) {
       for (let i = 0; i < interSections.length; i++) {
@@ -317,7 +318,7 @@ export class Dungeon<Rooms extends string> extends Renderer {
     }
     return true
   }
-  // arrows: ArrowHelper[] = []
+  // private arrows: ArrowHelper[] = []
   // private addArrow(intersection: Intersection) {
   //   if (this.arrows.length > 10) {
   //     this.arrows.shift()!.removeFromParent();
