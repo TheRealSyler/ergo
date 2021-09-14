@@ -45,4 +45,12 @@ export class Renderer {
     this.previousRAF = delta;
     this.RAFref = requestAnimationFrame(this.updateRenderer.bind(this));
   }
+
+  pause() {
+    cancelAnimationFrame(this.RAFref);
+  }
+  unpause() {
+    this.previousRAF = performance.now();
+    this.updateRenderer(performance.now());
+  }
 }

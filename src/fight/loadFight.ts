@@ -4,13 +4,13 @@ import { loadCharacter } from '../character/loadCharacter';
 import { Game, Player } from '../game';
 import { CharacterController } from '../character/characterController';
 import { FightUI } from '../ui/fightUI';
-import { FightController } from './fightController';
 import { LoaderUI } from '../ui/loaderUI';
 import { Character } from '../character/character';
 import { loadRoom, RoomNames } from '../rooms/rooms';
 import { getGLTFLoader } from '../utils';
+import { FightControllerStandalone } from './fightControllerStandalone';
 
-export async function LoadFight(humanPlayer: Player, game: Game, player1: Character, player2: Character, stageName: RoomNames): Promise<FightController> {
+export async function LoadFight(humanPlayer: Player, game: Game, player1: Character, player2: Character, stageName: RoomNames): Promise<FightControllerStandalone> {
   const manager = new LoadingManager()
   LoaderUI(manager)
   return new Promise(async (res) => {
@@ -26,7 +26,7 @@ export async function LoadFight(humanPlayer: Player, game: Game, player1: Charac
       player2: new CharacterController('player2', ui, playerChar2)
     }
 
-    res(new FightController(game, players, ui, humanPlayer, room))
+    res(new FightControllerStandalone(game.goToMainMenu.bind(game), players, ui, humanPlayer, room))
 
   })
 
