@@ -31,15 +31,15 @@ export interface CharacterStats {
 export type CharacterClass = 'base' | 'awd';
 
 const BASE_STATS: CharacterStats = {
-  aiDodgeReactionTime: new NumberRange(0.1, 0.8),
-  aiTimeToAttack: new NumberRange(0.5, 1.5),
+  aiDodgeReactionTime: NumberRange(0.1, 0.8),
+  aiTimeToAttack: NumberRange(0.5, 1.5),
   attackSpeed: 1,
   dodgeSpeed: 0.2,
   hitTime: 1.5,
   staminaRegenRate: 5,
   attackStaminaCost: 5,
   dodgeStaminaCost: 1,
-  damage: new NumberRange(3, 7),
+  damage: NumberRange(3, 7),
   health: 25,
   maxHealth: 25,
   maxStamina: 10,
@@ -93,7 +93,7 @@ function applyItemToStats(stats: CharacterStats, item: Item) {
           break;
         case 'object':
           const old = (stats[key] as NumberRange);
-          (stats[key] as NumberRange) = new NumberRange(old.min + change.min, old.max + change.max)
+          (stats[key] as NumberRange) = NumberRange(old.min + change.min, old.max + change.max)
           break;
       }
     }

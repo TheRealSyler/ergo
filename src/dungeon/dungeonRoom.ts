@@ -1,31 +1,25 @@
 import { Character } from '../character/character';
+import { ItemName } from '../character/items';
 import { RoomNames } from '../rooms/rooms';
+import { Position3 } from '../utils';
+import { RoomItemNames } from './dungeonRoomItem';
 
-type DungeonDoor = { type: 'exit'; } | { type: 'room'; room: DungeonRoom; };
+type DungeonDoor<Rooms extends string> = { type: 'exit'; } | { type: 'room'; roomId: Rooms; };
+
 export type DoorDir = 'north' | 'east' | 'west' | 'south';
 
-export class DungeonRoom {
-  doors: Partial<Record<DoorDir, DungeonDoor>> = {};
-
-  static count = 0 // TODO remove count
-  _count: number;
-
-  fight?: Character
-
-  constructor(public name: RoomNames) {
-
-    this._count = DungeonRoom.count
-    DungeonRoom.count++
-  }
-
-  addDoor(dir: DoorDir, room?: DungeonRoom) {
-    if (room) {
-      this.doors[dir] = {
-        room,
-        type: 'room'
-      };
-      return;
-    }
-    this.doors[dir] = { type: 'exit' };
-  }
+export interface RoomItemInfo {
+  asset: RoomItemNames,
+  items?: ItemName[]
+  position?: Position3
+  rotation?: Position3
 }
+
+export interface DungeonRoom<Rooms extends string> {
+  doors: Partial<Record<DoorDir, DungeonDoor<Rooms>>>;
+  fight?: Character;
+  objects: RoomItemInfo[],
+  name: RoomNames;
+}
+
+export type DungeonRooms<Rooms extends string> = Record<Rooms, DungeonRoom<Rooms>>

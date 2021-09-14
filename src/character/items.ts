@@ -24,7 +24,7 @@ const gloves: Record<Items['gloves'], NormalItem> = {
   BasicGloves: {
     description: '',
     statChanges: {
-      damage: new NumberRange(1, 1),
+      damage: NumberRange(1, 1),
       maxHealth: 7
     }
   }
@@ -33,7 +33,7 @@ const weapon: Record<Items['weapon'], WeaponItem> = {
   BasicSword: {
     description: 'awd',
     statChanges: {
-      damage: new NumberRange(20, 22)
+      damage: NumberRange(20, 22)
     },
     weaponHands: 'single'
   }

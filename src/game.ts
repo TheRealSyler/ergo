@@ -1,11 +1,11 @@
+import { Vector3 } from 'three';
+import { degToRad } from 'three/src/math/MathUtils';
 import { Character } from './character/character';
 import { Dungeon } from './dungeon/dungeon';
-import { DungeonRoom } from './dungeon/dungeonRoom';
-import { FightController } from './fight/fightController';
+import { DungeonRooms } from './dungeon/dungeonRoom';
 import { LoadFight } from './fight/loadFight';
 import { RoomNames } from './rooms/rooms';
 import { CustomBattleUI } from './ui/customBattleUI';
-import { UiMainMenu } from './ui/mainMenuUI';
 
 export type Player = 'player1' | 'player2'
 
@@ -15,24 +15,25 @@ export class Game {
 
   constructor() {
 
-    const room1 = new DungeonRoom('test')
-    const room2 = new DungeonRoom('basic')
-    const room3 = new DungeonRoom('test3')
-    const room4 = new DungeonRoom('test')
-    room1.addDoor('north', room2)
-    room2.addDoor('south', room1)
-    room2.addDoor('east', room3)
-    room3.addDoor('west', room2)
-    room3.addDoor('south', room4)
-    room4.addDoor('north', room3)
-    room4.addDoor('west', room1)
-    room1.addDoor('east', room4)
+    const rooms: DungeonRooms<'awd' | 'awd2'> = {
+      awd: {
+        doors: {
+          north: { type: 'room', roomId: 'awd2' },
+          south: { type: 'exit' }
+        },
+        objects: [{ asset: 'chest', items: ['BasicGloves'], position: new Vector3(2, 0, 0), rotation: new Vector3(0, degToRad(90)) }],
+        name: 'test'
+      },
+      awd2: {
+        objects: [],
+        name: 'test3',
+        doors: {
+          south: { type: 'room', roomId: 'awd' }
+        }
+      }
+    }
 
-    // room2.fight = {
-    //   class: 'base',
-    //   items: {}
-    // }
-    new Dungeon(room1)
+    new Dungeon(rooms, 'awd')
 
     // if (this.startInFight) {
     //   this.goToFight()

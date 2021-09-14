@@ -5,6 +5,12 @@ import { degToRad } from 'three/src/math/MathUtils';
 import { Animations } from './animation/types';
 import { DoorDir } from './dungeon/dungeonRoom';
 
+export interface Position3 {
+  x: number,
+  y: number,
+  z: number
+}
+
 export function getAnimAction<T extends string>(animations: Animations<T>, name: T): AnimationAction {
   if (animations[name]) {
     return animations[name]!.action;
@@ -20,13 +26,16 @@ export function error(message: string, tip?: string) {
 export function chooseRandomArrayEl<T>(arr: T[]): T {
   return arr[Math.floor(Math.random() * arr.length)];
 }
+export interface NumberRange {
+  min: number
+  max: number
+}
 
-export class NumberRange {
-  constructor(public min: number, public max: number) {
-    if (min > max) {
-      error(`min value (${min}) is more than max value (${max}).`, NumberRange.name)
-    }
+export function NumberRange(min: number, max: number) {
+  if (min > max) {
+    error(`min value (${min}) is more than max value (${max}).`, NumberRange.name)
   }
+  return { min, max }
 }
 
 export function randomInRange(range: NumberRange) {
@@ -44,7 +53,6 @@ export function getGLTFLoader(manager?: LoadingManager) {
   loader.setDRACOLoader(dracoLoader);
   return loader;
 }
-
 
 export function addModelWithCollision(gltf: GLTF, collisionObjects: Object3D[], group: Group) {
   const objects: Object3D[] = [];
