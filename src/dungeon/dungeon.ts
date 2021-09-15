@@ -16,6 +16,7 @@ import { DungeonUI } from '../ui/dungeonUI';
 import { degToRad } from 'three/src/math/MathUtils';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { loadRoomDoor, RoomDoorAsset } from './doors';
+import { Inventory, InventoryUI } from '../ui/inventoryUI';
 
 
 interface InterActableObject {
@@ -58,27 +59,37 @@ export class Dungeon<Rooms extends string> extends Renderer {
 
   private playerChar: Character = {
     class: 'base',
-    items: { gloves: 'BasicGloves', weapon: 'BasicSword' }
+    items: {}
   }
 
   private ui = new DungeonUI()
+  private inventory: Inventory = {
+    items: [],
+    size: 12
+  };
+  private inventoryUI = new InventoryUI(this.inventory, this.playerChar)
 
   constructor(private rooms: DungeonRooms<Rooms>, firstRoom: Rooms, entryDir: DungeonDir) {
     super(0.01)
 
     this.load(this.rooms[firstRoom], entryDir);
-
-    window.addEventListener('click', this.click)
-    window.addEventListener('keydown', this.keydown)
-    window.addEventListener('keyup', this.keyup)
+    this.addListeners()
 
   }
 
-  exit() {
-    this.disposeRenderer();
+  private addListeners = () => {
+    window.addEventListener('click', this.click)
+    window.addEventListener('keydown', this.keydown)
+    window.addEventListener('keyup', this.keyup)
+  }
+  private removeListeners = () => {
     window.removeEventListener('click', this.click)
     window.removeEventListener('keydown', this.keydown)
     window.removeEventListener('keyup', this.keyup)
+  }
+  exit() {
+    this.disposeRenderer();
+    this.removeListeners()
   }
 
   private async load(dungeonRoom: DungeonRoom<Rooms>, dir: DungeonDir) {
@@ -183,7 +194,10 @@ export class Dungeon<Rooms extends string> extends Renderer {
       this.collisionObjects.push(item.asset.collision);
       this.interActableObjects.push({
         func: (self) => {
-          console.log('TODO OPEN Inventory')
+          if (item.info.items) {
+            this.controls.unlock()
+            this.inventoryUI.show({ inventory: item.info.items, name: self.name })
+          }
         },
         name: 'Chest',
         collision: item.asset.collision
@@ -316,12 +330,28 @@ export class Dungeon<Rooms extends string> extends Renderer {
   }
 
   private click = () => {
-    if (!this.fightCon) {
+    if (!this.fightCon && !this.inventoryUI.visible) {
       this.controls.lock();
     }
   }
 
   private keydown = (e: KeyboardEvent) => {
+    if (e.key === 'Tab') {
+      e.preventDefault()
+      if (this.inventoryUI.visible) {
+        this.inventoryUI.hide()
+        this.controls.lock()
+
+      } else {
+
+        this.controls.unlock()
+        this.inventoryUI.show()
+
+      }
+    }
+
+    if (this.inventoryUI.visible) return;
+
     switch (e.key) {
       case 'w':
       case 'W':

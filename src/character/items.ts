@@ -15,7 +15,7 @@ interface NormalItem {
 }
 export type Item = NormalItem | WeaponItem
 export type WeaponItems = 'BasicSword';
-export type GloveItems = 'BasicGloves';
+export type GloveItems = 'BasicGloves' | 'SuperGloves';
 
 export type ItemName = GloveItems | WeaponItems
 
@@ -26,6 +26,12 @@ const gloves: Record<Items['gloves'], NormalItem> = {
     statChanges: {
       damage: NumberRange(1, 1),
       maxHealth: 7
+    }
+  },
+  SuperGloves: {
+    description: '',
+    statChanges: {
+      maxHealth: 15
     }
   }
 }
