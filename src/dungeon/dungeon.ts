@@ -336,45 +336,47 @@ export class Dungeon<Rooms extends string> extends Renderer {
   }
 
   private keydown = (e: KeyboardEvent) => {
-    if (e.key === 'Tab') {
-      e.preventDefault()
-      if (this.inventoryUI.visible) {
-        this.inventoryUI.hide()
-        this.controls.lock()
+    if (!this.fightCon) {
+      if (e.key === 'Tab') {
+        e.preventDefault()
+        if (this.inventoryUI.visible) {
+          this.inventoryUI.hide()
+          this.controls.lock()
 
-      } else {
+        } else {
 
-        this.controls.unlock()
-        this.inventoryUI.show()
+          this.controls.unlock()
+          this.inventoryUI.show()
 
-      }
-    }
-
-    if (this.inventoryUI.visible) return;
-
-    switch (e.key) {
-      case 'w':
-      case 'W':
-        this.keys.forward = true;
-        break;
-      case 's':
-      case 'S':
-        this.keys.back = true;
-        break;
-      case 'a':
-      case 'A':
-        this.keys.left = true;
-        break;
-      case 'd':
-      case 'D':
-        this.keys.right = true;
-        break;
-      case 'e':
-      case 'E':
-        if (this.activeObj) {
-          this.activeObj.func(this.activeObj);
         }
-        break;
+      }
+
+      if (this.inventoryUI.visible) return;
+
+      switch (e.key) {
+        case 'w':
+        case 'W':
+          this.keys.forward = true;
+          break;
+        case 's':
+        case 'S':
+          this.keys.back = true;
+          break;
+        case 'a':
+        case 'A':
+          this.keys.left = true;
+          break;
+        case 'd':
+        case 'D':
+          this.keys.right = true;
+          break;
+        case 'e':
+        case 'E':
+          if (this.activeObj) {
+            this.activeObj.func(this.activeObj);
+          }
+          break;
+      }
     }
   }
 
