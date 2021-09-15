@@ -4,6 +4,7 @@ import { MAIN_UI_ELEMENT } from './ui'
 import './inventoryUI.sass'
 import { ItemName, ITEMS } from '../character/items'
 import { Character } from '../character/character'
+import { getKeybinding } from '../keybindings'
 
 export interface Inventory {
   items: (ItemName | undefined)[],
@@ -37,21 +38,26 @@ export class InventoryUI {
     {this.lootItemsEl}
   </div>
   private mainEl = <div className="inventory">
-    <div>
-      <h1>Character</h1>
-      <div className="inventory-char">
+    <div className="inventory-content">
 
-
-        {this.addItemSlot({ type: 'character', id: 'gloves' })}
-        {this.addItemSlot({ type: 'character', id: 'weapon' })}
+      <div>
+        <h1>Character</h1>
+        <div className="inventory-char">
+          {this.addItemSlot({ type: 'character', id: 'gloves' })}
+          {this.addItemSlot({ type: 'character', id: 'weapon' })}
+        </div>
       </div>
-    </div>
-    <div>
-      <h1>Inventory</h1>
-      <div className="inventory-items">{this.addItemSlots(this.inventory)}</div>
+
+      <div>
+        <h1>Inventory</h1>
+        <div className="inventory-items">{this.addItemSlots(this.inventory)}</div>
+      </div>
+
+      {this.lootEl}
 
     </div>
-    {this.lootEl}
+
+    <div className="inventory-info-bar"> [{getKeybinding('Dungeon', 'ToggleInventory')}] Close Inventory </div>
   </div>
   private lootInventory: Inventory = { items: [], size: 0 }
   constructor(public inventory: Inventory, public character: Character) { }

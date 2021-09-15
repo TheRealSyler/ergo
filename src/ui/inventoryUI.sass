@@ -7,12 +7,16 @@
   left: 0
   overflow: auto
   overflow-x: hidden
-  display: flex
-
-  gap: 2rem
   margin: 1rem
-  padding: 0.5rem 2rem
+  padding: 1rem 2rem
   border-radius: 5px
+  display: flex
+  flex-direction: column
+  justify-content: space-between
+
+  &-content
+    display: flex
+    gap: 2rem
 
   &-char
     display: flex
@@ -40,3 +44,6 @@
     box-shadow: 0 0 10px 1px #0006
   &-is-dragging
     opacity: 0.5
+
+  &-info-bar
+    // padding: 1rem 0

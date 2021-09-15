@@ -17,6 +17,7 @@ import { degToRad } from 'three/src/math/MathUtils';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { loadRoomDoor, RoomDoorAsset } from './doors';
 import { Inventory, InventoryUI } from '../ui/inventoryUI';
+import { getKeybinding } from '../keybindings';
 
 
 interface InterActableObject {
@@ -272,7 +273,7 @@ export class Dungeon<Rooms extends string> extends Renderer {
     if (this.activeObj !== closestObj?.i) {
       this.activeObj = closestObj?.i;
       if (this.activeObj) {
-        this.ui.showActiveObject(this.activeObj.name);
+        this.ui.showActiveObject(`[${getKeybinding('Dungeon', 'Interact')}] - ${this.activeObj.name}`);
       } else {
         this.ui.showActiveObject('');
       }
@@ -337,7 +338,7 @@ export class Dungeon<Rooms extends string> extends Renderer {
 
   private keydown = (e: KeyboardEvent) => {
     if (!this.fightCon) {
-      if (e.key === 'Tab') {
+      if (e.key.toUpperCase() === getKeybinding('Dungeon', 'ToggleInventory')) {
         e.preventDefault()
         if (this.inventoryUI.visible) {
           this.inventoryUI.hide()
@@ -353,25 +354,20 @@ export class Dungeon<Rooms extends string> extends Renderer {
 
       if (this.inventoryUI.visible) return;
 
-      switch (e.key) {
-        case 'w':
-        case 'W':
+      switch (e.key.toUpperCase()) {
+        case getKeybinding('Dungeon', 'MoveForward'):
           this.keys.forward = true;
           break;
-        case 's':
-        case 'S':
+        case getKeybinding('Dungeon', 'MoveBack'):
           this.keys.back = true;
           break;
-        case 'a':
-        case 'A':
+        case getKeybinding('Dungeon', 'MoveLeft'):
           this.keys.left = true;
           break;
-        case 'd':
-        case 'D':
+        case getKeybinding('Dungeon', 'MoveRight'):
           this.keys.right = true;
           break;
-        case 'e':
-        case 'E':
+        case getKeybinding('Dungeon', 'Interact'):
           if (this.activeObj) {
             this.activeObj.func(this.activeObj);
           }
@@ -381,21 +377,17 @@ export class Dungeon<Rooms extends string> extends Renderer {
   }
 
   private keyup = (e: KeyboardEvent) => {
-    switch (e.key) {
-      case 'w':
-      case 'W':
+    switch (e.key.toUpperCase()) {
+      case getKeybinding('Dungeon', 'MoveForward'):
         this.keys.forward = false;
         break;
-      case 's':
-      case 'S':
+      case getKeybinding('Dungeon', 'MoveBack'):
         this.keys.back = false;
         break;
-      case 'a':
-      case 'A':
+      case getKeybinding('Dungeon', 'MoveLeft'):
         this.keys.left = false;
         break;
-      case 'd':
-      case 'D':
+      case getKeybinding('Dungeon', 'MoveRight'):
         this.keys.right = false;
         break;
     }
