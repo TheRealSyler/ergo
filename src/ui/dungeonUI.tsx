@@ -9,6 +9,7 @@ export class DungeonUI {
     MAIN_UI_ELEMENT.appendChild(
       <div className="dungeon">
         {this.activeObjectDiv}
+        <div className="dungeon-crosshair"></div>
       </div>
     )
   }
