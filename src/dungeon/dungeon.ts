@@ -119,7 +119,7 @@ export class Dungeon<Rooms extends string> extends Renderer {
 
     if (fight) {
       this.controls.disconnect()
-      this.controls.unlock()
+
       const ui = new FightUI()
       const [playerChar1, playerChar2] = fight
 
