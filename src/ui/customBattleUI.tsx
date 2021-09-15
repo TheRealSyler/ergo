@@ -2,6 +2,7 @@ import { h } from 'dom-chef'
 import { Character } from '../character/character'
 import { ITEMS } from '../character/items'
 import { CharacterClass } from '../character/stats'
+import { RoomNames } from '../rooms/rooms'
 import { Game, Player } from '../game'
 import './customBattleUI.sass'
 import { UiMainMenu } from './mainMenuUI'
@@ -17,17 +18,33 @@ export function CustomBattleUI(goToFight: Game['goToFight']) {
     class: 'base',
     items: {}
   }
-  let humanPlayer: Player = 'player1'
-  MAIN_UI_ELEMENT.appendChild(<div className="custom-battle" >
-    <div className="custom-battle-main">
 
+  let stage: RoomNames = 'test'
+  let humanPlayer: Player = 'player1'
+
+  const rooms: Record<RoomNames, number> = {
+    basic: 0,
+    test: 0,
+    test3: 0
+  }
+  MAIN_UI_ELEMENT.appendChild(<div className="custom-battle" >
+    <div >
+      <label >Select Stage:</label>
+      <select>
+        {createOptions(rooms, (key) => {
+          stage = key as RoomNames
+        }, stage)}
+      </select>
+
+    </div>
+    <div className="custom-battle-main">
       {playerSelector(player1)}
       {playerSelector(player2)}
     </div>
     <div className="custom-battle-bottom">
 
       <button className="button" onClick={() => UiMainMenu(goToFight)}>Main Menu</button>
-      <button className="button" onClick={() => goToFight(humanPlayer, player1, player2)}>Fight</button>
+      <button className="button" onClick={() => goToFight(humanPlayer, player1, player2, stage)}>Fight</button>
     </div>
   </div>)
 }
@@ -69,7 +86,7 @@ function playerSelector(player: Character) {
   </div>
 }
 
-function createOptions(obj: Record<string, any>, onClick: (key: string) => void, defaultKey?: string) {
+function createOptions<T extends string>(obj: Record<T, any>, onClick: (key: string) => void, defaultKey?: T) {
   const items = []
   for (const key in obj) {
     if (Object.prototype.hasOwnProperty.call(obj, key)) {

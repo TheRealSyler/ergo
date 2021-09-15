@@ -9,6 +9,10 @@ export const ITEM_MODEL_INFO: Record<ItemName, ModelInfo> = {
     location: base_glove,
     name: 'glove'
   },
+  SuperGloves: {
+    location: base_glove,
+    name: 'glove'
+  },
   BasicSword: {
     location: base_sword,
     name: 'sword'

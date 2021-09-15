@@ -15,7 +15,7 @@ interface NormalItem {
 }
 export type Item = NormalItem | WeaponItem
 export type WeaponItems = 'BasicSword';
-export type GloveItems = 'BasicGloves';
+export type GloveItems = 'BasicGloves' | 'SuperGloves';
 
 export type ItemName = GloveItems | WeaponItems
 
@@ -24,8 +24,14 @@ const gloves: Record<Items['gloves'], NormalItem> = {
   BasicGloves: {
     description: '',
     statChanges: {
-      damage: new NumberRange(1, 1),
+      damage: NumberRange(1, 1),
       maxHealth: 7
+    }
+  },
+  SuperGloves: {
+    description: '',
+    statChanges: {
+      maxHealth: 15
     }
   }
 }
@@ -33,7 +39,7 @@ const weapon: Record<Items['weapon'], WeaponItem> = {
   BasicSword: {
     description: 'awd',
     statChanges: {
-      damage: new NumberRange(20, 22)
+      damage: NumberRange(20, 22)
     },
     weaponHands: 'single'
   }

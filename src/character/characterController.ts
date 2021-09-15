@@ -95,7 +95,7 @@ export class CharacterController {
     this.input.unpause()
   }
 
-  Update(timeInSeconds: number) {
+  update(timeInSeconds: number) {
 
     this.stateMachine.Update(timeInSeconds);
     if (this.input instanceof AiInput) {

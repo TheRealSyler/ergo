@@ -23,76 +23,73 @@ export type LoadedCharacter = {
   character: Character;
 };
 
-export type LoadedCharacterFunc = () => LoadedCharacter;
+export async function loadCharacter(loader: GLTFLoader, character: Character): Promise<LoadedCharacter> {
 
-export function loadCharacter(loader: GLTFLoader, character: Character): LoadedCharacterFunc {
-  let mainModel: Group
-  let animationsMesh: GLTF
 
-  const loadedItems: Record<string, { group: Group, info: ModelInfo }> = {}
   const mainModelInfo = CLASS_MODEL_INFO[character.class]
-  loader.load(mainModelInfo.location, (gltf) => {
-    mainModel = gltf.scene;
-  });
 
-  loader.load(getCharacterAnimationInfo(character).location, (gltf) => {
-    animationsMesh = gltf;
-  });
-
+  const itemPromises: Promise<{ group: Group, info: ModelInfo }>[] = []
   for (const key in character.items) {
     if (Object.prototype.hasOwnProperty.call(character.items, key)) {
       const item = character.items[key as keyof Character['items']];
       if (item) {
         const info = ITEM_MODEL_INFO[item];
-        loader.load(info.location, (gltf) => {
-          loadedItems[info.name] = { group: gltf.scene, info }
-        })
+        itemPromises.push(new Promise((res, rej) => {
+          loader.load(info.location, (gltf) => {
+            res({
+              group: gltf.scene,
+              info,
+            })
+          }, undefined, (e) => rej(e))
+        }))
       }
     }
   }
+  const [main, animationsMesh, loadedItems] = await Promise.all([loader.loadAsync(mainModelInfo.location), loader.loadAsync(getCharacterAnimationInfo(character).location), Promise.all(itemPromises)]);
 
-  return () => {
-    // TODO validate that the meshes have been loaded.
+  const mainModel = main.scene
 
-    const model = new Group()
-    const glib = mainModel.getObjectByName(mainModelInfo.name) as any as SkinnedMesh
-    let sharedSkeleton = glib.skeleton
+  // TODO validate that the meshes have been loaded.
 
-    for (const key in loadedItems) {
-      if (Object.prototype.hasOwnProperty.call(loadedItems, key)) {
-        const item = loadedItems[key];
+  const model = new Group()
+  const mainModelMesh = mainModel.getObjectByName(mainModelInfo.name) as any as SkinnedMesh
+  let sharedSkeleton = mainModelMesh.skeleton
+  // mainModelMesh.castShadow = true
+  // mainModelMesh.receiveShadow = true
 
-        const itemMesh = item.group.getObjectByName(item.info.name) as any as SkinnedMesh
-        itemMesh.bind(sharedSkeleton, itemMesh.matrixWorld);
-
-        model.add(itemMesh)
-      }
-    }
-
-    model.add(mainModel);
-
-    const mixer = new AnimationMixer(glib);
-
-    const animations: Animations<AnimationTypes> = {
-      attack_down: addAndValidateAnimation('attack_down', animationsMesh, mixer)!,
-      attack_left: addAndValidateAnimation('attack_left', animationsMesh, mixer)!,
-      attack_right: addAndValidateAnimation('attack_right', animationsMesh, mixer)!,
-      attack_up: addAndValidateAnimation('attack_up', animationsMesh, mixer)!,
-      death: addAndValidateAnimation('death', animationsMesh, mixer)!,
-      dodge_left: addAndValidateAnimation('dodge_left', animationsMesh, mixer)!,
-      dodge_right: addAndValidateAnimation('dodge_right', animationsMesh, mixer)!,
-      hit: addAndValidateAnimation('hit', animationsMesh, mixer)!,
-      idle: addAndValidateAnimation('idle', animationsMesh, mixer)!,
-      victory: addAndValidateAnimation('idle', animationsMesh, mixer)!, // TODO add victory animations.
-    }
-
-    return {
-      mixer,
-      animations: animations,
-      model,
-      character
-    }
+  for (let i = 0; i < loadedItems.length; i++) {
+    const item = loadedItems[i];
+    const itemMesh = item.group.getObjectByName(item.info.name) as any as SkinnedMesh
+    itemMesh.bind(sharedSkeleton, itemMesh.matrixWorld);
+    // itemMesh.castShadow = true
+    // itemMesh.receiveShadow = true
+    model.add(itemMesh)
   }
+
+  model.add(mainModel);
+
+  const mixer = new AnimationMixer(mainModelMesh);
+
+  const animations: Animations<AnimationTypes> = {
+    attack_down: addAndValidateAnimation('attack_down', animationsMesh, mixer)!,
+    attack_left: addAndValidateAnimation('attack_left', animationsMesh, mixer)!,
+    attack_right: addAndValidateAnimation('attack_right', animationsMesh, mixer)!,
+    attack_up: addAndValidateAnimation('attack_up', animationsMesh, mixer)!,
+    death: addAndValidateAnimation('death', animationsMesh, mixer)!,
+    dodge_left: addAndValidateAnimation('dodge_left', animationsMesh, mixer)!,
+    dodge_right: addAndValidateAnimation('dodge_right', animationsMesh, mixer)!,
+    hit: addAndValidateAnimation('hit', animationsMesh, mixer)!,
+    idle: addAndValidateAnimation('idle', animationsMesh, mixer)!,
+    victory: addAndValidateAnimation('idle', animationsMesh, mixer)!, // TODO add victory animations.
+  }
+
+  return {
+    mixer,
+    animations: animations,
+    model,
+    character
+  }
+
 }
 
 function addAndValidateAnimation(animName: AnimationTypes, anim: GLTF, mixer: AnimationMixer) {
