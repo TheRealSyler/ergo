@@ -1,6 +1,6 @@
 import { h } from 'dom-chef'
 import { CharacterController } from '../character/characterController'
-import { toPx } from '../utils'
+import { toPx, wait } from '../utils'
 import { MAIN_UI_ELEMENT } from './ui'
 
 import './fightUI.sass'
@@ -15,6 +15,8 @@ export class FightUI {
     player1: <div className='fight-bar stamina'></div>,
     player2: <div className='fight-bar stamina'></div>
   }
+  private fightStartTextEL = <span ></span>
+  private fightStartEL = <div className="fight-start">{this.fightStartTextEL}</div>
 
   constructor() {
     this.HUD()
@@ -46,8 +48,8 @@ export class FightUI {
 
       <div className="button" onClick={exitToMainMenu}>Main Menu</div>
       <div className="button" onClick={() => {
-        restart()
         this.HUD()
+        restart()
       }}>Restart</div>
 
     </div>)
@@ -64,6 +66,31 @@ export class FightUI {
       }}>Resume</div>
 
     </div>)
+  }
+
+  async startFight(start: () => void) {
+    MAIN_UI_ELEMENT.appendChild(this.fightStartEL)
+    this.fightStartEL.classList.remove('fight-start-animate')
+    this.fightStartEL.classList.add('fight-start-animate')
+    this.fightStartTextEL.textContent = '3'
+    await wait(1000)
+    MAIN_UI_ELEMENT.appendChild(this.fightStartEL)
+    this.fightStartTextEL.textContent = '2'
+    this.fightStartEL.classList.remove('fight-start-animate')
+    this.fightStartEL.classList.add('fight-start-animate')
+    await wait(1000)
+    MAIN_UI_ELEMENT.appendChild(this.fightStartEL)
+    this.fightStartTextEL.textContent = '1'
+    this.fightStartEL.classList.remove('fight-start-animate')
+    this.fightStartEL.classList.add('fight-start-animate')
+    await wait(1000)
+    MAIN_UI_ELEMENT.appendChild(this.fightStartEL)
+    this.fightStartTextEL.textContent = 'FIGHT'
+    this.fightStartEL.classList.remove('fight-start-animate')
+    this.fightStartEL.classList.add('fight-start-animate')
+    start()
+    await wait(1000)
+    this.fightStartEL.remove()
   }
 }
 

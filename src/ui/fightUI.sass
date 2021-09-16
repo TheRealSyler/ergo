@@ -31,9 +31,27 @@
     left: 50%
     transform: translate(-50%, -50%)
     font-size: 1.7rem
+  &-start
+    position: fixed
+    font-size: 4rem
+    top: 50%
+    left: 50%
+    transform: translate(-50%, -50%)
+
+  &-start-animate
+    animation: start-fight 1s forwards
 
 .health
   background: red
 
 .stamina
   background: green
+
+@keyframes start-fight
+  0%
+    opacity: 1
+    transform: translate(-50%, -50%) scale(1)
+
+  100%
+    opacity: 0
+    transform: translate(-50%, -50%) scale(10)

@@ -36,7 +36,7 @@ export class Game {
       awd3: {
         doors: { east: { roomId: 'awd', type: 'room', asset: 'basic' } },
         name: 'basic',
-        fight: { char: { class: 'awd', items: { gloves: 'BasicGloves', weapon: 'BasicSword' } }, loot: { items: [] } },
+        fight: { char: { class: 'awd', items: { gloves: 'BasicGloves', weapon: 'BasicSword' } } },
         objectInfos: []
       }
     }

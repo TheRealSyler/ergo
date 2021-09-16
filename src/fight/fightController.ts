@@ -77,8 +77,7 @@ export class FightController {
   }
 
   private startFight() {
-    setTimeout(() => {
-      // TODO add ui countdown.
+    this.ui.startFight(() => {
       if (this.humanPlayer === 'player1') {
         this.players.player1.input = new PlayerInput();
         this.players.player2.input = new AiInput(this.players.player2, this.players.player2);
@@ -86,7 +85,7 @@ export class FightController {
         this.players.player2.input = new PlayerInput();
         this.players.player1.input = new AiInput(this.players.player1, this.players.player2);
       }
-    }, 2000);
+    })
   }
 
   dispose() {
