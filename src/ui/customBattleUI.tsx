@@ -27,7 +27,7 @@ export function CustomBattleUI(goToFight: Game['goToFight']) {
     test: 0,
     test3: 0
   }
-  MAIN_UI_ELEMENT.appendChild(<div className="custom-battle" >
+  MAIN_UI_ELEMENT.appendChild(<div className="custom-battle fixed" >
     <div >
       <label >Select Stage:</label>
       <select>

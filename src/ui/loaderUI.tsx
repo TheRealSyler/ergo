@@ -13,7 +13,7 @@ export function LoaderUI(manager?: LoadingManager, info?: string) {
     }
   }
 
-  MAIN_UI_ELEMENT.appendChild(<div className="loader">
+  MAIN_UI_ELEMENT.appendChild(<div className="loader fixed">
     <div className="loader-info">{info}</div>
     <div className="loader-spinner"></div>
     {manager && progressEL}

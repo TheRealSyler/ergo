@@ -16,7 +16,7 @@ export class FightUI {
     player2: <div className='fight-bar stamina'></div>
   }
   private fightStartTextEL = <span ></span>
-  private fightStartEL = <div className="fight-start">{this.fightStartTextEL}</div>
+  private fightStartEL = <div className="fight-start center-fixed">{this.fightStartTextEL}</div>
 
   constructor() {
     this.HUD()
@@ -26,7 +26,7 @@ export class FightUI {
   HUD() {
     MAIN_UI_ELEMENT.textContent = ''
 
-    MAIN_UI_ELEMENT.appendChild(<div className="fight-hud">
+    MAIN_UI_ELEMENT.appendChild(<div className="fight-hud fixed">
       {this.health.player1}
       {this.stamina.player1}
       {this.health.player2}
