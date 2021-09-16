@@ -120,7 +120,7 @@ export class Dungeon<Rooms extends string> extends Renderer {
 
     if (fight) {
       this.controls.disconnect()
-
+      this.controls.unlock()
       const ui = new FightUI()
       const [playerChar1, playerChar2] = fight
 
@@ -130,18 +130,23 @@ export class Dungeon<Rooms extends string> extends Renderer {
       }
       this.scene.add(players.player1.model);
       this.scene.add(players.player2.model);
-      const endOfFight = () => {
-        this.ui.show()
-        this.fightCon = undefined;
-        this.camera.removeFromParent();
-        this.scene.remove(players.player1.model);
-        // this.scene.remove(players.player2.model);
-        this.setCamera(dir);
-        dungeonRoom.fight = undefined
-        this.controls.connect()
 
-      }
-      this.fightCon = new FightController(endOfFight, players, ui, 'player1', this)
+      this.fightCon = new FightController(players, ui, 'player1', this, {
+        customEndScreen: (victory, dispose, restart) => {
+          console.log(victory)
+
+          this.ui.show()
+          this.fightCon = undefined;
+          this.camera.removeFromParent();
+          this.scene.remove(players.player1.model);
+          // this.scene.remove(players.player2.model);
+          this.setCamera(dir);
+          // dungeonRoom.fight = undefined
+          this.controls.connect()
+          this.controls.lock()
+          dispose()
+        }
+      })
     }
     this.updateRenderer(0);
   }

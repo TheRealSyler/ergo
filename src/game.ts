@@ -40,7 +40,8 @@ export class Game {
       }
     }
 
-    new Dungeon(rooms, 'awd', 'north')
+    // new Dungeon(rooms, 'awd', 'north')
+    this.goToFight()
 
     // if (this.startInFight) {
     // this.goToFight()
@@ -53,7 +54,7 @@ export class Game {
   }
 
   async goToFight(humanPlayer?: Player, player1?: Character, player2?: Character, stage?: RoomNames) {
-    await LoadFight(humanPlayer || 'player1', this, player1 || { class: 'base', items: {} }, player2 || { class: 'base', items: {} }, stage || 'test');
+    await LoadFight(humanPlayer || 'player1', this, player1 || { class: 'base', items: { weapon: 'BasicSword' } }, player2 || { class: 'base', items: { weapon: 'BasicSword' } }, stage || 'test');
   }
 
 }

@@ -40,11 +40,11 @@ export class FightUI {
     this[type][ref.player].style.width = toPx(Math.max((amount / max) * this.barWidth, 0))
   }
 
-  endScreen(goToMainMenu: () => void, restart: () => void) {
+  endScreen(restart: () => void, exit?: () => void,) {
     MAIN_UI_ELEMENT.textContent = ''
     MAIN_UI_ELEMENT.appendChild(<div className="end-screen">
 
-      <div className="button" onClick={goToMainMenu}>Main Menu</div>
+      {exit && <div className="button" onClick={exit}>Main Menu</div>}
       <div className="button" onClick={() => {
         restart()
         this.HUD()
@@ -53,11 +53,11 @@ export class FightUI {
     </div>)
   }
 
-  pauseMenu(goToMainMenu: () => void, resume: () => void) {
+  pauseMenu(resume: () => void, exit?: () => void) {
     MAIN_UI_ELEMENT.textContent = ''
     MAIN_UI_ELEMENT.appendChild(<div className="pause-menu">
 
-      <div className="button" onClick={goToMainMenu}>Main Menu</div>
+      {exit && <div className="button" onClick={exit}>Main Menu</div>}
       <div className="button" onClick={() => {
         resume()
         this.HUD()
