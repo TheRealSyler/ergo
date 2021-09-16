@@ -31,7 +31,8 @@ const gloves: Record<Items['gloves'], NormalItem> = {
   SuperGloves: {
     description: '',
     statChanges: {
-      maxHealth: 15
+      maxHealth: 40,
+      dodgeSpeed: -0.1
     }
   }
 }

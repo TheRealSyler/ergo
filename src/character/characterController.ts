@@ -44,8 +44,6 @@ export class CharacterController {
   input: Input = EMPTY_INPUT;
   private mixer: AnimationMixer;
 
-  stats: CharacterStats;
-
   public get hp(): number {
     return this.stats.health
   }
@@ -61,14 +59,15 @@ export class CharacterController {
   }
 
   stance: CharStance = { type: 'idle' };
-
-  constructor(public player: Player, public ui: FightUI, char: LoadedCharacter) {
+  private initialHp = 0;
+  private initialStamina = 0;
+  constructor(public player: Player, public ui: FightUI, char: LoadedCharacter, public stats: CharacterStats = createStats(char.character)) {
 
     this.mixer = char.mixer;
     this.animations = char.animations;
     this.model = char.model;
-    this.stats = createStats(char.character);
-
+    this.initialHp = this.hp
+    this.initialStamina = this.stamina
     this.stateMachine = new FiniteStateMachine({
       attack_left: new AttackState('attack_left', this),
       attack_right: new AttackState('attack_right', this),
@@ -82,6 +81,13 @@ export class CharacterController {
       death: new DeathState(this),
     });
     this.stateMachine.SetState('idle')
+  }
+
+  restart() {
+    this.input = EMPTY_INPUT
+    this.stateMachine.SetState('idle')
+    this.stamina = this.initialStamina
+    this.hp = this.initialHp
   }
 
   dispose() {

@@ -26,7 +26,7 @@ export class FightControllerStandalone extends Renderer {
     this.scene.add(players.player1.model);
     this.scene.add(players.player2.model);
 
-    this.con = new FightController(this.exit.bind(this), players, ui, humanPlayer, this);
+    this.con = new FightController(players, ui, humanPlayer, this, { exitToMainMenu: this.exit.bind(this) });
     this.updateRenderer(0)
   }
 

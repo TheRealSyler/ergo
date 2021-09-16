@@ -7,9 +7,9 @@ export class DungeonUI {
   show() {
     MAIN_UI_ELEMENT.textContent = ''
     MAIN_UI_ELEMENT.appendChild(
-      <div className="dungeon">
+      <div className="fixed">
         {this.activeObjectDiv}
-        <div className="dungeon-crosshair"></div>
+        <div className="dungeon-crosshair center-fixed"></div>
       </div>
     )
   }

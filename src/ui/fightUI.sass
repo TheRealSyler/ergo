@@ -1,24 +1,49 @@
+.fight
+  &-hud
+    cursor: none
+    display: flex
+    justify-content: center
+  &-bars
+    margin: 1rem
+    display: grid
+    grid-template-columns: auto auto
+    gap: 0.4rem
+    width: 20vw
+    height: max-content
+  &-end-result
+    position: fixed
+    top: 10vh
+    left: 50%
+    transform: translateX(-50%)
+    font-size: 8rem
 
-.hud
-  position: fixed
+  &-victory
+    color: #fc7
+  &-loss
+    color: red
+  &-pause-menu,
+  &-end-screen
+    display: flex
+    flex-direction: column
+    gap: 0.6rem
+    flex-basis: 0
+    flex-grow: 1
+    position: absolute
+    top: 50%
+    left: 50%
+    transform: translate(-50%, -50%)
+    font-size: 1.7rem
+  &-start
+    font-size: 4rem
 
-.bar
-  height: 20px
+  &-start-animate
+    animation: start-fight 1s forwards
 
-.health
-  background: red
+@keyframes start-fight
+  0%
+    opacity: 1
+    transform: translate(-50%, -50%) scale(1)
 
-.stamina
-  background: green
-
-.pause-menu, // TODO make pause menu style unique.
-.end-screen
-  display: flex
-  flex-direction: column
-  gap: 0.6rem
-  flex-basis: 0
-  flex-grow: 1
-  position: absolute
-  top: 50%
-  left: 50%
-  transform: translate(-50%, -50%)
+  100%
+    opacity: 0
+    transform: translate(-50%, -50%) scale(10)

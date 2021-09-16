@@ -1,24 +1,17 @@
 
 .dungeon
-  position: fixed
-
-  top: 0
-  bottom: 0
-  right: 0
-  left: 0
 
   &-active
     position: absolute
     top: 40%
     left: 50%
     transform: translate(-50%, -50%)
-    font-size: 2rem
+    font-size: 1.2rem
+    text-shadow: 1px 1px #000a
+
   &-crosshair
-    position: fixed
-    top: 50%
-    left: 50%
-    width: 5px
-    height: 5px
+    width: 4px
+    height: 4px
     border-radius: 50%
     background: #fff
-    transform: translate(-50%, -50%)
+    box-shadow: 0 0 0px 1px #000a

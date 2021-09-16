@@ -1,5 +1,4 @@
 import {
-  PerspectiveCamera,
   SkeletonHelper,
   Vector3,
 } from 'three';
@@ -8,7 +7,7 @@ import { AttackStance, CharacterController, CharStance } from '../character/char
 import { degToRad } from 'three/src/math/MathUtils';
 // import { RoughnessMipmapper } from 'three/examples/jsm/utils/RoughnessMipmapper';
 import { Player } from '../game';
-import { FightUI } from '../ui/fightUI';
+import { FightUI, victoryOrLossUI } from '../ui/fightUI';
 import { AttackAnimations } from '../animation/types';
 import { AiInput } from '../ai/aiCharacterInput';
 import { PlayerInput } from '../playerInput';
@@ -23,23 +22,25 @@ const oppositeAttackDir: Record<AttackAnimations, AttackAnimations> = {
 }
 type AttackResult = 'hit' | 'not_hit' | 'blocked';
 
+export interface FightControllerOptions {
+  customEndScreen?: (victory: boolean, dispose: () => void, endScreen: () => void) => void
+  exitToMainMenu: () => void;
+}
+
 export class FightController {
   private paused = false;
   private isInEndScreen = false;
   private lookAtPoint = new Vector3(0, 1, 0)
 
-  constructor(private exitFunc: () => void, private players: Record<Player, CharacterController>, public ui: FightUI, private humanPlayer: Player, private renderer: Renderer) {
+  constructor(private players: Record<Player, CharacterController>, public ui: FightUI, private humanPlayer: Player, private renderer: Renderer, private options: FightControllerOptions) {
 
     this.setPlayerPositions();
 
-    this.attachCamera(humanPlayer);
+    this.attachCamera();
 
-    this.initUi();
+    this.resetUi();
 
-    setTimeout(() => {
-      // TODO add ui countdown.
-      this.startFight()
-    }, 2000);
+    this.startFight()
 
     if (humanPlayer === 'player1') {
       // this.lookAtPoint = new Vector3(0, 1, 1)
@@ -51,7 +52,7 @@ export class FightController {
     window.addEventListener('keydown', this.keyListener)
   }
 
-  private attachCamera(humanPlayer: string) {
+  private attachCamera() {
     this.renderer.camera.position.set(0, 0, 0);
     this.renderer.camera.rotation.set(0, 0, 0);
     this.renderer.camera.near = 0.15
@@ -68,7 +69,7 @@ export class FightController {
     }
   }
 
-  private initUi() {
+  private resetUi() {
     this.ui.update('health', this.players.player1);
     this.ui.update('health', this.players.player2);
     this.ui.update('stamina', this.players.player1);
@@ -76,24 +77,29 @@ export class FightController {
   }
 
   private startFight() {
-    if (this.humanPlayer === 'player1') {
-      this.players.player1.input = new PlayerInput();
-      this.players.player2.input = new AiInput(this.players.player2, this.players.player2);
-    } else {
-      this.players.player2.input = new PlayerInput();
-      this.players.player1.input = new AiInput(this.players.player1, this.players.player2);
-    }
-
+    this.ui.startFight(() => {
+      if (this.humanPlayer === 'player1') {
+        this.players.player1.input = new PlayerInput();
+        this.players.player2.input = new AiInput(this.players.player2, this.players.player2);
+      } else {
+        this.players.player2.input = new PlayerInput();
+        this.players.player1.input = new AiInput(this.players.player1, this.players.player2);
+      }
+    })
   }
 
-  exit() {
+  dispose() {
     // TODO ? remove all objects, materials, geo etc, not sure if necessary though.
 
     this.players.player1.dispose()
     this.players.player2.dispose()
     window.removeEventListener('keydown', this.keyListener)
 
-    this.exitFunc();
+  }
+
+  private exit() {
+    this.dispose()
+    this.options.exitToMainMenu()
   }
 
   private keyListener = (e: KeyboardEvent) => {
@@ -106,9 +112,9 @@ export class FightController {
         this.players.player1.pause()
         this.players.player2.pause()
         this.renderer.pause()
-        this.ui.pauseMenu(this.exit.bind(this), () => {
-          this.unpause();
-        })
+        this.ui.pauseMenu(() => {
+          this.unpause()
+        }, this.exit.bind(this))
       }
     }
   }
@@ -121,19 +127,24 @@ export class FightController {
     this.paused = false;
   }
 
-  endScreen() {
+  endScreen(victory: boolean) {
     this.isInEndScreen = true
-    this.ui.endScreen(this.exit.bind(this), () => {
-      // TODO RESET characters if in standalone mode.
-      // this.players.player1.dispose()
-      // this.players.player1 = new CharacterController('player1',this.ui);
-      // this.players.player2.dispose()
-      // this.players.player2 = new CharacterController('player2', this.scene, this.camera, this.ui, this.players.player1)
+    if (this.options.customEndScreen) {
+      this.options.customEndScreen(victory, this.dispose.bind(this), () => {
+        this.ui.endScreen(this.restartFight.bind(this), this.exit.bind(this))
+        victoryOrLossUI(victory)
+      })
+    } else {
+      this.ui.endScreen(this.restartFight.bind(this), this.exit.bind(this))
+      victoryOrLossUI(victory)
+    }
+  }
 
-      this.setPlayerPositions();
-      this.initUi();
-
-    })
+  restartFight() {
+    this.players.player1.restart()
+    this.players.player2.restart()
+    this.resetUi();
+    this.startFight()
   }
 
   private setPlayerPositions() {
@@ -174,7 +185,7 @@ export class FightController {
         this.ui.update('health', this.players[defender])
 
         if (this.players[defender].hp <= 0) {
-          this.endScreen()
+          this.endScreen(attacker === this.humanPlayer)
           this.players[defender].stateMachine.SetState('death')
           this.players[attacker].stateMachine.SetState('victory')
         } else {

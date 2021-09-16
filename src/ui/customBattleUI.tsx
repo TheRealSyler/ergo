@@ -5,7 +5,7 @@ import { CharacterClass } from '../character/stats'
 import { RoomNames } from '../rooms/rooms'
 import { Game, Player } from '../game'
 import './customBattleUI.sass'
-import { UiMainMenu } from './mainMenuUI'
+import { MainMenuUi } from './mainMenuUI'
 import { MAIN_UI_ELEMENT } from './ui'
 
 export function CustomBattleUI(goToFight: Game['goToFight']) {
@@ -27,7 +27,7 @@ export function CustomBattleUI(goToFight: Game['goToFight']) {
     test: 0,
     test3: 0
   }
-  MAIN_UI_ELEMENT.appendChild(<div className="custom-battle" >
+  MAIN_UI_ELEMENT.appendChild(<div className="custom-battle fixed" >
     <div >
       <label >Select Stage:</label>
       <select>
@@ -43,7 +43,7 @@ export function CustomBattleUI(goToFight: Game['goToFight']) {
     </div>
     <div className="custom-battle-bottom">
 
-      <button className="button" onClick={() => UiMainMenu(goToFight)}>Main Menu</button>
+      <button className="button" onClick={() => MainMenuUi(goToFight)}>Main Menu</button>
       <button className="button" onClick={() => goToFight(humanPlayer, player1, player2, stage)}>Fight</button>
     </div>
   </div>)
@@ -53,6 +53,8 @@ function playerSelector(player: Character) {
 
   const classes: Record<CharacterClass, any> = {
     awd: null,
+    awd2: null,
+    awd3: null,
     base: null
   }
   // TODO select default option

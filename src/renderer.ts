@@ -33,6 +33,7 @@ export class Renderer {
 
   disposeRenderer() {
     cancelAnimationFrame(this.RAFref);
+    this._paused = true
     window.removeEventListener('resize', this.resize);
     this.renderer.dispose();
     this.renderer.domElement.remove();

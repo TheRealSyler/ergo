@@ -12,7 +12,7 @@ import { FightControllerStandalone } from './fightControllerStandalone';
 
 export async function LoadFight(humanPlayer: Player, game: Game, player1: Character, player2: Character, stageName: RoomNames): Promise<FightControllerStandalone> {
   const manager = new LoadingManager()
-  LoaderUI(manager)
+  LoaderUI(manager, 'Loading Custom Battle')
   return new Promise(async (res) => {
 
     const loader = getGLTFLoader(manager);
