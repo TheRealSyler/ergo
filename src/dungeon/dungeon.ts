@@ -137,6 +137,7 @@ export class Dungeon<Rooms extends string> extends Renderer {
         this.scene.remove(players.player1.model);
         // this.scene.remove(players.player2.model);
         this.setCamera(dir);
+        dungeonRoom.fight = undefined
         this.controls.connect()
 
       }
