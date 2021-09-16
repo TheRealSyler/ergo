@@ -2,7 +2,7 @@ import { Renderer } from '../renderer';
 import { Object3D, Raycaster, Vector3, LoadingManager } from 'three';
 import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls'
 import { loadRoom } from '../rooms/rooms';
-import { DungeonDoor, DungeonRoom, DungeonRooms, RoomItemInfo } from './dungeonRoom';
+import { DungeonRoom, DungeonRooms, RoomItemInfo } from './dungeonRoom';
 import { LoaderUI } from '../ui/loaderUI';
 import { Character } from '../character/character';
 import { loadCharacter } from '../character/loadCharacter';
@@ -18,7 +18,7 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { loadRoomDoor, RoomDoorAsset } from './doors';
 import { Inventory, InventoryUI } from '../ui/inventoryUI';
 import { getKeybinding } from '../keybindings';
-
+import { h } from 'dom-chef'
 
 interface InterActableObject {
   collision: Object3D;
@@ -136,7 +136,9 @@ export class Dungeon<Rooms extends string> extends Renderer {
           // console.log(victory)
 
 
-          this.inventoryUI.show({ name: 'Fight', inventory: { items: ['BasicGloves'], size: 12 } }, [])
+          this.inventoryUI.show({ name: 'Fight', inventory: { items: ['BasicGloves'], size: 12 } }, [
+            <div className="button">AWD</div>
+          ])
           // this.ui.show()
           // this.fightCon = undefined;
           // this.camera.removeFromParent();
