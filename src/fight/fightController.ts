@@ -77,7 +77,9 @@ export class FightController {
   }
 
   private startFight() {
+    this.isInEndScreen = true
     this.ui.startFight(() => {
+      this.isInEndScreen = false
       if (this.humanPlayer === 'player1') {
         this.players.player1.input = new PlayerInput();
         this.players.player2.input = new AiInput(this.players.player2, this.players.player2);
@@ -141,6 +143,7 @@ export class FightController {
   }
 
   restartFight() {
+    this.isInEndScreen = false
     this.players.player1.restart()
     this.players.player2.restart()
     this.resetUi();

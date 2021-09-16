@@ -44,15 +44,31 @@ export class FightUI {
     this[type][ref.player].set(current, max)
   }
 
-  endScreen(restart: () => void, exitToMainMenu: () => void) {
+  endScreen(_restart: () => void, exitToMainMenu: () => void) {
+    // TODO clean up this mess and add shortcuts to pause menu and use keybindings.
+    const listener = (e: KeyboardEvent) => {
+      if (e.key === 'Enter') {
+        restart()
+      } else if (e.key === 'Escape') {
+        mainMenu()
+      }
+    }
+    const mainMenu = () => {
+      removeListener()
+      exitToMainMenu()
+    }
+    const restart = () => {
+      removeListener()
+      this.HUD()
+      _restart()
+    }
+    window.addEventListener('keydown', listener)
+    const removeListener = () => window.removeEventListener('keydown', listener)
     MAIN_UI_ELEMENT.textContent = ''
     MAIN_UI_ELEMENT.appendChild(<div className="fight-end-screen">
 
-      <div className="button" onClick={exitToMainMenu}>Main Menu</div>
-      <div className="button" onClick={() => {
-        this.HUD()
-        restart()
-      }}>Restart</div>
+      <div className="button" onClick={mainMenu}>[ESCAPE] Main Menu</div>
+      <div className="button" onClick={restart}>[ENTER] Restart</div>
 
     </div>)
   }
