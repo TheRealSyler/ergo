@@ -5,7 +5,7 @@ import { CharacterClass } from '../character/stats'
 import { RoomNames } from '../rooms/rooms'
 import { Game, Player } from '../game'
 import './customBattleUI.sass'
-import { UiMainMenu } from './mainMenuUI'
+import { MainMenuUi } from './mainMenuUI'
 import { MAIN_UI_ELEMENT } from './ui'
 
 export function CustomBattleUI(goToFight: Game['goToFight']) {
@@ -43,7 +43,7 @@ export function CustomBattleUI(goToFight: Game['goToFight']) {
     </div>
     <div className="custom-battle-bottom">
 
-      <button className="button" onClick={() => UiMainMenu(goToFight)}>Main Menu</button>
+      <button className="button" onClick={() => MainMenuUi(goToFight)}>Main Menu</button>
       <button className="button" onClick={() => goToFight(humanPlayer, player1, player2, stage)}>Fight</button>
     </div>
   </div>)

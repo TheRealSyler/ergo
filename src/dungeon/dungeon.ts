@@ -6,9 +6,9 @@ import { DungeonRoom, DungeonRooms, RoomItemInfo } from './dungeonRoom';
 import { LoaderUI } from '../ui/loaderUI';
 import { Character } from '../character/character';
 import { loadCharacter } from '../character/loadCharacter';
-import { dirToRadians, getGLTFLoader } from '../utils';
+import { dirToRadians, getGLTFLoader, wait } from '../utils';
 import { FightController } from '../fight/fightController';
-import { FightUI } from '../ui/fightUI';
+import { FightUI, victoryOrLossUI } from '../ui/fightUI';
 import { CharacterController } from '../character/characterController';
 import { Player } from '../game';
 import { loadRoomItem, RoomItemAsset } from './dungeonRoomItem';
@@ -60,7 +60,7 @@ export class Dungeon<Rooms extends string> extends Renderer {
 
   private playerChar: Character = {
     class: 'base',
-    items: {}
+    items: { weapon: 'BasicSword' }
   }
 
   private ui = new DungeonUI()
@@ -119,7 +119,6 @@ export class Dungeon<Rooms extends string> extends Renderer {
     this.loadRoomDoor(dungeonRoom, doors);
 
     if (fight) {
-      this.controls.disconnect()
       this.controls.unlock()
       const ui = new FightUI()
       const [playerChar1, playerChar2] = fight
@@ -132,37 +131,25 @@ export class Dungeon<Rooms extends string> extends Renderer {
       this.scene.add(players.player2.model);
 
       this.fightCon = new FightController(players, ui, 'player1', this, {
-        customEndScreen: (victory, dispose, restart) => {
-<<<<<<< HEAD:src/dungeon/dungeon.tsx
-          // console.log(victory)
+        exitToMainMenu: () => { console.log('TODO exit to main menu') },
+        customEndScreen: async (victory, dispose, endScreen) => {
+          if (victory) {
+            victoryOrLossUI(victory)
+            await wait(1500)
+            this.ui.show()
+            this.inventoryUI.show({ name: 'Fight', inventory: { items: ['BasicGloves'], size: 12 } })
+            this.fightCon = undefined;
+            this.camera.removeFromParent();
+            this.scene.remove(players.player1.model);
+            // this.scene.remove(players.player2.model);
+            this.setCamera(dir);
+            dungeonRoom.fight = undefined
 
+            dispose()
+          } else {
+            endScreen()
+          }
 
-          this.inventoryUI.show({ name: 'Fight', inventory: { items: ['BasicGloves'], size: 12 } }, [
-            <div className="button">AWD</div>
-          ])
-          // this.ui.show()
-          // this.fightCon = undefined;
-          // this.camera.removeFromParent();
-          // this.scene.remove(players.player1.model);
-          // // this.scene.remove(players.player2.model);
-          // this.setCamera(dir);
-          // // dungeonRoom.fight = undefined
-          // this.controls.connect()
-          // this.controls.lock()
-=======
-          console.log(victory)
-
-          this.ui.show()
-          this.fightCon = undefined;
-          this.camera.removeFromParent();
-          this.scene.remove(players.player1.model);
-          // this.scene.remove(players.player2.model);
-          this.setCamera(dir);
-          // dungeonRoom.fight = undefined
-          this.controls.connect()
-          this.controls.lock()
->>>>>>> parent of bd4a9ad (dungeon.ts pre tsx):src/dungeon/dungeon.ts
-          dispose()
         }
       })
     }
@@ -367,12 +354,9 @@ export class Dungeon<Rooms extends string> extends Renderer {
         if (this.inventoryUI.visible) {
           this.inventoryUI.hide()
           this.controls.lock()
-
         } else {
-
           this.controls.unlock()
           this.inventoryUI.show()
-
         }
       }
 

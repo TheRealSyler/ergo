@@ -6,6 +6,7 @@ import { DungeonRooms } from './dungeon/dungeonRoom';
 import { LoadFight } from './fight/loadFight';
 import { RoomNames } from './rooms/rooms';
 import { CustomBattleUI } from './ui/customBattleUI';
+import { MainMenuUi } from './ui/mainMenuUI';
 
 export type Player = 'player1' | 'player2'
 
@@ -22,6 +23,7 @@ export class Game {
           south: { type: 'exit', asset: 'basic' },
           west: { type: 'room', roomId: 'awd3', asset: 'basic' }
         },
+        fight: { class: 'base', items: {} },
         objects: [{ asset: 'chest', items: { items: ['SuperGloves', 'BasicSword'], size: 12 }, position: new Vector3(-2, 0, 0), rotation: new Vector3(0, degToRad(-90)) }],
         name: 'test'
       },
@@ -50,7 +52,7 @@ export class Game {
     // }
   }
   goToMainMenu() {
-    CustomBattleUI(this.goToFight.bind(this))
+    MainMenuUi(this.goToFight.bind(this))
   }
 
   async goToFight(humanPlayer?: Player, player1?: Character, player2?: Character, stage?: RoomNames) {

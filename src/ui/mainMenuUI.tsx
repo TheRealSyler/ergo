@@ -4,7 +4,7 @@ import './mainMenuUI.sass'
 import { Game } from '../game'
 import { CustomBattleUI } from './customBattleUI'
 
-export function UiMainMenu(goToFight: Game['goToFight']) {
+export function MainMenuUi(goToFight: Game['goToFight']) {
 
   MAIN_UI_ELEMENT.textContent = ''
 

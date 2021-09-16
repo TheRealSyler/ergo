@@ -1,28 +1,39 @@
+.fight
+  &-hud
+    position: fixed
+    top: 0
+    bottom: 0
+    right: 0
+    left: 0
+    cursor: none
+  &-bar
+    height: 20px
+  &-end-result
+    position: fixed
+    top: 10vh
+    left: 50%
+    transform: translateX(-50%)
+    font-size: 8rem
 
-.hud
-  position: fixed
-  top: 0
-  bottom: 0
-  right: 0
-  left: 0
-  cursor: none
-.bar
-  height: 20px
+  &-victory
+    color: #fc7
+  &-loss
+    color: red
+  &-pause-menu,
+  &-end-screen
+    display: flex
+    flex-direction: column
+    gap: 0.6rem
+    flex-basis: 0
+    flex-grow: 1
+    position: absolute
+    top: 50%
+    left: 50%
+    transform: translate(-50%, -50%)
+    font-size: 1.7rem
 
 .health
   background: red
 
 .stamina
   background: green
-
-.pause-menu, // TODO make pause menu style unique.
-.end-screen
-  display: flex
-  flex-direction: column
-  gap: 0.6rem
-  flex-basis: 0
-  flex-grow: 1
-  position: absolute
-  top: 50%
-  left: 50%
-  transform: translate(-50%, -50%)

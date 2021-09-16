@@ -7,7 +7,7 @@ import { AttackStance, CharacterController, CharStance } from '../character/char
 import { degToRad } from 'three/src/math/MathUtils';
 // import { RoughnessMipmapper } from 'three/examples/jsm/utils/RoughnessMipmapper';
 import { Player } from '../game';
-import { FightUI } from '../ui/fightUI';
+import { FightUI, victoryOrLossUI } from '../ui/fightUI';
 import { AttackAnimations } from '../animation/types';
 import { AiInput } from '../ai/aiCharacterInput';
 import { PlayerInput } from '../playerInput';
@@ -22,12 +22,9 @@ const oppositeAttackDir: Record<AttackAnimations, AttackAnimations> = {
 }
 type AttackResult = 'hit' | 'not_hit' | 'blocked';
 
-
 export interface FightControllerOptions {
-  customEndScreen?: (victory: boolean, dispose: () => void, restart: () => void) => void
-  /**add exit option to pause menu and end screen(if the customEndScreen is not provided) */
-  exit?: () => void;
-  uiExitText?: string
+  customEndScreen?: (victory: boolean, dispose: () => void, endScreen: () => void) => void
+  exitToMainMenu: () => void;
 }
 
 export class FightController {
@@ -39,7 +36,7 @@ export class FightController {
 
     this.setPlayerPositions();
 
-    this.attachCamera(humanPlayer);
+    this.attachCamera();
 
     this.resetUi();
 
@@ -55,7 +52,7 @@ export class FightController {
     window.addEventListener('keydown', this.keyListener)
   }
 
-  private attachCamera(humanPlayer: string) {
+  private attachCamera() {
     this.renderer.camera.position.set(0, 0, 0);
     this.renderer.camera.rotation.set(0, 0, 0);
     this.renderer.camera.near = 0.15
@@ -103,7 +100,7 @@ export class FightController {
 
   private exit() {
     this.dispose()
-    this.options.exit && this.options.exit()
+    this.options.exitToMainMenu()
   }
 
   private keyListener = (e: KeyboardEvent) => {
@@ -118,7 +115,7 @@ export class FightController {
         this.renderer.pause()
         this.ui.pauseMenu(() => {
           this.unpause()
-        }, this.options.exit ? this.exit.bind(this) : undefined)
+        }, this.exit.bind(this))
       }
     }
   }
@@ -134,9 +131,13 @@ export class FightController {
   endScreen(victory: boolean) {
     this.isInEndScreen = true
     if (this.options.customEndScreen) {
-      this.options.customEndScreen(victory, this.dispose.bind(this), this.restartFight.bind(this))
+      this.options.customEndScreen(victory, this.dispose.bind(this), () => {
+        this.ui.endScreen(this.restartFight.bind(this), this.exit.bind(this))
+        victoryOrLossUI(victory)
+      })
     } else {
-      this.ui.endScreen(this.restartFight.bind(this), this.options.exit ? this.exit.bind(this) : undefined)
+      this.ui.endScreen(this.restartFight.bind(this), this.exit.bind(this))
+      victoryOrLossUI(victory)
     }
   }
 

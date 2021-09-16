@@ -8,12 +8,12 @@ import { Player } from '../game'
 
 export class FightUI {
   private health: Record<Player, HTMLElement> = {
-    player1: <div className='bar health'></div>,
-    player2: <div className='bar health'></div>
+    player1: <div className='fight-bar health'></div>,
+    player2: <div className='fight-bar health'></div>
   }
   private stamina: Record<Player, HTMLElement> = {
-    player1: <div className='bar stamina'></div>,
-    player2: <div className='bar stamina'></div>
+    player1: <div className='fight-bar stamina'></div>,
+    player2: <div className='fight-bar stamina'></div>
   }
 
   constructor() {
@@ -24,7 +24,7 @@ export class FightUI {
   HUD() {
     MAIN_UI_ELEMENT.textContent = ''
 
-    MAIN_UI_ELEMENT.appendChild(<div className="hud">
+    MAIN_UI_ELEMENT.appendChild(<div className="fight-hud">
       {this.health.player1}
       {this.stamina.player1}
       {this.health.player2}
@@ -40,11 +40,11 @@ export class FightUI {
     this[type][ref.player].style.width = toPx(Math.max((amount / max) * this.barWidth, 0))
   }
 
-  endScreen(restart: () => void, exit?: () => void,) {
+  endScreen(restart: () => void, exitToMainMenu: () => void) {
     MAIN_UI_ELEMENT.textContent = ''
-    MAIN_UI_ELEMENT.appendChild(<div className="end-screen">
+    MAIN_UI_ELEMENT.appendChild(<div className="fight-end-screen">
 
-      {exit && <div className="button" onClick={exit}>Main Menu</div>}
+      <div className="button" onClick={exitToMainMenu}>Main Menu</div>
       <div className="button" onClick={() => {
         restart()
         this.HUD()
@@ -53,11 +53,11 @@ export class FightUI {
     </div>)
   }
 
-  pauseMenu(resume: () => void, exit?: () => void) {
+  pauseMenu(resume: () => void, exitToMainMenu: () => void) {
     MAIN_UI_ELEMENT.textContent = ''
-    MAIN_UI_ELEMENT.appendChild(<div className="pause-menu">
+    MAIN_UI_ELEMENT.appendChild(<div className="fight-pause-menu">
 
-      {exit && <div className="button" onClick={exit}>Main Menu</div>}
+      <div className="button" onClick={exitToMainMenu}>Main Menu</div>
       <div className="button" onClick={() => {
         resume()
         this.HUD()
@@ -65,4 +65,11 @@ export class FightUI {
 
     </div>)
   }
+}
+
+export function victoryOrLossUI(victory: boolean) {
+  // TODO add animation etc
+  MAIN_UI_ELEMENT.appendChild(<div className={`fight-end-result ${victory ? 'fight-victory' : 'fight-loss'}`}>
+    {victory ? 'VICTORY' : 'LOSS'}
+  </div>)
 }

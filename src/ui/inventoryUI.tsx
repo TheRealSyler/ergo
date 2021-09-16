@@ -37,7 +37,8 @@ export class InventoryUI {
     {this.lootName}
     {this.lootItemsEl}
   </div>
-  private mainEl = <div className="inventory">
+
+  private mainEl = <div className="inventory modal">
     <div className="inventory-content">
 
       <div>
@@ -72,7 +73,7 @@ export class InventoryUI {
     this.lootItemsEl.textContent = ''
     this.lootEl.style.display = 'none'
     if (loot) {
-      (this.lootName.textContent = `Loot (${loot.name})`)
+      this.lootName.textContent = `Loot (${loot.name})`
 
       this.lootEl.style.display = 'block'
       this.lootInventory = loot.inventory;
