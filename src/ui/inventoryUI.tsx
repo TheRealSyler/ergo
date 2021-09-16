@@ -8,7 +8,7 @@ import { getKeybinding } from '../keybindings'
 
 export interface Inventory {
   items: (ItemName | undefined)[],
-  size: number;
+  size?: number;
 }
 
 type DragInfoInventoryAndLoot = 'inventory' | 'loot'
@@ -22,6 +22,7 @@ type DragInfo = {
 }
 
 export class InventoryUI {
+  private oneTimeListener?: () => void
   private mousePos = { x: 0, y: 0 }
   private offset = { x: 0, y: 0 }
   private dragInfo?: DragInfo = undefined
@@ -61,12 +62,15 @@ export class InventoryUI {
     <div className="inventory-info-bar"> [{getKeybinding('Dungeon', 'ToggleInventory')}] Close Inventory </div>
   </div>
   private lootInventory: Inventory = { items: [], size: 0 }
-  constructor(public inventory: Inventory, public character: Character) { }
+  constructor(private inventory: Inventory, private character: Character) {
+    this.lootName.style.whiteSpace = 'nowrap'
+  }
 
   visible = false
 
-  show(loot?: { name: string, inventory: Inventory }) {
+  show(loot?: { name: string, inventory: Inventory }, oneTimeListener?: () => void) {
     this.visible = true
+    this.oneTimeListener = oneTimeListener
     window.addEventListener('mousemove', this.mousemove)
     window.addEventListener('mouseup', this.mouseup)
     MAIN_UI_ELEMENT.appendChild(this.mainEl)
@@ -87,13 +91,17 @@ export class InventoryUI {
     this.mainEl.remove()
     window.removeEventListener('mousemove', this.mousemove)
     window.removeEventListener('mouseup', this.mouseup)
+    if (this.oneTimeListener) {
+      this.oneTimeListener()
+      this.oneTimeListener = undefined
+    }
   }
 
 
   private addItemSlots(inventory: Inventory, type: DragInfoInventoryAndLoot = 'inventory') {
     const items = []
-
-    for (let i = 0; i < inventory.size; i++) {
+    const size = inventory.size || inventory.items.length
+    for (let i = 0; i < size; i++) {
       items.push(this.addItemSlot({ type, id: i }))
     }
     return items

@@ -1,5 +1,5 @@
 import { Renderer } from '../renderer';
-import { Object3D, Raycaster, Vector3, LoadingManager } from 'three';
+import { Object3D, Raycaster, Vector3, LoadingManager, Group } from 'three';
 import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls'
 import { loadRoom } from '../rooms/rooms';
 import { DungeonRoom, DungeonRooms, RoomItemInfo } from './dungeonRoom';
@@ -18,11 +18,14 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { loadRoomDoor, RoomDoorAsset } from './doors';
 import { Inventory, InventoryUI } from '../ui/inventoryUI';
 import { getKeybinding } from '../keybindings';
-import { h } from 'dom-chef'
+import { ItemName } from '../character/items';
 
 interface InterActableObject {
   collision: Object3D;
   name: string
+  removeIfEmpty?: boolean
+  loot?: Inventory
+  scene: Group
   func: (self: InterActableObject) => void
 }
 
@@ -57,6 +60,7 @@ export class Dungeon<Rooms extends string> extends Renderer {
   private activeObj?: InterActableObject
 
   private fightCon?: FightController;
+  private currentRoom: DungeonRoom<Rooms>
 
   private playerChar: Character = {
     class: 'base',
@@ -72,7 +76,7 @@ export class Dungeon<Rooms extends string> extends Renderer {
 
   constructor(private rooms: DungeonRooms<Rooms>, firstRoom: Rooms, entryDir: DungeonDir) {
     super(0.01)
-
+    this.currentRoom = this.rooms[firstRoom]
     this.load(this.rooms[firstRoom], entryDir);
     this.addListeners()
 
@@ -94,6 +98,7 @@ export class Dungeon<Rooms extends string> extends Renderer {
   }
 
   private async load(dungeonRoom: DungeonRoom<Rooms>, dir: DungeonDir) {
+    this.currentRoom = dungeonRoom
     this.reset()
     this.setCamera(dir);
     const manager = new LoadingManager();
@@ -105,7 +110,7 @@ export class Dungeon<Rooms extends string> extends Renderer {
       loadRoom(dungeonRoom.name, manager, loader),
       Promise.all(this.extractRoomItemPromisees(dungeonRoom, loader)),
       Promise.all(this.extractRoomDoorPromisees(dungeonRoom, loader)),
-      dungeonRoom.fight ? Promise.all([loadCharacter(loader, this.playerChar), loadCharacter(loader, dungeonRoom.fight)]) : undefined
+      dungeonRoom.fight ? Promise.all([loadCharacter(loader, this.playerChar), loadCharacter(loader, dungeonRoom.fight.char)]) : undefined
     ])
 
     this.ui.show()
@@ -114,9 +119,9 @@ export class Dungeon<Rooms extends string> extends Renderer {
     this.scene.environment = room.background || null;
     this.collisionObjects.push(...room.collisions);
 
-    this.loadRoomItems(roomItems)
+    this.addRoomItems(roomItems)
 
-    this.loadRoomDoor(dungeonRoom, doors);
+    this.addRoomDoor(dungeonRoom, doors);
 
     if (fight) {
       this.controls.unlock()
@@ -136,14 +141,25 @@ export class Dungeon<Rooms extends string> extends Renderer {
           if (victory) {
             victoryOrLossUI(victory)
             await wait(1500)
-            this.ui.show()
-            this.inventoryUI.show({ name: 'Fight', inventory: { items: ['BasicGloves'], size: 12 } })
-            this.fightCon = undefined;
             this.camera.removeFromParent();
+            this.setCamera(dir);
+            this.fightCon = undefined;
             this.scene.remove(players.player1.model);
             // this.scene.remove(players.player2.model);
-            this.setCamera(dir);
+
+            const dungeonFight = dungeonRoom.fight!
             dungeonRoom.fight = undefined
+
+            const loot: Inventory = { items: [...(dungeonFight.loot?.items || []), ...this.characterItemsToArray(dungeonFight.char)] }
+            const newRoomItem: RoomItemInfoAndAsset = { asset: await loadRoomItem(loader, 'enemy'), info: { asset: 'enemy', items: loot, removeIfEmpty: true } };
+            this.ui.show()
+
+            this.inventoryUI.show({ name: 'Fight', inventory: loot }, () => {
+              if (!this.areItemsEmpty(newRoomItem.info.items!.items)) {
+                dungeonRoom.objectInfos.push(newRoomItem.info)
+                this.addRoomItems([newRoomItem])
+              }
+            })
 
             dispose()
           } else {
@@ -159,12 +175,12 @@ export class Dungeon<Rooms extends string> extends Renderer {
   private extractRoomItemPromisees(dungeonRoom: DungeonRoom<Rooms>, loader: GLTFLoader) {
     const roomItemPromises: Promise<RoomItemInfoAndAsset>[] = [];
 
-    for (let i = 0; i < dungeonRoom.objects.length; i++) {
-      const object = dungeonRoom.objects[i];
+    for (let i = 0; i < dungeonRoom.objectInfos.length; i++) {
+      const info = dungeonRoom.objectInfos[i];
       roomItemPromises.push(new Promise(async (res) => {
         res({
-          asset: await loadRoomItem(loader, object.asset),
-          info: object
+          asset: await loadRoomItem(loader, info.asset),
+          info: info
         });
       }));
     }
@@ -191,33 +207,43 @@ export class Dungeon<Rooms extends string> extends Renderer {
     return roomDoorPromises
   }
 
-  private loadRoomItems(roomItems: RoomItemInfoAndAsset[]) {
+  private addRoomItems(roomItems: RoomItemInfoAndAsset[]) {
     for (let i = 0; i < roomItems.length; i++) {
-      const item = roomItems[i];
-      this.scene.add(item.asset.scene)
-      if (item.info.position) {
-        const { x, y, z } = item.info.position;
-        item.asset.scene.position.set(x, y, z)
+      const { asset, info } = roomItems[i];
+      this.scene.add(asset.scene)
+      if (info.position) {
+        const { x, y, z } = info.position;
+        asset.scene.position.set(x, y, z)
       }
-      if (item.info.rotation) {
-        const { x, y, z } = item.info.rotation;
-        item.asset.scene.rotation.set(x, y, z)
+      if (info.rotation) {
+        const { x, y, z } = info.rotation;
+        asset.scene.rotation.set(x, y, z)
       }
-      this.collisionObjects.push(item.asset.collision);
+      this.collisionObjects.push(asset.collision);
       this.interActableObjects.push({
         func: (self) => {
-          if (item.info.items) {
+          if (self.loot) {
             this.controls.unlock()
-            this.inventoryUI.show({ inventory: item.info.items, name: self.name })
+            this.inventoryUI.show({ inventory: self.loot, name: self.name }, () => {
+              if (self.removeIfEmpty && this.areItemsEmpty(self.loot!.items)) {
+                this.collisionObjects = this.collisionObjects.filter((v) => v !== self.collision)
+                this.interActableObjects = this.interActableObjects.filter((v) => v !== self)
+                this.currentRoom.objectInfos = this.currentRoom.objectInfos.filter((v) => v !== info)
+                self.scene.removeFromParent()
+              }
+            })
           }
         },
-        name: 'Chest',
-        collision: item.asset.collision
+        scene: asset.scene,
+        loot: info.items,
+        removeIfEmpty: info.removeIfEmpty,
+        name: info.asset,
+        collision: asset.collision
       })
     }
   }
 
-  private loadRoomDoor(dungeonRoom: DungeonRoom<Rooms>, doors: RoomDoorAssetAndDir[]) {
+  private addRoomDoor(dungeonRoom: DungeonRoom<Rooms>, doors: RoomDoorAssetAndDir[]) {
     for (let i = 0; i < doors.length; i++) {
       const { asset, dir } = doors[i];
       const door = dungeonRoom.doors[dir]!
@@ -226,6 +252,7 @@ export class Dungeon<Rooms extends string> extends Renderer {
       asset.scene.rotateY(dirToRadians(dir));
       asset.scene.translateZ(-5);
       this.interActableObjects.push({
+        scene: asset.scene,
         collision: asset.collision,
         name: door.type === 'exit' ? 'Exit ' + dir : door.roomId + ' ' + dir,
         func: () => {
@@ -399,5 +426,28 @@ export class Dungeon<Rooms extends string> extends Renderer {
         this.keys.right = false;
         break;
     }
+  }
+
+  private areItemsEmpty(items: Inventory['items']) {
+    let areItemsEmpty = true;
+    items.forEach(item => {
+      if (item) {
+        areItemsEmpty = false;
+      }
+    });
+    return areItemsEmpty;
+  }
+
+  private characterItemsToArray(char: Character) {
+    const items: ItemName[] = []
+    for (const key in char.items) {
+      if (Object.prototype.hasOwnProperty.call(char.items, key)) {
+        const item = char.items[key as keyof Character['items']];
+        if (item) {
+          items.push(item)
+        }
+      }
+    }
+    return items
   }
 }
