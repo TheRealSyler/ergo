@@ -53,6 +53,8 @@ function playerSelector(player: Character) {
 
   const classes: Record<CharacterClass, any> = {
     awd: null,
+    awd2: null,
+    awd3: null,
     base: null
   }
   // TODO select default option

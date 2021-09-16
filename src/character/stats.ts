@@ -28,7 +28,7 @@ export interface CharacterStats {
   stamina: number
 }
 
-export type CharacterClass = 'base' | 'awd';
+export type CharacterClass = 'base' | 'awd' | 'awd2' | 'awd3';
 
 const BASE_STATS: CharacterStats = {
   damage: NumberRange(3, 7),
@@ -68,6 +68,20 @@ function getCharacterBaseStats(charClass: CharacterClass): CharacterStats {
       return baseCopy
     case 'awd':
       baseCopy.maxHealth = 50
+      return baseCopy
+    case 'awd2':
+      baseCopy.maxHealth = 100
+      baseCopy.aiTimeToAttack = NumberRange(0.2, 1.3)
+      baseCopy.attackSpeed = 1.1
+      baseCopy.maxStamina = 20
+      baseCopy.damage = NumberRange(20, 30)
+      return baseCopy
+    case 'awd3':
+      baseCopy.maxHealth = 200
+      baseCopy.aiTimeToAttack = NumberRange(0.1, 1)
+      baseCopy.attackSpeed = 1.3
+      baseCopy.maxStamina = 30
+      baseCopy.damage = NumberRange(20, 30)
       return baseCopy
   }
 }

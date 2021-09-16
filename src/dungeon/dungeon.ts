@@ -65,14 +65,14 @@ export class Dungeon<Rooms extends string> extends Renderer {
 
   private playerChar: Character = {
     class: 'base',
-    items: { weapon: 'BasicSword', gloves: 'BasicGloves' }
+    items: {}
   }
 
   playerStats: CharacterStats = createStats(this.playerChar)
 
   private ui = new DungeonUI()
   private inventory: Inventory = {
-    items: ['SuperGloves'],
+    items: [],
     size: 12
   };
   private inventoryUI = new InventoryUI(this.inventory, this.playerChar, this.playerStats)
@@ -125,7 +125,7 @@ export class Dungeon<Rooms extends string> extends Renderer {
     this.addRoomItems(roomItems)
 
     this.addRoomDoor(dungeonRoom, doors);
-    this.inventoryUI.show()
+
     if (fight) {
       this.controls.unlock()
       const ui = new FightUI()

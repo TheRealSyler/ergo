@@ -24,14 +24,15 @@ const gloves: Record<Items['gloves'], NormalItem> = {
   BasicGloves: {
     description: '',
     statChanges: {
-      damage: NumberRange(-1, -1),
+      damage: NumberRange(1, 1),
       maxHealth: 7
     }
   },
   SuperGloves: {
     description: '',
     statChanges: {
-      maxHealth: 15
+      maxHealth: 40,
+      dodgeSpeed: -0.1
     }
   }
 }
