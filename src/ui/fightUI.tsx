@@ -1,19 +1,20 @@
 import { h } from 'dom-chef'
 import { CharacterController } from '../character/characterController'
-import { toPx, wait } from '../utils'
+import { wait } from '../utils'
 import { MAIN_UI_ELEMENT } from './ui'
 
 import './fightUI.sass'
 import { Player } from '../game'
+import { BarComponent } from './barComponent'
 
 export class FightUI {
-  private health: Record<Player, HTMLElement> = {
-    player1: <div className='fight-bar health'></div>,
-    player2: <div className='fight-bar health'></div>
+  private health: Record<Player, BarComponent> = {
+    player1: new BarComponent('health', 0),
+    player2: new BarComponent('health', 0)
   }
-  private stamina: Record<Player, HTMLElement> = {
-    player1: <div className='fight-bar stamina'></div>,
-    player2: <div className='fight-bar stamina'></div>
+  private stamina: Record<Player, BarComponent> = {
+    player1: new BarComponent('stamina', 0),
+    player2: new BarComponent('stamina', 0)
   }
   private fightStartTextEL = <span ></span>
   private fightStartEL = <div className="fight-start center-fixed">{this.fightStartTextEL}</div>
@@ -21,25 +22,26 @@ export class FightUI {
   constructor() {
     this.HUD()
   }
-  private barWidth = 100;
 
   HUD() {
     MAIN_UI_ELEMENT.textContent = ''
 
     MAIN_UI_ELEMENT.appendChild(<div className="fight-hud fixed">
-      {this.health.player1}
-      {this.stamina.player1}
-      {this.health.player2}
-      {this.stamina.player2}
+      <div className="fight-bars">
+        {this.health.player1.getEl()}
+        {this.stamina.player1.getEl()}
+
+        {this.health.player2.getEl()}
+        {this.stamina.player2.getEl()}
+      </div>
     </div>)
   }
 
   update(type: 'health' | 'stamina', ref: CharacterController) {
-    const amount = ref.stats[type]
+    const current = ref.stats[type]
     const maxType = type === 'health' ? 'maxHealth' : 'maxStamina'
     const max = ref.stats[maxType]
-    this[type][ref.player].textContent = amount.toFixed(0)
-    this[type][ref.player].style.width = toPx(Math.max((amount / max) * this.barWidth, 0))
+    this[type][ref.player].set(current, max)
   }
 
   endScreen(restart: () => void, exitToMainMenu: () => void) {

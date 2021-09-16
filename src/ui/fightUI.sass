@@ -1,8 +1,15 @@
 .fight
   &-hud
     cursor: none
-  &-bar
-    height: 20px
+    display: flex
+    justify-content: center
+  &-bars
+    margin: 1rem
+    display: grid
+    grid-template-columns: auto auto
+    gap: 0.4rem
+    width: 20vw
+    height: max-content
   &-end-result
     position: fixed
     top: 10vh
@@ -31,12 +38,6 @@
 
   &-start-animate
     animation: start-fight 1s forwards
-
-.health
-  background: red
-
-.stamina
-  background: green
 
 @keyframes start-fight
   0%
