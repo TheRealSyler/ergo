@@ -44,8 +44,6 @@ export class CharacterController {
   input: Input = EMPTY_INPUT;
   private mixer: AnimationMixer;
 
-  stats: CharacterStats;
-
   public get hp(): number {
     return this.stats.health
   }
@@ -63,12 +61,11 @@ export class CharacterController {
   stance: CharStance = { type: 'idle' };
   private initialHp = 0;
   private initialStamina = 0;
-  constructor(public player: Player, public ui: FightUI, char: LoadedCharacter) {
+  constructor(public player: Player, public ui: FightUI, char: LoadedCharacter, public stats: CharacterStats = createStats(char.character)) {
 
     this.mixer = char.mixer;
     this.animations = char.animations;
     this.model = char.model;
-    this.stats = createStats(char.character);
     this.initialHp = this.hp
     this.initialStamina = this.stamina
     this.stateMachine = new FiniteStateMachine({

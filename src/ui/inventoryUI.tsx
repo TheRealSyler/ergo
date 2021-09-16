@@ -5,6 +5,9 @@ import './inventoryUI.sass'
 import { ItemName, ITEMS } from '../character/items'
 import { Character } from '../character/character'
 import { getKeybinding } from '../keybindings'
+import { CharacterStats, updateStatsWithItem } from '../character/stats'
+import { toFixedIfNotZero } from '../utils'
+import { BarComponent } from './barComponent'
 
 export interface Inventory {
   items: (ItemName | undefined)[],
@@ -32,9 +35,11 @@ export class InventoryUI {
 
   private dragAndDropIcon = <div className="inventory-slot inventory-drag inventory-drag-el"></div>
   private lootItemsEl = <div className="inventory-items"></div>
-  private lootName = <h1>Loot</h1>
-
-  private lootEl = <div>
+  private lootName = <span className="inventory-title">Loot</span>
+  private statsEl = <div className="inventory-stats"></div>
+  private healthBar = new BarComponent('health')
+  private staminaBar = new BarComponent('stamina')
+  private lootEl = <div className="inventory-section">
     {this.lootName}
     {this.lootItemsEl}
   </div>
@@ -42,16 +47,21 @@ export class InventoryUI {
   private mainEl = <div className="inventory modal">
     <div className="inventory-content">
 
-      <div>
-        <h1>Character</h1>
+      <div className="inventory-section">
+        <span className="inventory-title">Character</span>
+        <div className="inventory-stats">
+          <div className="inventory-bars">{this.healthBar.getEl()} {this.staminaBar.getEl()}</div>
+
+        </div>
+        {this.statsEl}
         <div className="inventory-char">
           {this.addItemSlot({ type: 'character', id: 'gloves' })}
           {this.addItemSlot({ type: 'character', id: 'weapon' })}
         </div>
       </div>
 
-      <div>
-        <h1>Inventory</h1>
+      <div className="inventory-section">
+        <span className="inventory-title">Inventory</span>
         <div className="inventory-items">{this.addItemSlots(this.inventory)}</div>
       </div>
 
@@ -59,10 +69,10 @@ export class InventoryUI {
 
     </div>
 
-    <div className="inventory-info-bar"> [{getKeybinding('Dungeon', 'ToggleInventory')}] Close Inventory </div>
+    <div className="inventory-info-bar"> [{getKeybinding('Dungeon', 'ToggleInventory')}] Close </div>
   </div>
   private lootInventory: Inventory = { items: [], size: 0 }
-  constructor(private inventory: Inventory, private character: Character) {
+  constructor(private inventory: Inventory, private character: Character, private stats: CharacterStats) {
     this.lootName.style.whiteSpace = 'nowrap'
   }
 
@@ -83,7 +93,34 @@ export class InventoryUI {
       this.lootInventory = loot.inventory;
       this.lootItemsEl.append(...this.addItemSlots(this.lootInventory, 'loot'))
     }
+    this.updateStats()
+  }
 
+  private updateStats() {
+    this.statsEl.textContent = ''
+
+    this.healthBar.set(this.stats.health, this.stats.maxHealth)
+    this.staminaBar.set(this.stats.stamina, this.stats.maxStamina)
+
+    for (const key in this.stats) {
+      if (Object.prototype.hasOwnProperty.call(this.stats, key)) {
+        const stat = this.stats[key as keyof CharacterStats]
+        switch (key as keyof CharacterStats) {
+          case 'aiDodgeReactionTime':
+          case 'aiTimeToAttack':
+          case 'health':
+          case 'stamina':
+          case 'maxHealth':
+          case 'maxStamina':
+            break
+          default:
+            this.statsEl.appendChild(<span className="inventory-stat">
+              <span>{key}:</span> <span>{this.displayStat(stat)}</span>
+            </span>)
+            break
+        }
+      }
+    }
   }
 
   hide() {
@@ -97,6 +134,14 @@ export class InventoryUI {
     }
   }
 
+  private displayStat(stat: CharacterStats[keyof CharacterStats]) {
+    switch (typeof stat) {
+      case 'number':
+        return toFixedIfNotZero(stat, 1)
+      case 'object':
+        return `${toFixedIfNotZero(stat.min, 1)} - ${toFixedIfNotZero(stat.max, 1)}`
+    }
+  }
 
   private addItemSlots(inventory: Inventory, type: DragInfoInventoryAndLoot = 'inventory') {
     const items = []
@@ -207,16 +252,41 @@ export class InventoryUI {
   }
 
   private dropItem(target: HTMLElement, dragInfo: Required<DragInfo>, targetInfo: Required<DragInfo>) {
-    const droppedItem = this.getItem(dragInfo)
-    target.textContent = droppedItem || this.getEmptySlotName(targetInfo)
-    target.className = inventorySlotClassList(!droppedItem)
-    const item = this.getItem(targetInfo)
-    this.setItem(dragInfo, item)
-    this.setItem(targetInfo, droppedItem)
+    const droppedItemName = this.getItem(dragInfo)
+    const oldItemName = this.getItem(targetInfo)
+
+    target.textContent = droppedItemName || this.getEmptySlotName(targetInfo)
+    target.className = inventorySlotClassList(!droppedItemName)
 
     const oldEl = document.getElementById(`${this.getSlotIdType(dragInfo)}${dragInfo.id}`)!
-    oldEl.className = inventorySlotClassList(!item)
-    oldEl.textContent = item || this.getEmptySlotName(dragInfo)
+    oldEl.className = inventorySlotClassList(!oldItemName)
+    oldEl.textContent = oldItemName || this.getEmptySlotName(dragInfo)
+    if (droppedItemName === oldItemName) return;
+
+    this.setItem(dragInfo, oldItemName)
+    this.setItem(targetInfo, droppedItemName)
+
+    const droppedItemDrag = this.getItemStatChanges(dragInfo, droppedItemName)
+    const droppedItemTarget = this.getItemStatChanges(targetInfo, droppedItemName)
+    if (droppedItemDrag) {
+      updateStatsWithItem(this.stats, droppedItemDrag, false)
+    }
+    if (droppedItemTarget) {
+      updateStatsWithItem(this.stats, droppedItemTarget, true)
+    }
+    let oldItemDrag = this.getItemStatChanges(dragInfo, oldItemName)
+    let oldItemTarget = this.getItemStatChanges(targetInfo, oldItemName)
+    if (oldItemDrag) {
+      updateStatsWithItem(this.stats, oldItemDrag, true)
+    }
+    if (oldItemTarget) {
+      updateStatsWithItem(this.stats, oldItemTarget, false)
+    }
+    this.updateStats()
+  }
+
+  private getItemStatChanges(dragInfo: Required<DragInfo>, itemName?: string,) {
+    return itemName && dragInfo.type === 'character' ? ITEMS[dragInfo.id][itemName as keyof Character['items']['gloves']] : undefined
   }
 }
 

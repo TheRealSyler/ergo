@@ -31,18 +31,18 @@ export interface CharacterStats {
 export type CharacterClass = 'base' | 'awd';
 
 const BASE_STATS: CharacterStats = {
+  damage: NumberRange(3, 7),
+  attackSpeed: 1,
+  maxHealth: 25,
+  maxStamina: 10,
+  dodgeSpeed: 0.2,
   aiDodgeReactionTime: NumberRange(0.1, 0.8),
   aiTimeToAttack: NumberRange(0.5, 1.5),
-  attackSpeed: 1,
-  dodgeSpeed: 0.2,
   hitTime: 1.5,
   staminaRegenRate: 5,
   attackStaminaCost: 5,
   dodgeStaminaCost: 1,
-  damage: NumberRange(3, 7),
   health: 25,
-  maxHealth: 25,
-  maxStamina: 10,
   stamina: 25,
 }
 
@@ -55,6 +55,10 @@ export function createStats(character: Character): CharacterStats {
   stats.stamina = stats.maxStamina
 
   return stats
+}
+
+export function updateStatsWithItem(stats: CharacterStats, item: Item, add = true) {
+  applyItemToStats(stats, item, add)
 }
 
 function getCharacterBaseStats(charClass: CharacterClass): CharacterStats {
@@ -80,21 +84,41 @@ function applyStats(character: Character, stats: CharacterStats) {
   }
 }
 
-function applyItemToStats(stats: CharacterStats, item: Item) {
+function applyItemToStats(stats: CharacterStats, item: Item, add = true) {
   for (const k in item.statChanges) {
     if (Object.prototype.hasOwnProperty.call(item.statChanges, k)) {
       const key = k as keyof Item['statChanges'];
       const change = item.statChanges[key];
+      if (!change) continue
 
-      switch (typeof change) {
-        case 'number':
-          (stats[key] as number) += change
+      if (key === 'maxHealth') {
+        const healthPercentage = stats.health / stats.maxHealth
+        stats.maxHealth += (add ? change : -change) as number
+        stats.health = stats.maxHealth * healthPercentage
+      } else if (key === 'maxStamina') {
+        const staminaPercentage = stats.stamina / stats.maxStamina
+        stats.maxStamina += (add ? change : -change) as number
+        stats.stamina = stats.maxStamina * staminaPercentage
 
-          break;
-        case 'object':
-          const old = (stats[key] as NumberRange);
-          (stats[key] as NumberRange) = NumberRange(old.min + change.min, old.max + change.max)
-          break;
+      } else {
+        switch (typeof change) {
+          case 'number':
+            if (add) {
+              (stats[key] as number) += change
+            } else {
+              (stats[key] as number) -= change
+            }
+
+            break;
+          case 'object':
+            const old = (stats[key] as NumberRange);
+            if (add) {
+              (stats[key] as NumberRange) = NumberRange(old.min + change.min, old.max + change.max)
+            } else {
+              (stats[key] as NumberRange) = NumberRange(old.min - change.min, old.max - change.max)
+            }
+            break;
+        }
       }
     }
   }

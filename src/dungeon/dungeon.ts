@@ -19,6 +19,7 @@ import { loadRoomDoor, RoomDoorAsset } from './doors';
 import { Inventory, InventoryUI } from '../ui/inventoryUI';
 import { getKeybinding } from '../keybindings';
 import { ItemName } from '../character/items';
+import { CharacterStats, createStats } from '../character/stats';
 
 interface InterActableObject {
   collision: Object3D;
@@ -64,15 +65,17 @@ export class Dungeon<Rooms extends string> extends Renderer {
 
   private playerChar: Character = {
     class: 'base',
-    items: { weapon: 'BasicSword' }
+    items: { weapon: 'BasicSword', gloves: 'BasicGloves' }
   }
+
+  playerStats: CharacterStats = createStats(this.playerChar)
 
   private ui = new DungeonUI()
   private inventory: Inventory = {
-    items: [],
+    items: ['SuperGloves'],
     size: 12
   };
-  private inventoryUI = new InventoryUI(this.inventory, this.playerChar)
+  private inventoryUI = new InventoryUI(this.inventory, this.playerChar, this.playerStats)
 
   constructor(private rooms: DungeonRooms<Rooms>, firstRoom: Rooms, entryDir: DungeonDir) {
     super(0.01)
@@ -122,14 +125,14 @@ export class Dungeon<Rooms extends string> extends Renderer {
     this.addRoomItems(roomItems)
 
     this.addRoomDoor(dungeonRoom, doors);
-
+    this.inventoryUI.show()
     if (fight) {
       this.controls.unlock()
       const ui = new FightUI()
       const [playerChar1, playerChar2] = fight
 
       const players: Record<Player, CharacterController> = {
-        player1: new CharacterController('player1', ui, playerChar1),
+        player1: new CharacterController('player1', ui, playerChar1, this.playerStats),
         player2: new CharacterController('player2', ui, playerChar2)
       }
       this.scene.add(players.player1.model);

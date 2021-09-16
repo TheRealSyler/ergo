@@ -22,7 +22,7 @@ export class Game {
           south: { type: 'exit', asset: 'basic' },
           west: { type: 'room', roomId: 'awd3', asset: 'basic' }
         },
-        fight: { char: { class: 'base', items: { gloves: 'BasicGloves' } }, loot: { items: ['SuperGloves'] } },
+        // fight: { char: { class: 'base', items: { gloves: 'BasicGloves' } }, loot: { items: ['SuperGloves'] } },
         objectInfos: [{ asset: 'chest', items: { items: ['SuperGloves', 'BasicSword'], size: 12 }, position: new Vector3(-2, 0, 0), rotation: new Vector3(0, degToRad(-90)) }],
         name: 'test'
       },

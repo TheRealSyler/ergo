@@ -91,3 +91,7 @@ export async function wait(time: number): Promise<void> {
     setTimeout(res, time);
   })
 }
+
+export function toFixedIfNotZero(n: number, fractionDigits: number) {
+  return n.toFixed(fractionDigits).replace(/\.0$/, '')
+}
