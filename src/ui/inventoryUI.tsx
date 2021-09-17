@@ -89,7 +89,7 @@ export class InventoryUI {
     if (loot) {
       this.lootName.textContent = `Loot (${loot.name})`
 
-      this.lootEl.style.display = 'block'
+      this.lootEl.style.display = 'inherit'
       this.lootInventory = loot.inventory;
       this.lootItemsEl.append(...this.addItemSlots(this.lootInventory, 'loot'))
     }
