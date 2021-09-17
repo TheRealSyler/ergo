@@ -121,6 +121,7 @@ export class InventoryUI {
           case 'maxStamina':
             break
           default:
+            // TODO add icons.
             this.statsEl.appendChild(<span className="inventory-stat">
               <span>{key}:</span> <span>{this.displayStat(stat)}</span>
             </span>)
