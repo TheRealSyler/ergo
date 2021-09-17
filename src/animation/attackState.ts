@@ -4,6 +4,8 @@ import { getAnimAction } from "../utils";
 import { AnimationTypes, AttackAnimations } from './types';
 import { CharacterController } from '../character/characterController';
 
+export const ATTACK_ACTIVE_TIME = 0.7;
+export const ATTACK_FINISHED_TIME = 0.85;
 export class AttackState extends State<AnimationTypes> {
   animationDuration = 0;
 
@@ -40,9 +42,9 @@ export class AttackState extends State<AnimationTypes> {
       const mixer = curAction.getMixer();
       mixer.timeScale = 1
       fsm.SetState('idle')
-    } else if (percent > 0.85) {
+    } else if (percent > ATTACK_FINISHED_TIME) {
       this.charRef.stance = { type: 'attack', attackDirection: this.direction, attackProgress: 'finished' }
-    } else if (percent > 0.7) {
+    } else if (percent > ATTACK_ACTIVE_TIME) {
       this.charRef.stance = { type: 'attack', attackDirection: this.direction, attackProgress: 'active' }
     }
 

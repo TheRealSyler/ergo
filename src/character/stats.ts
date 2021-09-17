@@ -1,3 +1,4 @@
+import { ATTACK_ACTIVE_TIME } from '../animation/attackState';
 import { NumberRange } from '../utils';
 import { Character } from './character';
 import { Item, ITEMS } from './items';
@@ -136,4 +137,8 @@ function applyItemToStats(stats: CharacterStats, item: Item, add = true) {
       }
     }
   }
+}
+
+export function checkAiDifficulty(playerStats: CharacterStats, aiStats: CharacterStats) {
+  return ((1000 / aiStats.attackSpeed) * ATTACK_ACTIVE_TIME) - (playerStats.dodgeSpeed * 1000)
 }
