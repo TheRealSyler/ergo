@@ -4,7 +4,7 @@ import { MAIN_UI_ELEMENT } from './ui'
 import './inventoryUI.sass'
 import { ItemName, ITEMS } from '../character/items'
 import { Character } from '../character/character'
-import { getKeybinding } from '../keybindings'
+import { getKeybindingUI } from '../keybindings'
 import { CharacterStats, updateStatsWithItem } from '../character/stats'
 import { toFixedIfNotZero } from '../utils'
 import { BarComponent } from './barComponent'
@@ -72,7 +72,7 @@ export class InventoryUI {
 
     </div>
 
-    <div className="inventory-info-bar"> [{getKeybinding('Dungeon', 'ToggleInventory')}] Close | [CTRL + MOUSE CLICK] Equip | [SHIFT + MOUSE CLICK] Move to Inventory {this.lootInfo} </div>
+    <div className="inventory-info-bar"> {getKeybindingUI('Dungeon', 'ToggleInventory')} Close | [CTRL + MOUSE CLICK] Equip | [SHIFT + MOUSE CLICK] Move to Inventory {this.lootInfo} </div>
   </div>
   private lootInventory?: Inventory;
   constructor(private inventory: Inventory, private character: Character, private stats: CharacterStats) {
@@ -80,7 +80,13 @@ export class InventoryUI {
   }
 
   visible = false
-
+  toggle() {
+    if (this.visible) {
+      this.hide()
+    } else {
+      this.show()
+    }
+  }
   show(loot?: { name: string, inventory: Inventory }, oneTimeListener?: () => void) {
     this.visible = true
     this.oneTimeListener = oneTimeListener

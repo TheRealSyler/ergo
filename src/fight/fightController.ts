@@ -13,6 +13,7 @@ import { AiInput } from '../ai/aiCharacterInput';
 import { PlayerInput } from '../playerInput';
 import { randomInRange } from '../utils';
 import { Renderer } from '../renderer';
+import { checkAiDifficulty } from '../character/stats';
 
 const oppositeAttackDir: Record<AttackAnimations, AttackAnimations> = {
   attack_down: 'attack_up',
@@ -24,6 +25,7 @@ type AttackResult = 'hit' | 'not_hit' | 'blocked';
 
 export interface FightControllerOptions {
   customEndScreen?: (victory: boolean, dispose: () => void, endScreen: () => void) => void
+  showInventoryInMenu?: () => void,
   exitToMainMenu: () => void;
 }
 
@@ -70,6 +72,7 @@ export class FightController {
   }
 
   private resetUi() {
+    this.ui.showDifficulty(this.difficulty())
     this.ui.update('health', this.players.player1);
     this.ui.update('health', this.players.player2);
     this.ui.update('stamina', this.players.player1);
@@ -114,14 +117,21 @@ export class FightController {
         this.players.player1.pause()
         this.players.player2.pause()
         this.renderer.pause()
-        this.ui.pauseMenu(() => {
-          this.unpause()
-        }, this.exit.bind(this))
+        this.ui.menu({
+          mainMenu: this.exit.bind(this),
+          restart: this.restartFight.bind(this),
+          inventory: this.options.showInventoryInMenu, // TODO readonly inventory if in pause menu.
+          resume: () => {
+            this.unpause()
+            this.ui.HUD()
+          }
+        })
       }
     }
   }
 
   private unpause() {
+    this.ui.showDifficulty(this.difficulty())
     this.renderer.unpause()
     this.players.player1.unpause()
     this.players.player2.unpause()
@@ -133,20 +143,41 @@ export class FightController {
     this.isInEndScreen = true
     if (this.options.customEndScreen) {
       this.options.customEndScreen(victory, this.dispose.bind(this), () => {
-        this.ui.endScreen(this.restartFight.bind(this), this.exit.bind(this))
+        this.ui.menu({
+          mainMenu: this.exit.bind(this),
+          inventory: this.options.showInventoryInMenu,
+          restart: this.restartFight.bind(this)
+        })
         victoryOrLossUI(victory)
       })
     } else {
-      this.ui.endScreen(this.restartFight.bind(this), this.exit.bind(this))
+      this.ui.menu({
+        mainMenu: this.exit.bind(this),
+        inventory: this.options.showInventoryInMenu,
+        restart: this.restartFight.bind(this)
+      })
       victoryOrLossUI(victory)
+    }
+  }
+
+  private difficulty() {
+    if (this.humanPlayer === 'player1') {
+      return checkAiDifficulty(this.players.player1.stats, this.players.player2.stats)
+    } else {
+      return checkAiDifficulty(this.players.player2.stats, this.players.player1.stats)
+
     }
   }
 
   restartFight() {
     this.isInEndScreen = false
+    if (this.paused) {
+      this.unpause()
+    }
     this.players.player1.restart()
     this.players.player2.restart()
     this.resetUi();
+    this.ui.HUD()
     this.startFight()
   }
 

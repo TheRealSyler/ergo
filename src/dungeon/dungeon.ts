@@ -17,7 +17,7 @@ import { degToRad } from 'three/src/math/MathUtils';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { loadRoomDoor, RoomDoorAsset } from './doors';
 import { Inventory, InventoryUI } from '../ui/inventoryUI';
-import { getKeybinding } from '../keybindings';
+import { getKeybinding, getKeybindingUI } from '../keybindings';
 import { ItemName } from '../character/items';
 import { CharacterStats, createStats } from '../character/stats';
 
@@ -72,7 +72,7 @@ export class Dungeon<Rooms extends string> extends Renderer {
 
   private ui = new DungeonUI()
   private inventory: Inventory = {
-    items: [],
+    items: ['SuperGloves'],
     size: 12
   };
   private inventoryUI = new InventoryUI(this.inventory, this.playerChar, this.playerStats)
@@ -140,6 +140,7 @@ export class Dungeon<Rooms extends string> extends Renderer {
 
       this.fightCon = new FightController(players, ui, 'player1', this, {
         exitToMainMenu: () => { console.log('TODO exit to main menu') },
+        showInventoryInMenu: () => { this.inventoryUI.toggle() },
         customEndScreen: async (victory, dispose, endScreen) => {
           if (victory) {
             victoryOrLossUI(victory)
@@ -156,13 +157,14 @@ export class Dungeon<Rooms extends string> extends Renderer {
             const loot: Inventory = { items: [...(dungeonFight.loot?.items || []), ...this.characterItemsToArray(dungeonFight.char)] }
             const newRoomItem: RoomItemInfoAndAsset = { asset: await loadRoomItem(loader, 'enemy'), info: { asset: 'enemy', items: loot, removeIfEmpty: true } };
             this.ui.show()
-
-            this.inventoryUI.show({ name: 'Fight', inventory: loot }, () => {
-              if (!this.areItemsEmpty(newRoomItem.info.items!.items)) {
-                dungeonRoom.objectInfos.push(newRoomItem.info)
-                this.addRoomItems([newRoomItem])
-              }
-            })
+            if (!this.areItemsEmpty(loot.items)) {
+              this.inventoryUI.show({ name: 'Fight', inventory: loot }, () => {
+                if (!this.areItemsEmpty(newRoomItem.info.items!.items)) {
+                  dungeonRoom.objectInfos.push(newRoomItem.info)
+                  this.addRoomItems([newRoomItem])
+                }
+              })
+            }
 
             dispose()
           } else {
@@ -314,7 +316,7 @@ export class Dungeon<Rooms extends string> extends Renderer {
     if (this.activeObj !== closestObj?.i) {
       this.activeObj = closestObj?.i;
       if (this.activeObj) {
-        this.ui.showActiveObject(`[${getKeybinding('Dungeon', 'Interact')}] - ${this.activeObj.name}`);
+        this.ui.showActiveObject(`${getKeybindingUI('Dungeon', 'Interact')} - ${this.activeObj.name}`);
       } else {
         this.ui.showActiveObject('');
       }
