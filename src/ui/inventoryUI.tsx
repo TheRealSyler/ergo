@@ -14,11 +14,11 @@ export interface Inventory {
   size?: number;
 }
 
-type DragInfoInventoryAndLoot = 'inventory' | 'loot'
+type SlotTypeInventoryOrLoot = 'inventory' | 'loot'
 
-type DragInfo = {
+type SlotInfo = {
   id: number
-  type: DragInfoInventoryAndLoot
+  type: SlotTypeInventoryOrLoot
 } | {
   id: keyof Character['items']
   type: 'character'
@@ -28,7 +28,7 @@ export class InventoryUI {
   private oneTimeListener?: () => void
   private mousePos = { x: 0, y: 0 }
   private offset = { x: 0, y: 0 }
-  private dragInfo?: DragInfo = undefined
+  private draggedSlotInfo?: SlotInfo = undefined
   private inventoryItemId = 'inventory-slot-'
   private characterItemId = 'inventory-character-slot-'
   private lootItemId = 'inventory-loot-slot-'
@@ -36,6 +36,9 @@ export class InventoryUI {
   private dragAndDropIcon = <div className="inventory-slot inventory-drag inventory-drag-el"></div>
   private lootItemsEl = <div className="inventory-items"></div>
   private lootName = <span className="inventory-title">Loot</span>
+  private lootNameInfo = <span>Loot Name</span>
+  private lootInfo = <span>| [ALT + MOUSE CLICK] Move to {this.lootNameInfo}</span>
+
   private statsEl = <div className="inventory-stats"></div>
   private healthBar = new BarComponent('health')
   private staminaBar = new BarComponent('stamina')
@@ -69,9 +72,9 @@ export class InventoryUI {
 
     </div>
 
-    <div className="inventory-info-bar"> [{getKeybinding('Dungeon', 'ToggleInventory')}] Close </div>
+    <div className="inventory-info-bar"> [{getKeybinding('Dungeon', 'ToggleInventory')}] Close | [CTRL + MOUSE CLICK] Equip | [SHIFT + MOUSE CLICK] Move to Inventory {this.lootInfo} </div>
   </div>
-  private lootInventory: Inventory = { items: [], size: 0 }
+  private lootInventory?: Inventory;
   constructor(private inventory: Inventory, private character: Character, private stats: CharacterStats) {
     this.lootName.style.whiteSpace = 'nowrap'
   }
@@ -85,13 +88,17 @@ export class InventoryUI {
     window.addEventListener('mouseup', this.mouseup)
     MAIN_UI_ELEMENT.appendChild(this.mainEl)
     this.lootItemsEl.textContent = ''
-    this.lootEl.style.display = 'none'
     if (loot) {
-      this.lootName.textContent = `Loot (${loot.name})`
-
+      this.lootName.textContent = `${loot.name}`
+      this.lootNameInfo.textContent = loot.name
+      this.lootInfo.style.display = 'inline'
       this.lootEl.style.display = 'inherit'
       this.lootInventory = loot.inventory;
       this.lootItemsEl.append(...this.addItemSlots(this.lootInventory, 'loot'))
+    } else {
+      this.lootEl.style.display = 'none'
+      this.lootInfo.style.display = 'none'
+      this.lootInventory = undefined
     }
     this.updateStats()
   }
@@ -143,7 +150,7 @@ export class InventoryUI {
     }
   }
 
-  private addItemSlots(inventory: Inventory, type: DragInfoInventoryAndLoot = 'inventory') {
+  private addItemSlots(inventory: Inventory, type: SlotTypeInventoryOrLoot = 'inventory') {
     const items = []
     const size = inventory.size || inventory.items.length
     for (let i = 0; i < size; i++) {
@@ -152,27 +159,98 @@ export class InventoryUI {
     return items
   }
 
-  private addItemSlot(info: DragInfo): HTMLElement {
-    const slotID = this.getSlotIdType(info)
-    return <div id={`${slotID}${info.id}`} className={inventorySlotClassList(!this.getItem(info))} onMouseDown={(e) => {
-      if (this.getItem(info)) {
-        this.dragAndDropIcon.textContent = this.getItem(info) || this.getEmptySlotName(info)
-        this.dragInfo = info
+  private addItemSlot(slotInfo: SlotInfo): HTMLElement {
+    const slotID = this.getSlotIdType(slotInfo)
+    return <div id={`${slotID}${slotInfo.id}`} className={inventorySlotClassList(!this.getItem(slotInfo))} onMouseDown={(e) => {
+      const item = this.getItem(slotInfo)
+      if (item) {
+        if (e.ctrlKey) { // TODO add ability to add keybindings if necessary with a keydown/up listener.
+          if (this.equipItem(slotInfo, item)) return;
+        } else if (e.shiftKey) {
+          if (this.moveItemToInventory(slotInfo)) return;
+        } else if (e.altKey) {
+          e.preventDefault()
+          if (this.moveItemToLoot(slotInfo)) return;
+        }
+
+        this.dragAndDropIcon.textContent = item || this.getEmptySlotName(slotInfo)
+        this.draggedSlotInfo = slotInfo
         MAIN_UI_ELEMENT.appendChild(this.dragAndDropIcon)
         const bounds = this.dragAndDropIcon.getBoundingClientRect()
         this.offset.x = -(bounds.width / 2)
         this.offset.y = -(bounds.height / 2)
         this.dragAndDropIcon.style.transform = `translate(${this.mousePos.x + this.offset.x}px, ${this.mousePos.y + this.offset.y}px)`
 
-        const selfEl = document.getElementById(`${slotID}${info.id}`)!
+        const selfEl = document.getElementById(`${slotID}${slotInfo.id}`)!
         selfEl.classList.add('inventory-is-dragging')
 
       }
-    }}>{this.getItem(info) || this.getEmptySlotName(info)}</div>
+    }}>{this.getItem(slotInfo) || this.getEmptySlotName(slotInfo)}</div>
   }
 
-  private getSlotIdType(info: DragInfo) {
-    switch (info.type) {
+  private equipItem(slot: SlotInfo, item: ItemName) {
+    switch (slot.type) {
+      case 'character':
+        const size = this.inventory.size || this.inventory.items.length
+        for (let i = 0; i < size; i++) {
+          if (!this.inventory.items[i]) {
+            const target = document.getElementById(`${this.inventoryItemId}${i}`)
+            target && this.dropItem(target, slot, { type: 'inventory', id: i })
+            return true;
+          }
+        }
+        break;
+      case 'inventory':
+      case 'loot':
+        for (const key in ITEMS) {
+          if (Object.prototype.hasOwnProperty.call(ITEMS, key)) {
+            if (ITEMS[key as keyof typeof ITEMS][item as keyof Character['items']['gloves']]) {
+              const target = document.getElementById(`${this.characterItemId}${key}`)
+              target && this.dropItem(target, slot, { type: 'character', id: key as any })
+              return true;
+            }
+          }
+        }
+        break;
+    }
+  }
+  private moveItemToInventory(slot: SlotInfo) {
+    switch (slot.type) {
+      case 'character':
+      case 'loot':
+        const size = this.inventory.size || this.inventory.items.length
+        for (let i = 0; i < size; i++) {
+          // console.log('INVENTORY', this.inventory.items[i])
+          if (!this.inventory.items[i]) {
+            const target = document.getElementById(`${this.inventoryItemId}${i}`)
+            // console.log('INVENTORY TARGET', target)
+            target && this.dropItem(target, slot, { type: 'inventory', id: i })
+            return true;
+          }
+        }
+        break;
+    }
+  }
+  private moveItemToLoot(slot: SlotInfo) {
+    if (this.lootInventory) {
+      switch (slot.type) {
+        case 'inventory':
+        case 'character':
+          const size = this.lootInventory.size || this.lootInventory.items.length
+          for (let i = 0; i < size; i++) {
+            if (!this.lootInventory.items[i]) {
+              const target = document.getElementById(`${this.lootItemId}${i}`)
+              target && this.dropItem(target, slot, { type: 'loot', id: i })
+              return true;
+            }
+          }
+          break;
+      }
+    }
+  }
+
+  private getSlotIdType(slot: SlotInfo) {
+    switch (slot.type) {
       case 'character':
         return this.characterItemId
       case 'inventory':
@@ -182,100 +260,105 @@ export class InventoryUI {
     }
   }
 
-  private getItem(info: DragInfo) {
-    switch (info.type) {
+  private getItem(slot: SlotInfo) {
+    switch (slot.type) {
       case 'loot':
-        return this.lootInventory.items[info.id]
+        return this.lootInventory?.items[slot.id]
       case 'inventory':
-        return this.inventory.items[info.id]
+        return this.inventory.items[slot.id]
       case 'character':
-        return this.character.items[info.id]
+        return this.character.items[slot.id]
     }
   }
-  private setItem(info: DragInfo, item?: ItemName,) {
-    switch (info.type) {
+  private setItem(slot: SlotInfo, item?: ItemName) {
+    switch (slot.type) {
       case 'loot':
-        return this.lootInventory.items[info.id] = item
+        if (this.lootInventory) {
+          this.lootInventory.items[slot.id] = item
+        }
+        break;
       case 'inventory':
-        return this.inventory.items[info.id] = item
+        this.inventory.items[slot.id] = item
+        break;
       case 'character':
         //@ts-ignore
-        return this.character.items[info.id] = item
+        this.character.items[slot.id] = item
+        break;
     }
   }
 
-  private getEmptySlotName(info: DragInfo) {
-    switch (info.type) {
+  private getEmptySlotName(slot: SlotInfo) {
+    switch (slot.type) {
       case 'inventory':
       case 'loot':
         return 'EMPTY'
       case 'character':
-        return info.id.toUpperCase()
+        return slot.id.toUpperCase()
     }
   }
 
   private mousemove = (e: MouseEvent) => {
     this.mousePos.x = e.pageX
     this.mousePos.y = e.pageY
-    if (this.dragInfo) {
+    if (this.draggedSlotInfo) {
       this.dragAndDropIcon.style.transform = `translate(${this.mousePos.x + this.offset.x}px, ${this.mousePos.y + this.offset.y}px)`
     }
   }
   private mouseup = (e: MouseEvent) => {
-    if (this.dragInfo) {
+    if (this.draggedSlotInfo) {
       const target = e.target as any as HTMLElement
 
       if (target.id.startsWith(this.inventoryItemId)) {
-        this.dropItem(target, this.dragInfo, { id: parseInt(target.id.replace(this.inventoryItemId, '')), type: 'inventory' })
+        this.dropItem(target, this.draggedSlotInfo, { id: parseInt(target.id.replace(this.inventoryItemId, '')), type: 'inventory' })
       } else if (target.id.startsWith(this.lootItemId)) {
-        this.dropItem(target, this.dragInfo, { id: parseInt(target.id.replace(this.lootItemId, '')), type: 'loot' })
+        this.dropItem(target, this.draggedSlotInfo, { id: parseInt(target.id.replace(this.lootItemId, '')), type: 'loot' })
 
       } else if (target.id.startsWith(this.characterItemId)) {
-        const droppedItem = this.getItem(this.dragInfo)
+        const droppedItem = this.getItem(this.draggedSlotInfo)
         const id = target.id.replace(this.characterItemId, '') as keyof Character['items']
         if (ITEMS[id][droppedItem as keyof Character['items']['gloves']] !== undefined) {
-          this.dropItem(target, this.dragInfo, { id: id, type: 'character' })
+          this.dropItem(target, this.draggedSlotInfo, { id: id, type: 'character' })
         } else {
-          this.cancelDrop(this.dragInfo)
+          this.cancelDrop(this.draggedSlotInfo)
         }
       } else {
-        this.cancelDrop(this.dragInfo)
+        this.cancelDrop(this.draggedSlotInfo)
       }
       this.dragAndDropIcon.remove()
-      this.dragInfo = undefined
+      this.draggedSlotInfo = undefined
     }
   }
 
-  private cancelDrop(dragInfo: Required<DragInfo>) {
-    const oldEl = document.getElementById(`${this.getSlotIdType(dragInfo)}${dragInfo.id}`)!
+  private cancelDrop(slot: Required<SlotInfo>) {
+    const oldEl = document.getElementById(`${this.getSlotIdType(slot)}${slot.id}`)!
     oldEl.classList.remove('inventory-is-dragging')
   }
 
-  private dropItem(target: HTMLElement, dragInfo: Required<DragInfo>, targetInfo: Required<DragInfo>) {
-    const droppedItemName = this.getItem(dragInfo)
-    const oldItemName = this.getItem(targetInfo)
+  private dropItem(target: HTMLElement, draggedSlotInfo: Required<SlotInfo>, targetSlotInfo: Required<SlotInfo>) {
+    const droppedItemName = this.getItem(draggedSlotInfo)
+    const oldItemName = this.getItem(targetSlotInfo)
 
-    target.textContent = droppedItemName || this.getEmptySlotName(targetInfo)
+    target.textContent = droppedItemName || this.getEmptySlotName(targetSlotInfo)
     target.className = inventorySlotClassList(!droppedItemName)
 
-    const oldEl = document.getElementById(`${this.getSlotIdType(dragInfo)}${dragInfo.id}`)!
+    const oldEl = document.getElementById(`${this.getSlotIdType(draggedSlotInfo)}${draggedSlotInfo.id}`)!
     oldEl.className = inventorySlotClassList(!oldItemName)
-    oldEl.textContent = oldItemName || this.getEmptySlotName(dragInfo)
+    oldEl.textContent = oldItemName || this.getEmptySlotName(draggedSlotInfo)
     if (droppedItemName === oldItemName) return;
 
-    this.setItem(dragInfo, oldItemName)
-    this.setItem(targetInfo, droppedItemName)
+    this.setItem(draggedSlotInfo, oldItemName)
+    this.setItem(targetSlotInfo, droppedItemName)
 
-    const droppedItemDrag = this.getItemStatChanges(dragInfo, droppedItemName)
-    const droppedItemTarget = this.getItemStatChanges(targetInfo, droppedItemName)
+    const droppedItemDrag = this.getItemStatChanges(draggedSlotInfo, droppedItemName)
+    const droppedItemTarget = this.getItemStatChanges(targetSlotInfo, droppedItemName)
     if (droppedItemDrag) {
       updateStatsWithItem(this.stats, droppedItemDrag, false)
     }
     if (droppedItemTarget) {
       updateStatsWithItem(this.stats, droppedItemTarget, true)
     }
-    let oldItemDrag = this.getItemStatChanges(dragInfo, oldItemName)
-    let oldItemTarget = this.getItemStatChanges(targetInfo, oldItemName)
+    let oldItemDrag = this.getItemStatChanges(draggedSlotInfo, oldItemName)
+    let oldItemTarget = this.getItemStatChanges(targetSlotInfo, oldItemName)
     if (oldItemDrag) {
       updateStatsWithItem(this.stats, oldItemDrag, true)
     }
@@ -285,8 +368,8 @@ export class InventoryUI {
     this.updateStats()
   }
 
-  private getItemStatChanges(dragInfo: Required<DragInfo>, itemName?: string,) {
-    return itemName && dragInfo.type === 'character' ? ITEMS[dragInfo.id][itemName as keyof Character['items']['gloves']] : undefined
+  private getItemStatChanges(slot: Required<SlotInfo>, itemName?: string,) {
+    return itemName && slot.type === 'character' ? ITEMS[slot.id][itemName as keyof Character['items']['gloves']] : undefined
   }
 }
 
