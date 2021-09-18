@@ -14,7 +14,7 @@ export interface Room {
   background: Texture
   collisions: Object3D[]
 }
-
+// TODO load assets with promise.all.
 export async function loadRoom(room: RoomNames, manager: LoadingManager, gltfLoader: GLTFLoader): Promise<Room> {
   const group = new Group()
   switch (room) {
