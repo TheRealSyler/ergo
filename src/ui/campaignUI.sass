@@ -1,0 +1,44 @@
+.campaign
+  display: flex
+  justify-content: space-between
+  background: transparent
+  &-travel
+    margin-right: 2rem
+    display: flex
+    gap: 1rem
+    flex-direction: column
+    padding: 1rem
+  &-dungeons
+    flex-direction: column
+    display: flex
+    gap: 0.2rem
+
+  &-towns
+    gap: 0.5rem
+    display: flex
+  &-town
+    height: 60px
+    box-sizing: border-box
+    width: 60px
+    &.selected
+      background: red
+      &:hover
+        background: purple
+
+  &-show
+    animation: show 250ms forwards
+    pointer-events: auto
+  &-hide
+    pointer-events: none
+    animation: hide 250ms forwards
+
+@keyframes hide
+  0%
+    opacity: 1
+  100%
+    opacity: 0
+@keyframes show
+  0%
+    opacity: 0
+  100%
+    opacity: 1

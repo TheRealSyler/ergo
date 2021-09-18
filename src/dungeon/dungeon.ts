@@ -41,6 +41,13 @@ type RoomDoorAssetAndDir = {
   asset: RoomDoorAsset;
   dir: DungeonDir;
 };
+
+export interface DungeonInfo<Rooms extends string> {
+  rooms: DungeonRooms<Rooms>,
+  firstRoom: Rooms,
+  entryDir: DungeonDir
+}
+
 export class Dungeon<Rooms extends string> extends Renderer {
   private collisionObjects: Object3D[] = []
   private collisionRaycaster = new Raycaster(undefined, undefined, undefined, 5);

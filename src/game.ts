@@ -1,5 +1,6 @@
 import { Vector3 } from 'three';
 import { degToRad } from 'three/src/math/MathUtils';
+import { Campaign } from './campaign/campaign';
 import { Character } from './character/character';
 import { Dungeon } from './dungeon/dungeon';
 import { DungeonRooms } from './dungeon/dungeonRoom';
@@ -52,8 +53,8 @@ export class Game {
         fight: { char: { class: 'awd3', items: {} }, loot: { items: [] } }
       }
     }
-
-    new Dungeon(rooms, 'awd', 'north')
+    new Campaign()
+    // new Dungeon(rooms, 'awd', 'north')
     // this.goToFight()
 
     // if (this.startInFight) {

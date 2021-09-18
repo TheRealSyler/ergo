@@ -3,54 +3,49 @@ import { Renderer } from '../renderer';
 import { LoaderUI } from '../ui/loaderUI';
 import { error, getGLTFLoader } from '../utils';
 import map from '../assets/campaign/campaign_map.glb'
-import awd from '../assets/rooms/awd.jpg'
+import awd from '../assets/campaign/hdri.jpg'
 
-import { MAIN_UI_ELEMENT } from '../ui/ui';
 import { lerp } from 'three/src/math/MathUtils';
+import { campaignUI } from '../ui/campaignUI';
+import { DungeonInfo } from '../dungeon/dungeon';
+import { town1 } from './town1';
+import { town2 } from './town2';
 
-type CameraName = 'camera_1' | 'camera_2' | 'camera_3' | 'camera_4'
+export type TownName = 'camera_1' | 'camera_2' //  | 'camera_3' | 'camera_4'
+
+export type Town<D extends string> = {
+  dungeons: Record<D, DungeonInfo<any>>
+}
 
 export class Campaign extends Renderer {
 
-  private cameras: Record<CameraName, PerspectiveCamera | null> = {
+  private cameras: Record<TownName, PerspectiveCamera | null> = {
     camera_1: null,
     camera_2: null,
-    camera_3: null,
-    camera_4: null,
+    // camera_3: null,
+    // camera_4: null,
   }
 
-  private currentCamera: CameraName = 'camera_2';
+  currentTown: TownName = 'camera_1';
+  private isAnimatingCamera = false
+  towns: Record<TownName, Town<any>> = {
+    camera_1: town1,
+    camera_2: town2,
+    // camera_3: town1,
+    // camera_4: town1,
+  }
+  ui = new campaignUI(this)
 
   constructor() {
     super();
     this.load()
 
-    window.addEventListener('mousemove', (e) => {
-
-    })
-
-    window.addEventListener('keydown', (e) => {
-      switch (e.key) {
-        case '1':
-          this.transitionCamera('camera_1');
-          break;
-        case '2':
-          this.transitionCamera('camera_2');
-          break;
-        case '3':
-          this.transitionCamera('camera_3');
-          break;
-        case '4':
-          this.transitionCamera('camera_4');
-          break;
-
-      }
-    })
   }
-  private isAnimatingCamera = false
-  private transitionCamera(cameraName: CameraName) {
-    if (cameraName === this.currentCamera || this.isAnimatingCamera) return
-    this.currentCamera = cameraName
+
+  changeTown(cameraName: TownName) {
+    if (cameraName === this.currentTown || this.isAnimatingCamera || !this.ui.enabled) return
+    this.ui.hide()
+    this.currentTown = cameraName
     this.isAnimatingCamera = true
     const newCamera = this.cameras[cameraName]!;
     const endRot = new Quaternion();
@@ -58,6 +53,7 @@ export class Campaign extends Renderer {
     newCamera.getWorldQuaternion(endRot);
     newCamera.getWorldPosition(endPos);
     const startFOV = this.camera.fov;
+    const startFocus = this.camera.focus;
     const clock = new Clock(true)
     let elapsedTime = 0
 
@@ -65,13 +61,17 @@ export class Campaign extends Renderer {
     const animate = () => {
       const delta = clock.getDelta()
       elapsedTime = Math.min(1, elapsedTime + ((1 / length) * delta))
-
-      this.camera.quaternion.slerp(endRot, elapsedTime);
-      this.camera.position.lerp(endPos, elapsedTime);
-      this.camera.fov = lerp(startFOV, newCamera.fov, elapsedTime);
+      const t = elapsedTime * elapsedTime * elapsedTime
+      this.camera.quaternion.slerp(endRot, t);
+      this.camera.position.lerp(endPos, t);
+      this.camera.fov = lerp(startFOV, newCamera.fov, t);
+      this.camera.focus = lerp(startFocus, newCamera.fov, t);
       this.camera.updateProjectionMatrix();
+
       if (elapsedTime === 1) {
         this.isAnimatingCamera = false
+
+        this.ui.show()
       } else {
         requestAnimationFrame(animate);
       }
@@ -91,7 +91,7 @@ export class Campaign extends Renderer {
     const [mapAsset, textureEquirectangular] = await Promise.all([loader.loadAsync(map), textureLoader.loadAsync(awd)])
     textureEquirectangular.mapping = EquirectangularReflectionMapping;
     textureEquirectangular.encoding = sRGBEncoding;
-    MAIN_UI_ELEMENT.textContent = ''
+    this.ui.show()
 
     this.scene.environment = textureEquirectangular
 
@@ -104,9 +104,9 @@ export class Campaign extends Renderer {
           c.parent.name = c.parent.name + '_Parent'
         }
         c.name = c.name.replace(/_Orientation$/, '')
-        this.cameras[c.name as CameraName] = c
+        this.cameras[c.name as TownName] = c
 
-        if (c.name.startsWith(this.currentCamera)) {
+        if (c.name.startsWith(this.currentTown)) {
           c.getWorldQuaternion(this.camera.quaternion);
           c.getWorldPosition(this.camera.position);
           this.camera.fov = c.fov;
@@ -122,7 +122,7 @@ export class Campaign extends Renderer {
 
     for (const key in this.cameras) {
       if (Object.prototype.hasOwnProperty.call(this.cameras, key)) {
-        if (!this.cameras[key as CameraName]) {
+        if (!this.cameras[key as TownName]) {
           error(`Missing camera "${key}"`, Campaign.name)
         }
       }
