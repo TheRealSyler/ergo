@@ -1,9 +1,9 @@
 import { EquirectangularReflectionMapping, Group, LoadingManager, Object3D, sRGBEncoding, Texture, TextureLoader } from 'three';
 
-import test from '../assets/test.glb'
-import test2 from '../assets/room_test2.glb'
-import test3 from '../assets/room_test3.glb'
-import awd from '../assets/awd.jpg'
+import test from '../assets/rooms/test.glb'
+import test2 from '../assets/rooms/room_test2.glb'
+import test3 from '../assets/rooms/room_test3.glb'
+import awd from '../assets/rooms/awd.jpg'
 import { addModelWithCollision } from '../utils';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 

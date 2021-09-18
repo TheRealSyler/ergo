@@ -1,7 +1,7 @@
 import { BoxGeometry, Group, Mesh, MeshBasicMaterial, Object3D } from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { addModelWithCollision } from '../utils';
-import chest from '../assets/chest.glb'
+import chest from '../assets/rooms/items/chest.glb'
 
 export type RoomItemNames = 'chest' | 'enemy'
 
