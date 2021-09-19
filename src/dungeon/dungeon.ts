@@ -25,7 +25,8 @@ import { CharacterStats } from '../character/stats';
 export interface DungeonParent extends Renderer {
   inventory: Inventory,
   character: Character,
-  stats: CharacterStats
+  stats: CharacterStats,
+  inventoryUI: InventoryUI
 }
 interface InterActableObject {
   collision: Object3D;
@@ -77,9 +78,9 @@ export class Dungeon<Rooms extends string> {
   private currentRoom: DungeonRoom<Rooms>
 
   private ui = new DungeonUI()
-  private inventoryUI = new InventoryUI(this.parent.inventory, this.parent.character, this.parent.stats)
+
   private rooms: DungeonRooms<Rooms>
-  constructor(dungeonInfo: DungeonInfo<Rooms>, private parent: DungeonParent, private onLoad: () => void) {
+  constructor(dungeonInfo: DungeonInfo<Rooms>, private parent: DungeonParent, private onLoad: () => void, private onExit: () => void) {
     this.rooms = dungeonInfo.rooms;
     this.currentRoom = this.rooms[dungeonInfo.firstRoom]
     this.load(this.rooms[dungeonInfo.firstRoom], dungeonInfo.entryDir);
@@ -98,8 +99,12 @@ export class Dungeon<Rooms extends string> {
     window.removeEventListener('keyup', this.keyup)
   }
 
-  exit() {
+  private exit() {
+    this.controls.unlock()
+    this.controls.disconnect()
+    this.controls.dispose()
     this.removeListeners()
+    this.onExit()
   }
 
   private async load(dungeonRoom: DungeonRoom<Rooms>, dir: DungeonDir) {
@@ -142,7 +147,7 @@ export class Dungeon<Rooms extends string> {
 
       this.fightCon = new FightController(players, ui, 'player1', this.parent, {
         exitToMainMenu: () => { console.log('TODO exit to main menu') },
-        showInventoryInMenu: () => { this.inventoryUI.toggle() },
+        showInventoryInMenu: () => { this.parent.inventoryUI.toggle() },
         customEndScreen: async (victory, dispose, endScreen) => {
           if (victory) {
             victoryOrLossUI(victory)
@@ -160,7 +165,7 @@ export class Dungeon<Rooms extends string> {
             const newRoomItem: RoomItemInfoAndAsset = { asset: await loadRoomItem(loader, 'enemy'), info: { asset: 'enemy', items: loot, removeIfEmpty: true } };
             this.ui.show()
             if (!this.areItemsEmpty(loot.items)) {
-              this.inventoryUI.show({ name: 'Fight', inventory: loot }, () => {
+              this.parent.inventoryUI.show({ name: 'Fight', inventory: loot }, () => {
                 if (!this.areItemsEmpty(newRoomItem.info.items!.items)) {
                   dungeonRoom.objectInfos.push(newRoomItem.info)
                   this.addRoomItems([newRoomItem])
@@ -231,7 +236,7 @@ export class Dungeon<Rooms extends string> {
         func: (self) => {
           if (self.loot) {
             this.controls.unlock()
-            this.inventoryUI.show({ inventory: self.loot, name: self.name }, () => {
+            this.parent.inventoryUI.show({ inventory: self.loot, name: self.name }, () => {
               if (self.removeIfEmpty && this.areItemsEmpty(self.loot!.items)) {
                 this.collisionObjects = this.collisionObjects.filter((v) => v !== self.collision)
                 this.interActableObjects = this.interActableObjects.filter((v) => v !== self)
@@ -264,7 +269,7 @@ export class Dungeon<Rooms extends string> {
         name: door.type === 'exit' ? 'Exit ' + dir : door.roomId + ' ' + dir,
         func: () => {
           if (door.type === 'exit') {
-            console.log('EXIT (TODO)');
+            this.exit()
           } else {
             this.load(this.rooms[door.roomId], dir);
           }
@@ -375,7 +380,7 @@ export class Dungeon<Rooms extends string> {
   }
 
   private click = () => {
-    if (!this.fightCon && !this.inventoryUI.visible) {
+    if (!this.fightCon && !this.parent.inventoryUI.visible) {
       this.controls.lock();
     }
   }
@@ -384,16 +389,16 @@ export class Dungeon<Rooms extends string> {
     if (!this.fightCon) {
       e.preventDefault()
       if (e.key.toUpperCase() === getKeybinding('Inventory', 'ToggleInventory')) {
-        if (this.inventoryUI.visible) {
-          this.inventoryUI.hide()
+        if (this.parent.inventoryUI.visible) {
+          this.parent.inventoryUI.hide()
           this.controls.lock()
         } else {
           this.controls.unlock()
-          this.inventoryUI.show()
+          this.parent.inventoryUI.show()
         }
       }
 
-      if (this.inventoryUI.visible) return;
+      if (this.parent.inventoryUI.visible) return;
 
       switch (e.key.toUpperCase()) {
         case getKeybinding('Dungeon', 'MoveForward'):

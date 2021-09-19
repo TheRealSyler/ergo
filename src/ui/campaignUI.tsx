@@ -48,7 +48,7 @@ export class campaignUI {
       if (Object.prototype.hasOwnProperty.call(this.ref.towns[this.ref.currentTown].dungeons, key)) {
         this.dungeonsEl.appendChild(<div className="button" onClick={() => {
           if (this.enabled) {
-            console.log('TODO launch dungeon.', key)
+            this.ref.loadDungeon(this.ref.towns[this.ref.currentTown].dungeons[key])
           }
         }}>{key}</div>)
       }

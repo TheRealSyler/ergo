@@ -1,4 +1,4 @@
-import { Clock, EquirectangularReflectionMapping, LoadingManager, Object3D, PerspectiveCamera, Quaternion, sRGBEncoding, TextureLoader, Vector3 } from 'three';
+import { Clock, EquirectangularReflectionMapping, LoadingManager, Object3D, PerspectiveCamera, Quaternion, Scene, sRGBEncoding, TextureLoader, Vector3 } from 'three';
 import { Renderer } from '../renderer';
 import { LoaderUI } from '../ui/loaderUI';
 import { error, getGLTFLoader } from '../utils';
@@ -7,7 +7,7 @@ import awd from '../assets/campaign/hdri.jpg'
 
 import { lerp } from 'three/src/math/MathUtils';
 import { campaignUI } from '../ui/campaignUI';
-import { DungeonInfo, DungeonParent } from '../dungeon/dungeon';
+import { Dungeon, DungeonInfo, DungeonParent } from '../dungeon/dungeon';
 import { town1 } from './town1';
 import { town2 } from './town2';
 import { Inventory, InventoryUI } from '../ui/inventoryUI';
@@ -48,20 +48,20 @@ export class Campaign extends Renderer implements DungeonParent {
     // camera_4: town1,
   }
   inventory: Inventory = {
-    items: ['BasicGloves', 'SuperGloves', 'BasicSword', 'BasicSword', 'BasicSword', 'BasicSword', 'BasicSword', 'BasicSword', 'BasicSword', 'BasicSword'],
+    items: [],
     size: 12
   }
   character: Character = {
-    class: 'awd',
+    class: 'base',
     items: {},
-    money: 1000
+    money: 0
   }
   stats = createStats(this.character)
 
   inventoryUI = new InventoryUI(this.inventory, this.character, this.stats)
 
   ui = new campaignUI(this)
-
+  private dungeon?: Dungeon<any>;
   constructor() {
     super();
     // this.inventoryUI.showShop(this.towns.camera_1.shops[0])
@@ -162,15 +162,33 @@ export class Campaign extends Renderer implements DungeonParent {
   }
 
   private exit() {
+    // TODO exit to main menu
     window.removeEventListener('keydown', this.keydown)
     this.disposeRenderer();
   }
 
+  loadDungeon(dungeonInfo: DungeonInfo<any>) {
+    const savedScene = this.scene
+    const savedCamera = this.camera;
+    this.scene = new Scene()
+    this.camera = new PerspectiveCamera(90, window.innerWidth / window.innerHeight, 0.01, 1000)
+    this.dungeon = new Dungeon(dungeonInfo, this, () => { }, () => {
+      this.scene = savedScene
+      this.camera = savedCamera
+      this.dungeon = undefined
+      this.ui.show()
+    })
+
+  }
+
   protected update(delta: number) {
+    if (this.dungeon) {
+      this.dungeon.update((delta - this.previousRAF) * 0.001)
+    }
   }
 
   private keydown = (e: KeyboardEvent) => {
-    if (this.inventoryUI.visible) return;
+    if (this.inventoryUI.visible || this.dungeon) return;
     e.preventDefault()
     switch (e.key.toUpperCase()) {
       case getKeybinding('Inventory', 'ToggleInventory'):

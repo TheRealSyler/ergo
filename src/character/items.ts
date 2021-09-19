@@ -14,10 +14,11 @@ interface NormalItem {
   statChanges: StatChanges
 }
 export type Item = NormalItem | WeaponItem
-export type WeaponItems = 'BasicSword';
-export type GloveItems = 'BasicGloves' | 'SuperGloves';
+export type WeaponNames = 'BasicSword' | 'SuperSword';
+export type GloveNames = 'BasicGloves' | 'SuperGloves';
+export type ArmorNames = 'BasicArmor';
 
-export type ItemName = GloveItems | WeaponItems
+export type ItemName = GloveNames | WeaponNames | ArmorNames
 
 
 const gloves: Record<Items['gloves'], NormalItem> = {
@@ -40,18 +41,38 @@ const weapon: Record<Items['weapon'], WeaponItem> = {
   BasicSword: {
     description: 'awd',
     statChanges: {
-      damage: NumberRange(20, 22)
+      damage: NumberRange(10, 15)
+    },
+    weaponHands: 'single'
+  },
+  SuperSword: {
+    description: 'awd',
+    statChanges: {
+      damage: NumberRange(20, 25)
     },
     weaponHands: 'single'
   }
 }
+const armor: Record<Items['armor'], NormalItem> = {
+  BasicArmor: {
+    description: 'awd',
+    statChanges: {
+      staminaRegenRate: -2,
+      maxStamina: 10,
+      maxHealth: 100,
+    },
+  },
+
+}
 
 export interface Items {
-  weapon: WeaponItems,
-  gloves: GloveItems,
+  weapon: WeaponNames,
+  gloves: GloveNames,
+  armor: ArmorNames
 }
 
 export const ITEMS = {
   gloves: gloves,
-  weapon: weapon
+  weapon: weapon,
+  armor: armor
 }

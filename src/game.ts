@@ -4,6 +4,7 @@ import { Campaign } from './campaign/campaign';
 import { Character } from './character/character';
 import { Dungeon } from './dungeon/dungeon';
 import { DungeonRooms } from './dungeon/dungeonRoom';
+import StandaloneDungeon from './dungeon/standaloneDungeon';
 import { LoadFight } from './fight/loadFight';
 import { RoomNames } from './rooms/rooms';
 import { MainMenuUi } from './ui/mainMenuUI';
@@ -54,7 +55,11 @@ export class Game {
       }
     }
     new Campaign()
-    // new Dungeon(rooms, 'awd', 'north')
+    // new StandaloneDungeon({
+    //   rooms: rooms,
+    //   entryDir: 'north',
+    //   firstRoom: 'awd'
+    // })
     // this.goToFight()
 
     // if (this.startInFight) {
