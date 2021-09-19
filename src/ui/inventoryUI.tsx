@@ -84,6 +84,7 @@ export class InventoryUI {
   private shop?: Shop;
   constructor(private inventory: Inventory, private character: Character, private stats: CharacterStats) {
     this.lootName.style.whiteSpace = 'nowrap'
+    this.shopMoneyEl.style.display = 'none'
     this.createAllSlots()
   }
 

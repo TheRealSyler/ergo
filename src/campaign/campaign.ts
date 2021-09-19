@@ -7,7 +7,7 @@ import awd from '../assets/campaign/hdri.jpg'
 
 import { lerp } from 'three/src/math/MathUtils';
 import { campaignUI } from '../ui/campaignUI';
-import { DungeonInfo } from '../dungeon/dungeon';
+import { DungeonInfo, DungeonParent } from '../dungeon/dungeon';
 import { town1 } from './town1';
 import { town2 } from './town2';
 import { Inventory, InventoryUI } from '../ui/inventoryUI';
@@ -30,7 +30,7 @@ export type Town<D extends string> = {
   shops: Shop[]
 }
 
-export class Campaign extends Renderer {
+export class Campaign extends Renderer implements DungeonParent {
 
   private cameras: Record<TownName, PerspectiveCamera | null> = {
     camera_1: null,
@@ -51,14 +51,14 @@ export class Campaign extends Renderer {
     items: ['BasicGloves', 'SuperGloves', 'BasicSword', 'BasicSword', 'BasicSword', 'BasicSword', 'BasicSword', 'BasicSword', 'BasicSword', 'BasicSword'],
     size: 12
   }
-  char: Character = {
+  character: Character = {
     class: 'awd',
     items: {},
     money: 1000
   }
-  stats = createStats(this.char)
+  stats = createStats(this.character)
 
-  inventoryUI = new InventoryUI(this.inventory, this.char, this.stats)
+  inventoryUI = new InventoryUI(this.inventory, this.character, this.stats)
 
   ui = new campaignUI(this)
 
