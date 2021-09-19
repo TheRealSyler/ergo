@@ -4,17 +4,8 @@ import { Animations, AnimationTypes } from '../animation/types';
 import { error } from '../utils';
 import { getCharacterAnimationInfo } from './animationInfo';
 import { Character } from './character';
-import { ITEM_MODEL_INFO } from './itemModelInfo';
+import { ITEM_MODEL_LOCATION } from './itemModelInfo';
 import { CLASS_MODEL_INFO } from './classModelInfo';
-
-export interface ModelLocation {
-  /**webpack import location. */
-  location: string,
-}
-export interface ModelInfo extends ModelLocation {
-  /**mesh name in blender */
-  name: string
-}
 
 export type LoadedCharacter = {
   mixer: AnimationMixer;
@@ -23,42 +14,41 @@ export type LoadedCharacter = {
   character: Character;
 };
 
+const EXPORT_NAME = 'export';
+
 export async function loadCharacter(loader: GLTFLoader, character: Character): Promise<LoadedCharacter> {
 
-  const mainModelInfo = CLASS_MODEL_INFO[character.class]
+  const mainModelLocation = CLASS_MODEL_INFO[character.class]
 
-  const itemPromises: Promise<{ group: Group, info: ModelInfo }>[] = []
+  const itemPromises: Promise<Group>[] = []
   for (const key in character.items) {
     if (Object.prototype.hasOwnProperty.call(character.items, key)) {
       const item = character.items[key as keyof Character['items']];
       if (item) {
-        const info = ITEM_MODEL_INFO[item];
+        const location = ITEM_MODEL_LOCATION[item];
         itemPromises.push(new Promise((res, rej) => {
-          loader.load(info.location, (gltf) => {
-            res({
-              group: gltf.scene,
-              info,
-            })
+          loader.load(location, (gltf) => {
+            res(gltf.scene)
           }, undefined, (e) => rej(e))
         }))
       }
     }
   }
-  const [main, animationsMesh, loadedItems] = await Promise.all([loader.loadAsync(mainModelInfo.location), loader.loadAsync(getCharacterAnimationInfo(character).location), Promise.all(itemPromises)]);
+  const [main, animationsMesh, loadedItems] = await Promise.all([loader.loadAsync(mainModelLocation), loader.loadAsync(getCharacterAnimationInfo(character)), Promise.all(itemPromises)]);
 
   const mainModel = main.scene
 
   // TODO validate that the meshes have been loaded.
 
   const model = new Group()
-  const mainModelMesh = mainModel.getObjectByName(mainModelInfo.name) as any as SkinnedMesh
+  const mainModelMesh = mainModel.getObjectByName(EXPORT_NAME) as any as SkinnedMesh
   let sharedSkeleton = mainModelMesh.skeleton
   // mainModelMesh.castShadow = true
   // mainModelMesh.receiveShadow = true
 
   for (let i = 0; i < loadedItems.length; i++) {
     const item = loadedItems[i];
-    const itemMesh = item.group.getObjectByName(item.info.name) as any as SkinnedMesh
+    const itemMesh = item.getObjectByName(EXPORT_NAME) as any as SkinnedMesh
     if (itemMesh.type === 'Group') {
       while (itemMesh.children.length) {
         const mesh = itemMesh.children[0] as any as SkinnedMesh
