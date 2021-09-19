@@ -120,7 +120,6 @@ export class FightController {
         this.ui.menu({
           mainMenu: this.exit.bind(this),
           restart: this.restartFight.bind(this),
-          inventory: this.options.showInventoryInMenu, // TODO readonly inventory if in pause menu.
           resume: () => {
             this.unpause()
             this.ui.HUD()
