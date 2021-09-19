@@ -8,11 +8,13 @@ export class campaignUI {
   private townElId = 'campaign-town-'
   private selectedTownEl?: HTMLElement | null
   private dungeonsEl = <div className="campaign-dungeons"></div>
+  private shopsEl = <div className="campaign-shops"></div>
   private mainEl = <div className="fixed campaign">
-    <div>
-
+    <div className="campaign-section">
+      <h1>Shops</h1>
+      {this.shopsEl}
     </div>
-    <div className="campaign-travel">
+    <div className="campaign-section">
       <h1>Towns</h1>
       {this.townsEl}
       <h1>Dungeons</h1>
@@ -50,6 +52,15 @@ export class campaignUI {
           }
         }}>{key}</div>)
       }
+    }
+
+    this.shopsEl.textContent = ''
+
+    for (let i = 0; i < this.ref.towns[this.ref.currentTown].shops.length; i++) {
+      const shop = this.ref.towns[this.ref.currentTown].shops[i];
+      this.shopsEl.appendChild(<div className="button">
+        {shop.name}
+      </div>)
     }
 
     this.mainEl.classList.add('campaign-show')

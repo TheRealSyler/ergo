@@ -12,11 +12,13 @@ export function CustomBattleUI(goToFight: Game['goToFight']) {
   MAIN_UI_ELEMENT.textContent = ''
   const player1: Character = {
     class: 'base',
-    items: {}
+    items: {},
+    money: 0
   }
   const player2: Character = {
     class: 'base',
-    items: {}
+    items: {},
+    money: 0
   }
 
   let stage: RoomNames = 'test'

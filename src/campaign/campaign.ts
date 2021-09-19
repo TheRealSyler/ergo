@@ -10,11 +10,23 @@ import { campaignUI } from '../ui/campaignUI';
 import { DungeonInfo } from '../dungeon/dungeon';
 import { town1 } from './town1';
 import { town2 } from './town2';
+import { Inventory, InventoryUI } from '../ui/inventoryUI';
+import { Character } from '../character/character';
+import { createStats } from '../character/stats';
+import { ItemName } from '../character/items';
 
 export type TownName = 'camera_1' | 'camera_2' //  | 'camera_3' | 'camera_4'
 
+export interface Shop {
+  name: string,
+  prices: Partial<Record<ItemName, { sell: number, buy: number }>>,
+  inventory: Inventory
+  money: number
+}
+
 export type Town<D extends string> = {
   dungeons: Record<D, DungeonInfo<any>>
+  shops: Shop[]
 }
 
 export class Campaign extends Renderer {
@@ -34,11 +46,25 @@ export class Campaign extends Renderer {
     // camera_3: town1,
     // camera_4: town1,
   }
+  inventory: Inventory = {
+    items: ['BasicGloves', 'SuperGloves', 'BasicSword', 'BasicSword', 'BasicSword', 'BasicSword', 'BasicSword', 'BasicSword', 'BasicSword', 'BasicSword'],
+    size: 12
+  }
+  char: Character = {
+    class: 'awd',
+    items: {},
+    money: 1000
+  }
+  stats = createStats(this.char)
+
+  inventoryUI = new InventoryUI(this.inventory, this.char, this.stats)
+
   ui = new campaignUI(this)
 
   constructor() {
     super();
-    this.load()
+    this.inventoryUI.showShop(this.towns.camera_1.shops[0])
+    // this.load()
 
   }
 

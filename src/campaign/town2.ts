@@ -21,6 +21,7 @@ const d2: DungeonInfo<'Room1' | 'room2'> = {
   }
 }
 export const town2: Town<Town1Dungeons> = {
+  shops: [],
   dungeons: {
     awd1: d1,
     awd2: d2

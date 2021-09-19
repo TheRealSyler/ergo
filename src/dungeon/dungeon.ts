@@ -72,7 +72,8 @@ export class Dungeon<Rooms extends string> extends Renderer {
 
   private playerChar: Character = {
     class: 'base',
-    items: {}
+    items: {},
+    money: 1000
   }
 
   playerStats: CharacterStats = createStats(this.playerChar)

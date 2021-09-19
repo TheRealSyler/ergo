@@ -8,6 +8,7 @@ import { getKeybindingUI } from '../keybindings'
 import { CharacterStats, updateStatsWithItem } from '../character/stats'
 import { toFixedIfNotZero } from '../utils'
 import { BarComponent } from './barComponent'
+import { Shop } from '../campaign/campaign'
 
 export interface Inventory {
   items: (ItemName | undefined)[],
@@ -33,39 +34,44 @@ export class InventoryUI {
   private characterItemId = 'inventory-character-slot-'
   private lootItemId = 'inventory-loot-slot-'
 
-  private dragAndDropIcon = <div className="inventory-slot inventory-drag inventory-drag-el"></div>
+  private dragAndDropSlot = <div className="inventory-slot inventory-drag inventory-drag-el"></div>
   private lootItemsEl = <div className="inventory-items"></div>
   private lootName = <span className="inventory-title">Loot</span>
+  private shopMoneyEl = <div className="inventory-stats inventory-money"></div>
   private lootNameInfo = <span>Loot Name</span>
   private lootInfo = <span>| [ALT + MOUSE CLICK] Move to {this.lootNameInfo}</span>
 
   private statsEl = <div className="inventory-stats"></div>
+  private charMoneyEl = <div className="inventory-stats inventory-money"></div>
   private healthBar = new BarComponent('health')
   private staminaBar = new BarComponent('stamina')
   private lootEl = <div className="inventory-section">
     {this.lootName}
+    {this.shopMoneyEl}
     {this.lootItemsEl}
   </div>
+
+  private readonly inventorySlotEl = <div className="inventory-items"></div>
+
+  private readonly charSlots = <div className="inventory-char"></div>
 
   private mainEl = <div className="inventory modal">
     <div className="inventory-content">
 
       <div className="inventory-section">
         <span className="inventory-title">Character</span>
+        {this.charMoneyEl}
         <div className="inventory-stats">
           <div className="inventory-bars">{this.healthBar.getEl()} {this.staminaBar.getEl()}</div>
 
         </div>
         {this.statsEl}
-        <div className="inventory-char">
-          {this.addItemSlot({ type: 'character', id: 'gloves' })}
-          {this.addItemSlot({ type: 'character', id: 'weapon' })}
-        </div>
+        {this.charSlots}
       </div>
 
       <div className="inventory-section">
         <span className="inventory-title">Inventory</span>
-        <div className="inventory-items">{this.addItemSlots(this.inventory)}</div>
+        {this.inventorySlotEl}
       </div>
 
       {this.lootEl}
@@ -75,8 +81,10 @@ export class InventoryUI {
     <div className="inventory-info-bar"> {getKeybindingUI('Dungeon', 'ToggleInventory')} Close | [CTRL + MOUSE CLICK] Equip | [SHIFT + MOUSE CLICK] Move to Inventory {this.lootInfo} </div>
   </div>
   private lootInventory?: Inventory;
+  private shop?: Shop;
   constructor(private inventory: Inventory, private character: Character, private stats: CharacterStats) {
     this.lootName.style.whiteSpace = 'nowrap'
+    this.createAllSlots()
   }
 
   visible = false
@@ -87,26 +95,50 @@ export class InventoryUI {
       this.show()
     }
   }
-  show(loot?: { name: string, inventory: Inventory }, oneTimeListener?: () => void) {
+
+  private createAllSlots() {
+    this.charSlots.textContent = ''
+    this.charSlots.appendChild(this.addItemSlot({ type: 'character', id: 'gloves' }))
+    this.charSlots.appendChild(this.addItemSlot({ type: 'character', id: 'weapon' }))
+    this.inventorySlotEl.textContent = ''
+    this.inventorySlotEl.append(...this.addItemSlots(this.inventory))
+  }
+
+  showShop(shop: Shop) {
+    this.shop = shop
+    this.shopMoneyEl.style.display = 'inherit'
+    this.createAllSlots()
+    this.show(shop)
+  }
+
+  show(lootOrShop?: { name: string, inventory: Inventory }, oneTimeListener?: () => void) {
     this.visible = true
     this.oneTimeListener = oneTimeListener
     window.addEventListener('mousemove', this.mousemove)
     window.addEventListener('mouseup', this.mouseup)
     MAIN_UI_ELEMENT.appendChild(this.mainEl)
     this.lootItemsEl.textContent = ''
-    if (loot) {
-      this.lootName.textContent = `${loot.name}`
-      this.lootNameInfo.textContent = loot.name
+    if (lootOrShop) {
+      this.lootName.textContent = `${lootOrShop.name}`
+      this.lootNameInfo.textContent = lootOrShop.name
       this.lootInfo.style.display = 'inline'
       this.lootEl.style.display = 'inherit'
-      this.lootInventory = loot.inventory;
+      this.lootInventory = lootOrShop.inventory;
       this.lootItemsEl.append(...this.addItemSlots(this.lootInventory, 'loot'))
     } else {
       this.lootEl.style.display = 'none'
       this.lootInfo.style.display = 'none'
       this.lootInventory = undefined
     }
+    this.updateMoney()
     this.updateStats()
+  }
+
+  private updateMoney() {
+    this.charMoneyEl.textContent = `${this.character.money}`
+    if (this.shop) {
+      this.shopMoneyEl.textContent = `${this.shop.money}`
+    }
   }
 
   private updateStats() {
@@ -142,6 +174,11 @@ export class InventoryUI {
     this.mainEl.remove()
     window.removeEventListener('mousemove', this.mousemove)
     window.removeEventListener('mouseup', this.mouseup)
+    this.shopMoneyEl.style.display = 'none'
+    if (this.shop) {
+      this.shop = undefined
+      this.createAllSlots()
+    }
     if (this.oneTimeListener) {
       this.oneTimeListener()
       this.oneTimeListener = undefined
@@ -168,31 +205,38 @@ export class InventoryUI {
 
   private addItemSlot(slotInfo: SlotInfo): HTMLElement {
     const slotID = this.getSlotIdType(slotInfo)
+
+    const itemName = this.getItem(slotInfo)
+
+    const priceTag = this.getPriceTag(slotInfo.type, itemName)
+
     return <div id={`${slotID}${slotInfo.id}`} className={inventorySlotClassList(!this.getItem(slotInfo))} onMouseDown={(e) => {
+      e.preventDefault()
       const item = this.getItem(slotInfo)
+
       if (item) {
         if (e.ctrlKey) { // TODO add ability to add keybindings if necessary with a keydown/up listener.
           if (this.equipItem(slotInfo, item)) return;
         } else if (e.shiftKey) {
           if (this.moveItemToInventory(slotInfo)) return;
         } else if (e.altKey) {
-          e.preventDefault()
           if (this.moveItemToLoot(slotInfo)) return;
         }
 
-        this.dragAndDropIcon.textContent = item || this.getEmptySlotName(slotInfo)
+        this.updateSlot(this.dragAndDropSlot, slotInfo, item, false)
         this.draggedSlotInfo = slotInfo
-        MAIN_UI_ELEMENT.appendChild(this.dragAndDropIcon)
-        const bounds = this.dragAndDropIcon.getBoundingClientRect()
+        MAIN_UI_ELEMENT.appendChild(this.dragAndDropSlot)
+
+        const bounds = this.dragAndDropSlot.getBoundingClientRect()
         this.offset.x = -(bounds.width / 2)
         this.offset.y = -(bounds.height / 2)
-        this.dragAndDropIcon.style.transform = `translate(${this.mousePos.x + this.offset.x}px, ${this.mousePos.y + this.offset.y}px)`
+        this.dragAndDropSlot.style.transform = `translate(${this.mousePos.x + this.offset.x}px, ${this.mousePos.y + this.offset.y}px)`
 
         const selfEl = document.getElementById(`${slotID}${slotInfo.id}`)!
         selfEl.classList.add('inventory-is-dragging')
 
       }
-    }}>{this.getItem(slotInfo) || this.getEmptySlotName(slotInfo)}</div>
+    }}>{itemName || this.getEmptySlotName(slotInfo)}{priceTag}</div>
   }
 
   private equipItem(slot: SlotInfo, item: ItemName) {
@@ -304,11 +348,27 @@ export class InventoryUI {
     }
   }
 
+  private getPriceTag(type: SlotInfo['type'], itemName?: ItemName) {
+    if (this.shop && itemName) {
+      const price = this.shop.prices[itemName]
+      if (price) {
+        if (type === 'loot') {
+          return <div className="inventory-price inventory-money">{price.buy}</div>
+        } else {
+          return <div className="inventory-price inventory-money">{price.sell}</div>
+        }
+      } else {
+        return <div className="inventory-price"><span className="inventory-not-for-sale">Not for sale</span></div>
+      }
+    }
+    return <span></span>
+  }
+
   private mousemove = (e: MouseEvent) => {
     this.mousePos.x = e.pageX
     this.mousePos.y = e.pageY
     if (this.draggedSlotInfo) {
-      this.dragAndDropIcon.style.transform = `translate(${this.mousePos.x + this.offset.x}px, ${this.mousePos.y + this.offset.y}px)`
+      this.dragAndDropSlot.style.transform = `translate(${this.mousePos.x + this.offset.x}px, ${this.mousePos.y + this.offset.y}px)`
     }
   }
   private mouseup = (e: MouseEvent) => {
@@ -331,7 +391,7 @@ export class InventoryUI {
       } else {
         this.cancelDrop(this.draggedSlotInfo)
       }
-      this.dragAndDropIcon.remove()
+      this.dragAndDropSlot.remove()
       this.draggedSlotInfo = undefined
     }
   }
@@ -343,15 +403,63 @@ export class InventoryUI {
 
   private dropItem(target: HTMLElement, draggedSlotInfo: Required<SlotInfo>, targetSlotInfo: Required<SlotInfo>) {
     const droppedItemName = this.getItem(draggedSlotInfo)
+    if (!droppedItemName) return // just to be sure, this should never happen, since you can't drag an empty slot.
     const oldItemName = this.getItem(targetSlotInfo)
+    if (droppedItemName === oldItemName) { this.cancelDrop(draggedSlotInfo); return };
+    if (this.shop) {
+      // check if item can be sold.
+      // and check if sold and char or shop has enough money.
+      switch (draggedSlotInfo.type) {
+        case 'loot':
+          if (targetSlotInfo.type === 'loot') break;
 
-    target.textContent = droppedItemName || this.getEmptySlotName(targetSlotInfo)
-    target.className = inventorySlotClassList(!droppedItemName)
+          const price = this.shop.prices[droppedItemName]
+          if (!price) {
+            this.cancelDrop(draggedSlotInfo)
+            return
+          }
 
-    const oldEl = document.getElementById(`${this.getSlotIdType(draggedSlotInfo)}${draggedSlotInfo.id}`)!
-    oldEl.className = inventorySlotClassList(!oldItemName)
-    oldEl.textContent = oldItemName || this.getEmptySlotName(draggedSlotInfo)
-    if (droppedItemName === oldItemName) return;
+          const oldItemPrice = oldItemName && this.shop.prices[oldItemName]?.sell || 0
+          const buyPrice = price.buy - oldItemPrice
+
+          // buy
+          if (this.character.money - buyPrice >= 0) {
+            this.character.money -= buyPrice
+            this.shop.money += buyPrice
+            this.updateMoney()
+          } else {
+            this.cancelDrop(draggedSlotInfo)
+            return // not enough money to buy.
+          }
+          break;
+        case 'character':
+        case 'inventory':
+          if (targetSlotInfo.type === 'loot') {
+            const price = this.shop.prices[droppedItemName]
+            if (!price) {
+              this.cancelDrop(draggedSlotInfo)
+              return
+            }
+
+            const oldItemPrice = oldItemName && this.shop.prices[oldItemName]?.buy || 0
+            const sellPrice = price.sell - oldItemPrice
+
+            // sell
+            if (this.shop.money - sellPrice >= 0) {
+              this.shop.money -= sellPrice
+              this.character.money += sellPrice
+              this.updateMoney()
+            } else {
+              this.cancelDrop(draggedSlotInfo)
+              return // not enough money to sell.
+            }
+          }
+          break;
+      }
+    }
+
+    this.updateSlot(target, targetSlotInfo, droppedItemName)
+    this.updateSlot(document.getElementById(`${this.getSlotIdType(draggedSlotInfo)}${draggedSlotInfo.id}`)!, draggedSlotInfo, oldItemName)
 
     this.setItem(draggedSlotInfo, oldItemName)
     this.setItem(targetSlotInfo, droppedItemName)
@@ -373,6 +481,12 @@ export class InventoryUI {
       updateStatsWithItem(this.stats, oldItemTarget, false)
     }
     this.updateStats()
+  }
+
+  private updateSlot(element: HTMLElement, slotInfo: Required<SlotInfo>, itemName?: ItemName, updateClasses = true) {
+    updateClasses && (element.className = inventorySlotClassList(!itemName));
+    element.textContent = itemName || this.getEmptySlotName(slotInfo)
+    element.appendChild(this.getPriceTag(slotInfo.type, itemName))
   }
 
   private getItemStatChanges(slot: Required<SlotInfo>, itemName?: string,) {

@@ -37,20 +37,20 @@ export class Game {
       awd3: {
         doors: { east: { roomId: 'awd', type: 'room', asset: 'basic' }, west: { roomId: 'awd4', type: 'room', asset: 'basic' } },
         name: 'basic',
-        fight: { char: { class: 'base', items: { weapon: 'BasicSword' } } },
+        fight: { char: { class: 'base', items: { weapon: 'BasicSword' }, money: 0 } },
         objectInfos: []
       },
       awd4: {
         doors: { east: { roomId: 'awd3', type: 'room', asset: 'basic', }, west: { roomId: 'awd5', type: 'room', asset: 'basic' } },
         name: 'test',
         objectInfos: [],
-        fight: { char: { class: 'awd2', items: {} }, loot: { items: ['SuperGloves'] } }
+        fight: { char: { class: 'awd2', items: {}, money: 0 }, loot: { items: ['SuperGloves'] } }
       },
       awd5: {
         doors: { east: { roomId: 'awd4', type: 'room', asset: 'basic' }, },
         name: 'test',
         objectInfos: [],
-        fight: { char: { class: 'awd3', items: {} }, loot: { items: [] } }
+        fight: { char: { class: 'awd3', items: {}, money: 0 }, loot: { items: [] } }
       }
     }
     new Campaign()
@@ -68,7 +68,7 @@ export class Game {
   }
 
   async goToFight(humanPlayer?: Player, player1?: Character, player2?: Character, stage?: RoomNames) {
-    await LoadFight(humanPlayer || 'player1', this, player1 || { class: 'base', items: { weapon: 'BasicSword' } }, player2 || { class: 'base', items: { weapon: 'BasicSword' } }, stage || 'test');
+    await LoadFight(humanPlayer || 'player1', this, player1 || { class: 'base', items: { weapon: 'BasicSword' }, money: 0 }, player2 || { class: 'base', items: { weapon: 'BasicSword' }, money: 0 }, stage || 'test');
   }
 
 }
