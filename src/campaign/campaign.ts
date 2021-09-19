@@ -14,6 +14,7 @@ import { Inventory, InventoryUI } from '../ui/inventoryUI';
 import { Character } from '../character/character';
 import { createStats } from '../character/stats';
 import { ItemName } from '../character/items';
+import { getKeybinding } from '../keybindings';
 
 export type TownName = 'camera_1' | 'camera_2' //  | 'camera_3' | 'camera_4'
 
@@ -63,8 +64,10 @@ export class Campaign extends Renderer {
 
   constructor() {
     super();
-    this.inventoryUI.showShop(this.towns.camera_1.shops[0])
-    // this.load()
+    // this.inventoryUI.showShop(this.towns.camera_1.shops[0])
+    this.load()
+
+    window.addEventListener('keydown', this.keydown)
 
   }
 
@@ -159,9 +162,20 @@ export class Campaign extends Renderer {
   }
 
   private exit() {
+    window.removeEventListener('keydown', this.keydown)
     this.disposeRenderer();
   }
 
   protected update(delta: number) {
+  }
+
+  private keydown = (e: KeyboardEvent) => {
+    if (this.inventoryUI.visible) return;
+    e.preventDefault()
+    switch (e.key.toUpperCase()) {
+      case getKeybinding('Inventory', 'ToggleInventory'):
+        this.inventoryUI.toggle()
+        break;
+    }
   }
 }

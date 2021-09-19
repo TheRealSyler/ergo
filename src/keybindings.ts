@@ -25,7 +25,7 @@ const KEYBINDINGS = {
     MoveRight: 'D',
     MoveBack: 'S',
     Interact: 'E',
-    ToggleInventory: 'TAB',
+
   },
   Fight: {
     // TODO fight keybindings
@@ -34,5 +34,8 @@ const KEYBINDINGS = {
     MenuMainMenu: 'BACKSPACE',
     MenuResume: 'SPACE',
     MenuInventory: 'TAB'
+  },
+  Inventory: {
+    ToggleInventory: 'TAB',
   }
 }

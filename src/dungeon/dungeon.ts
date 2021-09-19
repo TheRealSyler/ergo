@@ -389,8 +389,8 @@ export class Dungeon<Rooms extends string> extends Renderer {
 
   private keydown = (e: KeyboardEvent) => {
     if (!this.fightCon) {
-      if (e.key.toUpperCase() === getKeybinding('Dungeon', 'ToggleInventory')) {
-        e.preventDefault()
+      e.preventDefault()
+      if (e.key.toUpperCase() === getKeybinding('Inventory', 'ToggleInventory')) {
         if (this.inventoryUI.visible) {
           this.inventoryUI.hide()
           this.controls.lock()

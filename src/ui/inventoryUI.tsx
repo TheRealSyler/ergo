@@ -4,7 +4,7 @@ import { MAIN_UI_ELEMENT } from './ui'
 import './inventoryUI.sass'
 import { ItemName, ITEMS } from '../character/items'
 import { Character } from '../character/character'
-import { getKeybindingUI } from '../keybindings'
+import { getKeybinding, getKeybindingUI } from '../keybindings'
 import { CharacterStats, updateStatsWithItem } from '../character/stats'
 import { toFixedIfNotZero } from '../utils'
 import { BarComponent } from './barComponent'
@@ -78,7 +78,7 @@ export class InventoryUI {
 
     </div>
 
-    <div className="inventory-info-bar"> {getKeybindingUI('Dungeon', 'ToggleInventory')} Close | [CTRL + MOUSE CLICK] Equip | [SHIFT + MOUSE CLICK] Move to Inventory {this.lootInfo} </div>
+    <div className="inventory-info-bar"> {getKeybindingUI('Inventory', 'ToggleInventory')} Close | [CTRL + MOUSE CLICK] Equip | [SHIFT + MOUSE CLICK] Move to Inventory {this.lootInfo} </div>
   </div>
   private lootInventory?: Inventory;
   private shop?: Shop;
@@ -116,6 +116,7 @@ export class InventoryUI {
     this.oneTimeListener = oneTimeListener
     window.addEventListener('mousemove', this.mousemove)
     window.addEventListener('mouseup', this.mouseup)
+    window.addEventListener('keydown', this.keydown)
     MAIN_UI_ELEMENT.appendChild(this.mainEl)
     this.lootItemsEl.textContent = ''
     if (lootOrShop) {
@@ -174,6 +175,7 @@ export class InventoryUI {
     this.mainEl.remove()
     window.removeEventListener('mousemove', this.mousemove)
     window.removeEventListener('mouseup', this.mouseup)
+    window.removeEventListener('keydown', this.keydown)
     this.shopMoneyEl.style.display = 'none'
     if (this.shop) {
       this.shop = undefined
@@ -364,6 +366,14 @@ export class InventoryUI {
     return <span></span>
   }
 
+  private keydown = (e: KeyboardEvent) => {
+    e.preventDefault()
+    switch (e.key.toUpperCase()) {
+      case getKeybinding('Inventory', 'ToggleInventory'):
+        this.toggle()
+        break;
+    }
+  }
   private mousemove = (e: MouseEvent) => {
     this.mousePos.x = e.pageX
     this.mousePos.y = e.pageY

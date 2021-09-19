@@ -23,8 +23,8 @@ const d2: DungeonInfo<'Room1' | 'room2'> = {
 export const town1: Town<Town1Dungeons> = {
   shops: [
     {
-      inventory: { items: ['BasicGloves', 'SuperGloves'], size: 20 },
-      name: 'Shop 1',
+      inventory: { items: ['BasicGloves', 'BasicGloves', 'BasicSword'], size: 20 },
+      name: 'Blacksmith',
       money: 1000,
       prices: { BasicGloves: { buy: 200, sell: 100 }, BasicSword: { buy: 1000, sell: 500 } }
     }

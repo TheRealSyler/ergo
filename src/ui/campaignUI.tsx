@@ -55,10 +55,12 @@ export class campaignUI {
     }
 
     this.shopsEl.textContent = ''
-
+    // TODO add keybindings for opening a shop.
     for (let i = 0; i < this.ref.towns[this.ref.currentTown].shops.length; i++) {
       const shop = this.ref.towns[this.ref.currentTown].shops[i];
-      this.shopsEl.appendChild(<div className="button">
+      this.shopsEl.appendChild(<div className="button" onClick={() => {
+        this.ref.inventoryUI.showShop(shop)
+      }}>
         {shop.name}
       </div>)
     }
