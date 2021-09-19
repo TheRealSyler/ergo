@@ -25,7 +25,6 @@ export type LoadedCharacter = {
 
 export async function loadCharacter(loader: GLTFLoader, character: Character): Promise<LoadedCharacter> {
 
-
   const mainModelInfo = CLASS_MODEL_INFO[character.class]
 
   const itemPromises: Promise<{ group: Group, info: ModelInfo }>[] = []
@@ -60,6 +59,16 @@ export async function loadCharacter(loader: GLTFLoader, character: Character): P
   for (let i = 0; i < loadedItems.length; i++) {
     const item = loadedItems[i];
     const itemMesh = item.group.getObjectByName(item.info.name) as any as SkinnedMesh
+    if (itemMesh.type === 'Group') {
+      while (itemMesh.children.length) {
+        const mesh = itemMesh.children[0] as any as SkinnedMesh
+        mesh.bind(sharedSkeleton, mesh.matrixWorld);
+        // mesh.castShadow = true
+        // mesh.receiveShadow = true
+        model.add(mesh)
+      }
+      continue
+    }
     itemMesh.bind(sharedSkeleton, itemMesh.matrixWorld);
     // itemMesh.castShadow = true
     // itemMesh.receiveShadow = true
