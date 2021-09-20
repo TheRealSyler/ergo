@@ -80,6 +80,7 @@ export class Campaign extends Renderer implements DungeonParent {
       console.log('You don\' have enough money to travel to', newTown)
       return // TODO add ui hint.
     }
+    this.character.money -= this.towns[newTown].travelCost
     this.ui.hide()
     this.currentTown = newTown
     this.isAnimatingCamera = true
@@ -175,6 +176,12 @@ export class Campaign extends Renderer implements DungeonParent {
   }
 
   loadDungeon(dungeonInfo: DungeonInfo<any>) {
+    if (dungeonInfo.cost) {
+      if (this.character.money - dungeonInfo.cost < 0) {
+        return // TODO add ui hint.
+      }
+      this.character.money -= dungeonInfo.cost
+    }
     const savedScene = this.scene
     const savedCamera = this.camera;
     this.scene = new Scene()

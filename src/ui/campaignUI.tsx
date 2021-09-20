@@ -63,12 +63,13 @@ export class campaignUI {
 
     for (const key in this.ref.towns[this.ref.currentTown].dungeons) {
       if (Object.prototype.hasOwnProperty.call(this.ref.towns[this.ref.currentTown].dungeons, key)) {
+        const dungeon = this.ref.towns[this.ref.currentTown].dungeons[key]
         const el = <div className="button" onClick={() => {
           if (this.enabled) {
-            this.ref.loadDungeon(this.ref.towns[this.ref.currentTown].dungeons[key])
+            this.ref.loadDungeon(dungeon)
           }
         }}>{key}</div>
-        this.addTooltip(el, <span>Travel to {key}</span>)
+        this.addTooltip(el, <span>Travel to {key}{dungeon.cost ? <span> (Travel cost {MoneyEl(dungeon.cost)})</span> : null}</span>)
         this.dungeonsEl.appendChild(el)
       }
     }
