@@ -52,7 +52,8 @@ type RoomDoorAssetAndDir = {
 export interface DungeonInfo<Rooms extends string> {
   rooms: DungeonRooms<Rooms>,
   firstRoom: Rooms,
-  entryDir: DungeonDir
+  entryDir: DungeonDir,
+  cost?: number
 }
 
 export class Dungeon<Rooms extends string> {
@@ -164,6 +165,8 @@ export class Dungeon<Rooms extends string> {
             const loot: Inventory = { items: [...(dungeonFight.loot?.items || []), ...this.characterItemsToArray(dungeonFight.char)] }
             const newRoomItem: RoomItemInfoAndAsset = { asset: await loadRoomItem(loader, 'enemy'), info: { asset: 'enemy', items: loot, removeIfEmpty: true } };
             this.ui.show()
+            this.parent.character.money += playerChar2.character.money
+            this.parent.stats.stamina = this.parent.stats.maxStamina
             if (!this.areItemsEmpty(loot.items)) {
               this.parent.inventoryUI.show({ name: 'Fight', inventory: loot }, () => {
                 if (!this.areItemsEmpty(newRoomItem.info.items!.items)) {

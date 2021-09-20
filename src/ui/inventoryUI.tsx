@@ -5,11 +5,12 @@ import './inventoryUI.sass'
 import { ItemName, ITEMS, ITEM_TYPES } from '../character/items'
 import { Character } from '../character/character'
 import { getKeybinding, getKeybindingUI } from '../keybindings'
-import { CharacterStats, updateStatsWithItem } from '../character/stats'
+import { CharacterStats, updateStatsWithItem, useConsumable } from '../character/stats'
 import { toFixedIfNotZero } from '../utils'
 import { BarComponent } from './barComponent'
 import { Shop } from '../campaign/campaign'
 import { TooltipComponent } from './tooltipComponent'
+import { MoneyEl } from './components'
 
 export interface Inventory {
   items: (ItemName | undefined)[],
@@ -39,12 +40,12 @@ export class InventoryUI {
   private dragAndDropSlot = <div className="inventory-slot inventory-drag inventory-drag-el"></div>
   private lootItemsEl = <div className="inventory-items"></div>
   private lootName = <span className="inventory-title">Loot</span>
-  private shopMoneyEl = <div className="inventory-stats inventory-money"></div>
+  private shopMoneyEl = <div className="inventory-stats"></div>
   private lootNameInfo = <span>Loot Name</span>
   private lootInfo = <span>| [ALT + MOUSE CLICK] Move to {this.lootNameInfo}</span>
 
   private statsEl = <div className="inventory-stats"></div>
-  private charMoneyEl = <div className="inventory-stats inventory-money"></div>
+  private charMoneyEl = <div className="inventory-stats"></div>
   private healthBar = new BarComponent('health')
   private staminaBar = new BarComponent('stamina')
   private lootEl = <div className="inventory-section">
@@ -80,7 +81,7 @@ export class InventoryUI {
 
     </div>
 
-    <div className="inventory-info-bar"> {getKeybindingUI('Inventory', 'ToggleInventory')} Close | [CTRL + MOUSE CLICK] Equip | [SHIFT + MOUSE CLICK] Move to Inventory {this.lootInfo} </div>
+    <div className="inventory-info-bar"> {getKeybindingUI('Inventory', 'ToggleInventory')} Close | [CTRL + MOUSE CLICK] Equip/Use | [SHIFT + MOUSE CLICK] Move to Inventory {this.lootInfo} </div>
   </div>
   private lootInventory?: Inventory;
   private shop?: Shop;
@@ -141,9 +142,11 @@ export class InventoryUI {
   }
 
   private updateMoney() {
-    this.charMoneyEl.textContent = `${this.character.money}`
+    this.charMoneyEl.textContent = ''
+    this.charMoneyEl.appendChild(MoneyEl(this.character.money))
     if (this.shop) {
-      this.shopMoneyEl.textContent = `${this.shop.money}`
+      this.shopMoneyEl.textContent = ''
+      this.shopMoneyEl.appendChild(MoneyEl(this.shop.money))
     }
   }
 
@@ -212,7 +215,7 @@ export class InventoryUI {
   }
 
   private addItemSlot(slotInfo: SlotInfo): HTMLElement {
-    const slotID = this.getSlotIdType(slotInfo)
+    const slotID = this.getSlotId(slotInfo)
 
     const itemName = this.getItem(slotInfo)
 
@@ -224,7 +227,7 @@ export class InventoryUI {
 
       if (item) {
         if (e.ctrlKey) { // TODO add ability to add keybindings if necessary with a keydown/up listener.
-          if (this.equipItem(slotInfo, item))
+          if (this.equipOrUseItem(slotInfo, item))
             return
         } else if (e.shiftKey) {
           if (this.moveItemToInventory(slotInfo))
@@ -243,8 +246,7 @@ export class InventoryUI {
         this.offset.y = -(bounds.height / 2)
         this.dragAndDropSlot.style.transform = `translate(${this.mousePos.x + this.offset.x}px, ${this.mousePos.y + this.offset.y}px)`
 
-        const selfEl = document.getElementById(`${slotID}${slotInfo.id}`)!
-        selfEl.classList.add('inventory-is-dragging')
+        slot.classList.add('inventory-is-dragging')
 
       }
     }}>{itemName || this.getEmptySlotName(slotInfo)}{priceTag}</div>
@@ -255,52 +257,7 @@ export class InventoryUI {
     return slot
   }
 
-  private showTooltip(slotInfo: SlotInfo, slotEl: HTMLElement) {
-    const itemName = this.getItem(slotInfo)
-    if (itemName) {
-      const itemInfo = ITEMS[itemName]
-      const bounds = slotEl.getBoundingClientRect()
-
-      const changes: HTMLElement[] = []
-
-      for (const key in itemInfo.statChanges) {
-        if (Object.prototype.hasOwnProperty.call(itemInfo.statChanges, key)) {
-          const change = itemInfo.statChanges[key as keyof typeof itemInfo.statChanges]
-          const a = (change: number, type: boolean) => `${type ? '+' : '-'}${Math.abs(change)}`
-          const c = (type: boolean) => type ? 'inventory-tooltip-positive' : 'inventory-tooltip-negative'
-          if (typeof change === 'number') {
-            const changeType = change >= 0
-            let changeTypeClass = change >= 0
-            switch (key as keyof typeof itemInfo.statChanges) {
-              case 'dodgeSpeed':
-                changeTypeClass = !changeType
-                break
-            }
-            changes.push(<div className="inventory-tooltip-stat">
-              <span>{key}:</span>
-              <span className={c(changeTypeClass)}>{a(change, changeType)}</span>
-            </div>)
-          } else if (change) {
-            const typeMin = change.min > 0
-            const typeMax = change.max > 0
-            changes.push(<div className="inventory-tooltip-stat">
-              <span>{key}:</span>
-              <span><span className={c(typeMin)}>{a(change.min, typeMin)}</span> - <span className={c(typeMax)}> {a(change.max, typeMax)}</span></span>
-            </div>)
-          }
-        }
-      }
-
-      this.tooltip.show(
-        <div className="inventory-tooltip">
-          {changes}
-        </div>,
-        { x: bounds.x + bounds.width / 2, y: bounds.y + bounds.height + 4 }
-      )
-    }
-  }
-
-  private equipItem(slot: SlotInfo, item: ItemName) {
+  private equipOrUseItem(slot: SlotInfo, item: ItemName) {
     switch (slot.type) {
       case 'character':
         const size = this.inventory.size || this.inventory.items.length
@@ -323,8 +280,21 @@ export class InventoryUI {
             }
           }
         }
+        const itemInfo = ITEMS[item]
+        if (itemInfo.type === 'consumable') {
+          useConsumable(this.stats, itemInfo)
+          this.setItem(slot, undefined)
+          this.updateSlot(this.getSlotElement(slot), slot)
+          this.updateStats()
+          this.tooltip.hide()
+          return true
+        }
         break;
     }
+  }
+
+  private getSlotElement(slot: Required<SlotInfo>): HTMLElement {
+    return document.getElementById(`${this.getSlotId(slot)}${slot.id}`)!
   }
   private moveItemToInventory(slot: SlotInfo) {
     switch (slot.type) {
@@ -361,7 +331,7 @@ export class InventoryUI {
     }
   }
 
-  private getSlotIdType(slot: SlotInfo) {
+  private getSlotId(slot: SlotInfo) {
     switch (slot.type) {
       case 'character':
         return this.characterItemId
@@ -414,9 +384,9 @@ export class InventoryUI {
       const price = this.shop.prices[itemName]
       if (price) {
         if (type === 'loot') {
-          return <div className="inventory-price inventory-money">{price.buy}</div>
+          return <div className="inventory-price">{MoneyEl(price.buy)}</div>
         } else {
-          return <div className="inventory-price inventory-money">{price.sell}</div>
+          return <div className="inventory-price">{MoneyEl(price.sell)}</div>
         }
       } else {
         return <div className="inventory-price"><span className="inventory-not-for-sale">Not for sale</span></div>
@@ -468,7 +438,7 @@ export class InventoryUI {
   }
 
   private cancelDrop(slot: Required<SlotInfo>) {
-    const oldEl = document.getElementById(`${this.getSlotIdType(slot)}${slot.id}`)!
+    const oldEl = this.getSlotElement(slot)
     oldEl.classList.remove('inventory-is-dragging')
   }
 
@@ -531,7 +501,7 @@ export class InventoryUI {
 
     this.tooltip.hide()
     this.updateSlot(target, targetSlotInfo, droppedItemName)
-    this.updateSlot(document.getElementById(`${this.getSlotIdType(draggedSlotInfo)}${draggedSlotInfo.id}`)!, draggedSlotInfo, oldItemName)
+    this.updateSlot(document.getElementById(`${this.getSlotId(draggedSlotInfo)}${draggedSlotInfo.id}`)!, draggedSlotInfo, oldItemName)
 
     this.setItem(draggedSlotInfo, oldItemName)
     this.setItem(targetSlotInfo, droppedItemName)
@@ -565,6 +535,68 @@ export class InventoryUI {
     if (!itemName) return;
     const itemStatChanges = ITEMS[itemName]
     return slot.type === 'character' && itemStatChanges.type === slot.id && itemStatChanges
+  }
+
+  private showTooltip(slotInfo: SlotInfo, slotEl: HTMLElement) {
+    const itemName = this.getItem(slotInfo)
+    if (itemName) {
+      const itemInfo = ITEMS[itemName]
+      const bounds = slotEl.getBoundingClientRect()
+
+      const elements: HTMLElement[] = []
+      if (itemInfo.type === 'quest') {
+        elements.push(<span className={this.statUiType(true)}>QUEST ITEM</span>)
+      } else if (itemInfo.type === 'consumable') {
+        const health = itemInfo.effect.health
+        if (health) {
+          elements.push(<span ><span>Heal: </span> <span className={this.statUiType(true)}>{this.statSign(health, true)}</span></span>)
+        }
+      } else {
+        for (const key in itemInfo.statChanges) {
+          if (Object.prototype.hasOwnProperty.call(itemInfo.statChanges, key)) {
+            const change = itemInfo.statChanges[key as keyof typeof itemInfo.statChanges]
+
+            if (typeof change === 'number') {
+              const changeType = change >= 0
+              let changeTypeClass = change >= 0
+              switch (key as keyof typeof itemInfo.statChanges) {
+                case 'dodgeSpeed':
+                  changeTypeClass = !changeType
+                  break
+              }
+              elements.push(<div className="inventory-tooltip-stat">
+                <span>{key}:</span>
+                <span className={this.statUiType(changeTypeClass)}>{this.statSign(change, changeType)}</span>
+              </div>)
+            } else if (change) {
+              const typeMin = change.min > 0
+              const typeMax = change.max > 0
+              elements.push(<div className="inventory-tooltip-stat">
+                <span>{key}:</span>
+                <span><span className={this.statUiType(typeMin)}>{this.statSign(change.min, typeMin)}</span> - <span className={this.statUiType(typeMax)}> {this.statSign(change.max, typeMax)}</span></span>
+              </div>)
+            }
+          }
+        }
+      }
+
+
+      this.tooltip.show(
+        <div className="inventory-tooltip">
+          {elements}
+        </div>,
+        { x: bounds.x + bounds.width / 2, y: bounds.y + bounds.height + 4 }
+      )
+    }
+  }
+
+  private statUiType(type: boolean) {
+    return type ? 'inventory-tooltip-positive' : 'inventory-tooltip-negative'
+  }
+
+  private statSign(change: number | string, type: boolean) {
+    if (typeof change === 'string') return change
+    return `${type ? '+' : '-'}${Math.abs(change)}`
   }
 }
 

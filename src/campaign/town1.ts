@@ -3,9 +3,7 @@ import { degToRad } from 'three/src/math/MathUtils';
 import { DungeonInfo } from '../dungeon/dungeon';
 import { Town } from './campaign';
 
-type Town1Dungeons = 'd1' | 'd2';
-
-const d1: DungeonInfo<'Entry' | 'Room 1'> = {
+const banditCamp: DungeonInfo<'Entry' | 'Room 1'> = {
   entryDir: 'north',
   firstRoom: 'Entry',
   rooms: {
@@ -27,6 +25,7 @@ const d1: DungeonInfo<'Entry' | 'Room 1'> = {
 const d2: DungeonInfo<'Entry' | 'Room North' | 'Room1' | 'Room2' | 'Room3'> = {
   entryDir: 'north',
   firstRoom: 'Entry',
+  cost: 5000,
   rooms: {
     Entry: {
       doors: {
@@ -64,7 +63,13 @@ const d2: DungeonInfo<'Entry' | 'Room North' | 'Room1' | 'Room2' | 'Room3'> = {
     }
   }
 }
+
+export type Town1Dungeons = 'Bandit Camp' | 'd2';
+
+
 export const town1: Town<Town1Dungeons> = {
+  isUnlocked: true,
+  travelCost: 200,
   shops: [
     {
       inventory: { items: ['BasicGloves', 'BasicGloves', 'BasicSword', 'BasicArmor'], size: 20 },
@@ -74,7 +79,7 @@ export const town1: Town<Town1Dungeons> = {
     }
   ],
   dungeons: {
-    d1,
+    'Bandit Camp': banditCamp,
     d2
   }
 }

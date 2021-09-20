@@ -1,7 +1,7 @@
 import { ATTACK_ACTIVE_TIME } from '../animation/attackState';
 import { NumberRange } from '../utils';
 import { Character } from './character';
-import { Item, ITEMS } from './items';
+import { ConsumableItem, Item, ITEMS, ItemWithStatChange } from './items';
 
 export interface CharacterStats {
   /** The time the ai does nothing/waits for the player to attack. */
@@ -57,6 +57,16 @@ export function createStats(character: Character): CharacterStats {
   return stats
 }
 
+export function useConsumable(stats: CharacterStats, item: ConsumableItem) {
+  const health = item.effect.health;
+  if (health === 'Full') {
+    stats.health = stats.maxHealth;
+  } else if (health) {
+    stats.health = Math.min(stats.maxHealth, stats.health + health);
+  }
+}
+
+
 export function updateStatsWithItem(stats: CharacterStats, item: Item, add = true) {
   applyItemToStats(stats, item, add)
 }
@@ -98,9 +108,11 @@ function applyStats(character: Character, stats: CharacterStats) {
 }
 
 function applyItemToStats(stats: CharacterStats, item: Item, add = true) {
+  if (item.type === 'consumable' || item.type === 'quest') return
+
   for (const k in item.statChanges) {
     if (Object.prototype.hasOwnProperty.call(item.statChanges, k)) {
-      const key = k as keyof Item['statChanges'];
+      const key = k as keyof ItemWithStatChange['statChanges'];
       const change = item.statChanges[key];
       if (!change) continue
 

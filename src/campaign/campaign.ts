@@ -28,6 +28,8 @@ export interface Shop {
 export type Town<D extends string> = {
   dungeons: Record<D, DungeonInfo<any>>
   shops: Shop[]
+  travelCost: number,
+  isUnlocked: boolean
 }
 
 export class Campaign extends Renderer implements DungeonParent {
@@ -48,7 +50,7 @@ export class Campaign extends Renderer implements DungeonParent {
     // camera_4: town1,
   }
   inventory: Inventory = {
-    items: ['BasicArmor', 'BasicGloves', 'BasicSword', 'SuperGloves'],
+    items: ['BasicArmor', 'BasicGloves', 'BasicSword', 'SuperGloves', 'Bandage', 'BanditBounty'],
     size: 12
   }
   character: Character = {
@@ -64,19 +66,24 @@ export class Campaign extends Renderer implements DungeonParent {
   private dungeon?: Dungeon<any>;
   constructor() {
     super();
-    this.inventoryUI.showShop(this.towns.camera_1.shops[0])
-    // this.load()
+    this.stats.health = 10
+    // this.inventoryUI.showShop(this.towns.camera_1.shops[0])
+    this.load()
 
     window.addEventListener('keydown', this.keydown)
 
   }
 
-  changeTown(cameraName: TownName) {
-    if (cameraName === this.currentTown || this.isAnimatingCamera || !this.ui.enabled) return
+  changeTown(newTown: TownName) {
+    if (newTown === this.currentTown || this.isAnimatingCamera || !this.ui.enabled || !this.towns[newTown].isUnlocked) return
+    if (this.character.money - this.towns[newTown].travelCost < 0) {
+      console.log('You don\' have enough money to travel to', newTown)
+      return // TODO add ui hint.
+    }
     this.ui.hide()
-    this.currentTown = cameraName
+    this.currentTown = newTown
     this.isAnimatingCamera = true
-    const newCamera = this.cameras[cameraName]!;
+    const newCamera = this.cameras[newTown]!;
     const endRot = new Quaternion();
     const endPos = new Vector3();
     newCamera.getWorldQuaternion(endRot);
