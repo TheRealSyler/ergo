@@ -20,13 +20,11 @@ export class AiIdleState extends State<AiStates> {
           this.timeToAttack -= timeElapsed;
 
           if (this.timeToAttack < 0) {
-            // TODO on higher difficulty ensure that the ai has enough stamina to attack then dodge.
             fsm.SetState('ai_attacking');
           }
         }
         return;
       case 'attack':
-        // TODO add chance to block and counter attack.
         fsm.SetState('ai_dodging');
         return;
     }

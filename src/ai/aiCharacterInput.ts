@@ -8,7 +8,7 @@ import { AiIdleState } from './aiIdleState';
 
 export type AiStates = 'ai_idle' | 'ai_dodging' | 'ai_attacking';
 
-export const DodgePossibilities: { [key in AttackAnimations]: DodgeAnimations | DodgeAnimations[] } = {
+export const DODGE_POSSIBILITIES: { [key in AttackAnimations]: DodgeAnimations | DodgeAnimations[] } = {
   attack_down: ['dodge_left', 'dodge_right'],
   attack_right: 'dodge_right',
   attack_left: 'dodge_left',

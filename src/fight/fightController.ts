@@ -8,20 +8,13 @@ import { degToRad } from 'three/src/math/MathUtils';
 // import { RoughnessMipmapper } from 'three/examples/jsm/utils/RoughnessMipmapper';
 import { Player } from '../game';
 import { FightUI, victoryOrLossUI } from '../ui/fightUI';
-import { AttackAnimations } from '../animation/types';
 import { AiInput } from '../ai/aiCharacterInput';
 import { PlayerInput } from '../playerInput';
 import { randomInRange } from '../utils';
 import { Renderer } from '../renderer';
 import { checkAiDifficulty } from '../character/stats';
 
-const oppositeAttackDir: Record<AttackAnimations, AttackAnimations> = {
-  attack_down: 'attack_up',
-  attack_left: 'attack_right',
-  attack_right: 'attack_left',
-  attack_up: 'attack_down'
-}
-type AttackResult = 'hit' | 'not_hit' | 'blocked';
+type AttackResult = 'hit' | 'not_hit';
 
 export interface FightControllerOptions {
   customEndScreen?: (victory: boolean, dispose: () => void, endScreen: () => void) => void
@@ -85,7 +78,7 @@ export class FightController {
       this.isInEndScreen = false
       if (this.humanPlayer === 'player1') {
         this.players.player1.input = new PlayerInput();
-        this.players.player2.input = new AiInput(this.players.player2, this.players.player2);
+        this.players.player2.input = new AiInput(this.players.player2, this.players.player1);
       } else {
         this.players.player2.input = new PlayerInput();
         this.players.player1.input = new AiInput(this.players.player1, this.players.player2);
@@ -225,10 +218,6 @@ export class FightController {
           this.players[defender].stateMachine.SetState('hit')
         }
         break;
-      case 'blocked':
-        (this.players[attacker].stance as AttackStance).attackProgress = 'hit';
-        this.players[defender].stateMachine.SetState('hit')
-        this.players[attacker].stateMachine.SetState('hit')
     }
   }
 
@@ -261,16 +250,7 @@ export class FightController {
       }
 
     } else if (defender.type === 'attack') {
-      if (defender.attackProgress === 'finished') {
-        return 'hit'
-      }
-
-      if (oppositeAttackDir[attacker.attackDirection] === defender.attackDirection) {
-        return 'blocked';
-      }
-
       return 'hit'
-
     }
     return 'not_hit';
   }

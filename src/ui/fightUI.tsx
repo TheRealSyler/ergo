@@ -7,6 +7,7 @@ import './fightUI.sass'
 import { Player } from '../game'
 import { BarComponent } from './barComponent'
 import { getKeybinding, getKeybindingUI } from '../keybindings'
+import { Difficulty } from '../character/stats'
 
 type FightUIMenus = 'restart' | 'resume' | 'mainMenu' | 'inventory'
 export class FightUI {
@@ -58,8 +59,8 @@ export class FightUI {
     this.HUD()
   }
 
-  showDifficulty(level: number) {
-    this.difficultyEL.textContent = 'Difficulty: ' + level
+  showDifficulty(difficulty: Difficulty) {
+    this.difficultyEL.textContent = `aiDodge: ${difficulty.aiDodgeChance}% playerDodgeTime: ${difficulty.playerTimeToDodge}`
   }
   HUD() {
     MAIN_UI_ELEMENT.textContent = ''

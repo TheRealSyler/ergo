@@ -6,8 +6,7 @@ import { Item, ITEMS } from './items';
 export interface CharacterStats {
   /** The time the ai does nothing/waits for the player to attack. */
   aiTimeToAttack: NumberRange
-  /**The time it takes for the ai to react to the player attack. */
-  aiDodgeReactionTime: NumberRange
+  aiDodgeChance: number
   /**The attack animation speed. */
   attackSpeed: number
   /**The time it takes to go from idle to dodge state. */
@@ -37,7 +36,7 @@ const BASE_STATS: CharacterStats = {
   maxHealth: 25,
   maxStamina: 10,
   dodgeSpeed: 0.2,
-  aiDodgeReactionTime: NumberRange(0.1, 0.8),
+  aiDodgeChance: 0.3,
   aiTimeToAttack: NumberRange(0.5, 1.5),
   hitTime: 1.5,
   staminaRegenRate: 5,
@@ -138,7 +137,14 @@ function applyItemToStats(stats: CharacterStats, item: Item, add = true) {
     }
   }
 }
-
-export function checkAiDifficulty(playerStats: CharacterStats, aiStats: CharacterStats) {
-  return ((1000 / aiStats.attackSpeed) * ATTACK_ACTIVE_TIME) - (playerStats.dodgeSpeed * 1000)
+export interface Difficulty {
+  playerTimeToDodge: number,
+  aiDodgeChance: number,
+}
+export function checkAiDifficulty(playerStats: CharacterStats, aiStats: CharacterStats): Difficulty {
+  const aiAttackSpeed = (1000 / aiStats.attackSpeed);
+  return {
+    playerTimeToDodge: (aiAttackSpeed * ATTACK_ACTIVE_TIME) - (playerStats.dodgeSpeed * 1000),
+    aiDodgeChance: aiStats.aiDodgeChance * 100,
+  }
 }

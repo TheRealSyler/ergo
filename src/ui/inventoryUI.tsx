@@ -153,7 +153,7 @@ export class InventoryUI {
       if (Object.prototype.hasOwnProperty.call(this.stats, key)) {
         const stat = this.stats[key as keyof CharacterStats]
         switch (key as keyof CharacterStats) {
-          case 'aiDodgeReactionTime':
+          case 'aiDodgeChance':
           case 'aiTimeToAttack':
           case 'health':
           case 'stamina':

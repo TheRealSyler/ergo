@@ -42,6 +42,10 @@ export function randomInRange(range: NumberRange) {
   return range.min + (Math.random() * (range.max - range.min))
 }
 
+export function checkChance(chance: number): boolean {
+  return Math.random() < chance;
+}
+
 export function toPx(t: string | number) {
   return `${t}px`
 }
@@ -95,3 +99,4 @@ export async function wait(time: number): Promise<void> {
 export function toFixedIfNotZero(n: number, fractionDigits: number) {
   return n.toFixed(fractionDigits).replace(/\.0$/, '')
 }
+

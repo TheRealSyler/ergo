@@ -54,14 +54,13 @@ export class Game {
         fight: { char: { class: 'awd3', items: {}, money: 0 }, loot: { items: [] } }
       }
     }
-    new Campaign()
+    // new Campaign()
     // new StandaloneDungeon({
     //   rooms: rooms,
     //   entryDir: 'north',
     //   firstRoom: 'awd'
     // })
-    // this.goToFight()
-
+    this.goToFight()
     // if (this.startInFight) {
     // this.goToFight()
     // } else {
@@ -73,7 +72,7 @@ export class Game {
   }
 
   async goToFight(humanPlayer?: Player, player1?: Character, player2?: Character, stage?: RoomNames) {
-    await LoadFight(humanPlayer || 'player1', this, player1 || { class: 'base', items: { weapon: 'BasicSword' }, money: 0 }, player2 || { class: 'base', items: { weapon: 'BasicSword' }, money: 0 }, stage || 'test');
+    await LoadFight(humanPlayer || 'player1', this, player1 || { class: 'awd3', items: { weapon: 'BasicSword' }, money: 0 }, player2 || { class: 'awd', items: { weapon: 'BasicSword', armor: 'BasicArmor', gloves: 'BasicGloves' }, money: 0 }, stage || 'test');
   }
 
 }
