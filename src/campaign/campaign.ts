@@ -48,7 +48,7 @@ export class Campaign extends Renderer implements DungeonParent {
     // camera_4: town1,
   }
   inventory: Inventory = {
-    items: [],
+    items: ['BasicArmor', 'BasicGloves', 'BasicSword', 'SuperGloves'],
     size: 12
   }
   character: Character = {
@@ -64,8 +64,8 @@ export class Campaign extends Renderer implements DungeonParent {
   private dungeon?: Dungeon<any>;
   constructor() {
     super();
-    // this.inventoryUI.showShop(this.towns.camera_1.shops[0])
-    this.load()
+    this.inventoryUI.showShop(this.towns.camera_1.shops[0])
+    // this.load()
 
     window.addEventListener('keydown', this.keydown)
 

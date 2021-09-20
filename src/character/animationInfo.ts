@@ -5,8 +5,8 @@ import glib_animations from '../assets/glib/glib_animations.glb';
 
 export function getCharacterAnimationInfo(character: Character) {
   if (character.items.weapon) {
-    const weapon = ITEMS.weapon[character.items.weapon];
-    if (weapon) {
+    const weapon = ITEMS[character.items.weapon];
+    if (weapon.type === 'weapon') {
       switch (weapon.weaponHands) {
         case 'double':
         case 'single':

@@ -2,13 +2,14 @@ import { h } from 'dom-chef'
 import { MAIN_UI_ELEMENT } from './ui'
 
 import './inventoryUI.sass'
-import { ItemName, ITEMS } from '../character/items'
+import { ItemName, ITEMS, ITEM_TYPES } from '../character/items'
 import { Character } from '../character/character'
 import { getKeybinding, getKeybindingUI } from '../keybindings'
 import { CharacterStats, updateStatsWithItem } from '../character/stats'
 import { toFixedIfNotZero } from '../utils'
 import { BarComponent } from './barComponent'
 import { Shop } from '../campaign/campaign'
+import { TooltipComponent } from './tooltipComponent'
 
 export interface Inventory {
   items: (ItemName | undefined)[],
@@ -30,6 +31,7 @@ export class InventoryUI {
   private mousePos = { x: 0, y: 0 }
   private offset = { x: 0, y: 0 }
   private draggedSlotInfo?: SlotInfo = undefined
+  private tooltip = new TooltipComponent()
   private inventoryItemId = 'inventory-slot-'
   private characterItemId = 'inventory-character-slot-'
   private lootItemId = 'inventory-loot-slot-'
@@ -101,6 +103,7 @@ export class InventoryUI {
     this.charSlots.textContent = ''
     this.charSlots.appendChild(this.addItemSlot({ type: 'character', id: 'gloves' }))
     this.charSlots.appendChild(this.addItemSlot({ type: 'character', id: 'weapon' }))
+    this.charSlots.appendChild(this.addItemSlot({ type: 'character', id: 'armor' }))
     this.inventorySlotEl.textContent = ''
     this.inventorySlotEl.append(...this.addItemSlots(this.inventory))
   }
@@ -119,6 +122,7 @@ export class InventoryUI {
     window.addEventListener('mouseup', this.mouseup)
     window.addEventListener('keydown', this.keydown)
     MAIN_UI_ELEMENT.appendChild(this.mainEl)
+    MAIN_UI_ELEMENT.appendChild(this.tooltip.mainEL)
     this.lootItemsEl.textContent = ''
     if (lootOrShop) {
       this.lootName.textContent = `${lootOrShop.name}`
@@ -174,6 +178,7 @@ export class InventoryUI {
   hide() {
     this.visible = false
     this.mainEl.remove()
+    this.tooltip.mainEL.remove()
     window.removeEventListener('mousemove', this.mousemove)
     window.removeEventListener('mouseup', this.mouseup)
     window.removeEventListener('keydown', this.keydown)
@@ -213,17 +218,20 @@ export class InventoryUI {
 
     const priceTag = this.getPriceTag(slotInfo.type, itemName)
 
-    return <div id={`${slotID}${slotInfo.id}`} className={inventorySlotClassList(!this.getItem(slotInfo))} onMouseDown={(e) => {
+    const slot = <div id={`${slotID}${slotInfo.id}`} className={inventorySlotClassList(!this.getItem(slotInfo))} onMouseDown={(e) => {
       e.preventDefault()
       const item = this.getItem(slotInfo)
 
       if (item) {
         if (e.ctrlKey) { // TODO add ability to add keybindings if necessary with a keydown/up listener.
-          if (this.equipItem(slotInfo, item)) return;
+          if (this.equipItem(slotInfo, item))
+            return
         } else if (e.shiftKey) {
-          if (this.moveItemToInventory(slotInfo)) return;
+          if (this.moveItemToInventory(slotInfo))
+            return
         } else if (e.altKey) {
-          if (this.moveItemToLoot(slotInfo)) return;
+          if (this.moveItemToLoot(slotInfo))
+            return
         }
 
         this.updateSlot(this.dragAndDropSlot, slotInfo, item, false)
@@ -240,6 +248,56 @@ export class InventoryUI {
 
       }
     }}>{itemName || this.getEmptySlotName(slotInfo)}{priceTag}</div>
+
+    slot.onmouseenter = () => this.showTooltip(slotInfo, slot)
+    slot.onmouseleave = () => this.tooltip.hide()
+
+    return slot
+  }
+
+  private showTooltip(slotInfo: SlotInfo, slotEl: HTMLElement) {
+    const itemName = this.getItem(slotInfo)
+    if (itemName) {
+      const itemInfo = ITEMS[itemName]
+      const bounds = slotEl.getBoundingClientRect()
+
+      const changes: HTMLElement[] = []
+
+      for (const key in itemInfo.statChanges) {
+        if (Object.prototype.hasOwnProperty.call(itemInfo.statChanges, key)) {
+          const change = itemInfo.statChanges[key as keyof typeof itemInfo.statChanges]
+          const a = (change: number, type: boolean) => `${type ? '+' : '-'}${Math.abs(change)}`
+          const c = (type: boolean) => type ? 'inventory-tooltip-positive' : 'inventory-tooltip-negative'
+          if (typeof change === 'number') {
+            const changeType = change >= 0
+            let changeTypeClass = change >= 0
+            switch (key as keyof typeof itemInfo.statChanges) {
+              case 'dodgeSpeed':
+                changeTypeClass = !changeType
+                break
+            }
+            changes.push(<div className="inventory-tooltip-stat">
+              <span>{key}:</span>
+              <span className={c(changeTypeClass)}>{a(change, changeType)}</span>
+            </div>)
+          } else if (change) {
+            const typeMin = change.min > 0
+            const typeMax = change.max > 0
+            changes.push(<div className="inventory-tooltip-stat">
+              <span>{key}:</span>
+              <span><span className={c(typeMin)}>{a(change.min, typeMin)}</span> - <span className={c(typeMax)}> {a(change.max, typeMax)}</span></span>
+            </div>)
+          }
+        }
+      }
+
+      this.tooltip.show(
+        <div className="inventory-tooltip">
+          {changes}
+        </div>,
+        { x: bounds.x + bounds.width / 2, y: bounds.y + bounds.height + 4 }
+      )
+    }
   }
 
   private equipItem(slot: SlotInfo, item: ItemName) {
@@ -256,11 +314,11 @@ export class InventoryUI {
         break;
       case 'inventory':
       case 'loot':
-        for (const key in ITEMS) {
-          if (Object.prototype.hasOwnProperty.call(ITEMS, key)) {
-            if (ITEMS[key as keyof typeof ITEMS][item as keyof Character['items']['gloves']]) {
-              const target = document.getElementById(`${this.characterItemId}${key}`)
-              target && this.dropItem(target, slot, { type: 'character', id: key as any })
+        for (const key in ITEM_TYPES) {
+          if (Object.prototype.hasOwnProperty.call(ITEM_TYPES, key)) {
+            const target = document.getElementById(`${this.characterItemId}${key}`)
+            if (target && ITEMS[item].type === key) {
+              this.dropItem(target, slot, { type: 'character', id: key as any })
               return true;
             }
           }
@@ -393,8 +451,10 @@ export class InventoryUI {
 
       } else if (target.id.startsWith(this.characterItemId)) {
         const droppedItem = this.getItem(this.draggedSlotInfo)
+        if (!droppedItem) return;
         const id = target.id.replace(this.characterItemId, '') as keyof Character['items']
-        if (ITEMS[id][droppedItem as keyof Character['items']['gloves']] !== undefined) {
+        const itemStats = ITEMS[droppedItem]
+        if (itemStats && itemStats.type === id) {
           this.dropItem(target, this.draggedSlotInfo, { id: id, type: 'character' })
         } else {
           this.cancelDrop(this.draggedSlotInfo)
@@ -469,6 +529,7 @@ export class InventoryUI {
       }
     }
 
+    this.tooltip.hide()
     this.updateSlot(target, targetSlotInfo, droppedItemName)
     this.updateSlot(document.getElementById(`${this.getSlotIdType(draggedSlotInfo)}${draggedSlotInfo.id}`)!, draggedSlotInfo, oldItemName)
 
@@ -500,8 +561,10 @@ export class InventoryUI {
     element.appendChild(this.getPriceTag(slotInfo.type, itemName))
   }
 
-  private getItemStatChanges(slot: Required<SlotInfo>, itemName?: string,) {
-    return itemName && slot.type === 'character' ? ITEMS[slot.id][itemName as keyof Character['items']['gloves']] : undefined
+  private getItemStatChanges(slot: Required<SlotInfo>, itemName?: ItemName) {
+    if (!itemName) return;
+    const itemStatChanges = ITEMS[itemName]
+    return slot.type === 'character' && itemStatChanges.type === slot.id && itemStatChanges
   }
 }
 

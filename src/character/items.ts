@@ -3,14 +3,17 @@ import { CharacterStats } from './stats'
 
 type StatChanges = Partial<Omit<CharacterStats, 'health' | 'stamina' | 'aiDodgeReactionTime' | 'aiTimeToAttack'>>;
 
+type NormalItemType = 'armor' | 'gloves';
+type WeaponType = 'weapon'
+type ItemType = NormalItemType | WeaponType
 interface WeaponItem {
-  description: string
+  type: WeaponType
   statChanges: StatChanges
   weaponHands: 'single' | 'double'
 }
 
 interface NormalItem {
-  description: string
+  type: NormalItemType
   statChanges: StatChanges
 }
 export type Item = NormalItem | WeaponItem
@@ -20,59 +23,54 @@ export type ArmorNames = 'BasicArmor';
 
 export type ItemName = GloveNames | WeaponNames | ArmorNames
 
-
-const gloves: Record<Items['gloves'], NormalItem> = {
-  BasicGloves: {
-    description: '',
-    statChanges: {
-      damage: NumberRange(1, 1),
-      maxHealth: 7
-    }
-  },
-  SuperGloves: {
-    description: '',
-    statChanges: {
-      maxHealth: 40,
-      dodgeSpeed: -0.1
-    }
-  }
-}
-const weapon: Record<Items['weapon'], WeaponItem> = {
-  BasicSword: {
-    description: 'awd',
-    statChanges: {
-      damage: NumberRange(10, 15)
-    },
-    weaponHands: 'single'
-  },
-  SuperSword: {
-    description: 'awd',
-    statChanges: {
-      damage: NumberRange(20, 25)
-    },
-    weaponHands: 'single'
-  }
-}
-const armor: Record<Items['armor'], NormalItem> = {
-  BasicArmor: {
-    description: 'awd',
-    statChanges: {
-      staminaRegenRate: -2,
-      maxStamina: 10,
-      maxHealth: 100,
-    },
-  },
-
-}
-
 export interface Items {
   weapon: WeaponNames,
   gloves: GloveNames,
   armor: ArmorNames
 }
 
-export const ITEMS = {
-  gloves: gloves,
-  weapon: weapon,
-  armor: armor
+export const ITEM_TYPES: { [key in ItemType]: any } = {
+  armor: true,
+  gloves: true,
+  weapon: true,
+}
+
+export const ITEMS: { [key in ItemName]: Item } = {
+  BasicArmor: {
+    type: 'armor',
+    statChanges: {
+      maxHealth: 100,
+      maxStamina: 10,
+      dodgeStaminaCost: 1,
+      staminaRegenRate: -2,
+    },
+  },
+  BasicSword: {
+    type: 'weapon',
+    statChanges: {
+      damage: NumberRange(10, 15)
+    },
+    weaponHands: 'single'
+  },
+  SuperSword: {
+    type: 'weapon',
+    statChanges: {
+      damage: NumberRange(20, 25)
+    },
+    weaponHands: 'single'
+  },
+  BasicGloves: {
+    type: 'gloves',
+    statChanges: {
+      damage: NumberRange(1, 1),
+      maxHealth: 7
+    }
+  },
+  SuperGloves: {
+    type: 'gloves',
+    statChanges: {
+      maxHealth: 40,
+      dodgeSpeed: -0.1
+    }
+  }
 }

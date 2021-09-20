@@ -91,8 +91,7 @@ function applyStats(character: Character, stats: CharacterStats) {
     if (Object.prototype.hasOwnProperty.call(character.items, key)) {
       const itemName = character.items[key as keyof Character['items']];
       if (itemName) {
-        const itemSlot = ITEMS[key as keyof Character['items']];
-        applyItemToStats(stats, itemSlot[itemName as keyof typeof itemSlot]);
+        applyItemToStats(stats, ITEMS[itemName]);
       }
     }
   }

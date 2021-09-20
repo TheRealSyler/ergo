@@ -54,13 +54,13 @@ export class Game {
         fight: { char: { class: 'awd3', items: {}, money: 0 }, loot: { items: [] } }
       }
     }
-    // new Campaign()
+    new Campaign()
     // new StandaloneDungeon({
     //   rooms: rooms,
     //   entryDir: 'north',
     //   firstRoom: 'awd'
     // })
-    this.goToFight()
+    // this.goToFight()
     // if (this.startInFight) {
     // this.goToFight()
     // } else {

@@ -59,10 +59,10 @@ function playerSelector(player: Character) {
     awd3: null,
     base: null
   }
-  // TODO select default option
+  // TODO use inventory as Selection thingy.
   return <div>
     <label >Select Glove:</label>
-    <select>
+    {/* <select>
       <option value="None" onClick={() => {
         player.items.gloves = undefined
       }}> None</option>
@@ -79,7 +79,7 @@ function playerSelector(player: Character) {
       {createOptions(ITEMS.weapon, (key) => {
         player.items.weapon = key as any
       })}
-    </select>
+    </select> */}
     <br />
     <label >Select Class:</label>
     <select>
