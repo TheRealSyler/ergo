@@ -10,7 +10,7 @@ import { toFixedIfNotZero } from '../utils'
 import { BarComponent } from './barComponent'
 import { Shop } from '../campaign/campaign'
 import { TooltipComponent } from './tooltipComponent'
-import { MoneyEl } from './components'
+import { MoneyEl, StatEl } from './components'
 
 export interface Inventory {
   items: (ItemName | undefined)[],
@@ -549,11 +549,11 @@ export class InventoryUI {
 
       const elements: HTMLElement[] = []
       if (itemInfo.type === 'quest') {
-        elements.push(<span className={this.statUiType(true)}>QUEST ITEM</span>)
+        elements.push(StatEl('QUEST ITEM', true))
       } else if (itemInfo.type === 'consumable') {
         const health = itemInfo.effect.health
         if (health) {
-          elements.push(<span ><span>Heal: </span> <span className={this.statUiType(true)}>{this.statSign(health, true)}</span></span>)
+          elements.push(<span ><span>Heal: </span> {StatEl(this.statSign(health, true), true)}</span>)
         }
       } else {
         for (const key in itemInfo.statChanges) {
@@ -568,16 +568,16 @@ export class InventoryUI {
                   changeTypeClass = !changeType
                   break
               }
-              elements.push(<div className="inventory-tooltip-stat">
+              elements.push(<div className="inventory-stat">
                 <span>{key}:</span>
-                <span className={this.statUiType(changeTypeClass)}>{this.statSign(change, changeType)}</span>
+                {StatEl(this.statSign(change, changeType), changeTypeClass)}
               </div>)
             } else if (change) {
               const typeMin = change.min > 0
               const typeMax = change.max > 0
-              elements.push(<div className="inventory-tooltip-stat">
+              elements.push(<div className="inventory-stat">
                 <span>{key}:</span>
-                <span><span className={this.statUiType(typeMin)}>{this.statSign(change.min, typeMin)}</span> - <span className={this.statUiType(typeMax)}> {this.statSign(change.max, typeMax)}</span></span>
+                <span>{StatEl(this.statSign(change.min, typeMin), typeMin)} - {StatEl(this.statSign(change.max, typeMax), typeMax)}</span>
               </div>)
             }
           }
@@ -592,10 +592,6 @@ export class InventoryUI {
         { x: bounds.x + bounds.width / 2, y: bounds.y + bounds.height + 4 }
       )
     }
-  }
-
-  private statUiType(type: boolean) {
-    return type ? 'inventory-tooltip-positive' : 'inventory-tooltip-negative'
   }
 
   private statSign(change: number | string, type: boolean) {
