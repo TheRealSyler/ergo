@@ -37,5 +37,8 @@ const KEYBINDINGS = {
   },
   Inventory: {
     ToggleInventory: 'TAB',
+  },
+  Campaign: {
+    OpenQuestBoard: 'Q'
   }
 }

@@ -72,10 +72,10 @@ export const town1: Town<Town1Dungeons> = {
   travelCost: 200,
   shops: [
     {
-      inventory: { items: ['BasicGloves', 'BasicGloves', 'BasicSword', 'BasicArmor'], size: 20 },
+      inventory: { items: ['BasicGloves', 'BasicGloves', 'BasicSword', 'BasicArmor', 'BanditBounty'], size: 20 },
       name: 'Blacksmith',
       money: 1000,
-      prices: { BasicGloves: { buy: 800, sell: 400 }, BasicSword: { buy: 1000, sell: 500 }, BasicArmor: { buy: 1000, sell: 500 } }
+      prices: { BasicGloves: { buy: 800, sell: 400 }, BasicSword: { buy: 1000, sell: 500 }, BasicArmor: { buy: 1000, sell: 500 }, BanditBounty: { buy: 0, sell: 0 } }
     }
   ],
   dungeons: {

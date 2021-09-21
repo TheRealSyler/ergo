@@ -14,6 +14,8 @@ export class campaignUI {
   private shopsEl = <div className="campaign-list"></div>
   private mainEl = <div className="fixed campaign">
     <div className="campaign-section">
+      <h1>Quest</h1>
+      <div className="campaign-list"><div className="button" onClick={() => this.campaign.questBoardUI.toggle()}>Quest Board</div></div>
       <h1>Shops</h1>
       {this.shopsEl}
     </div>
@@ -26,7 +28,7 @@ export class campaignUI {
   </div>
 
   enabled = true
-  constructor(private ref: Campaign) { }
+  constructor(private campaign: Campaign) { }
 
   show() {
     this.tooltip.hide()
@@ -37,13 +39,13 @@ export class campaignUI {
 
     this.townsEl.textContent = ''
 
-    for (const key in this.ref.towns) {
-      if (Object.prototype.hasOwnProperty.call(this.ref.towns, key)) {
+    for (const key in this.campaign.towns) {
+      if (Object.prototype.hasOwnProperty.call(this.campaign.towns, key)) {
         const el = <div id={`${this.townElId}${key}`} className="button campaign-town" onClick={() => {
-          this.ref.changeTown(key as keyof Campaign['towns'])
+          this.campaign.changeTown(key as keyof Campaign['towns'])
         }}>{key}</div>
 
-        const town = this.ref.towns[key as keyof Campaign['towns']]
+        const town = this.campaign.towns[key as keyof Campaign['towns']]
         if (town.isUnlocked) {
           this.addTooltip(el, <span>Travel to {key} (Travel cost {MoneyEl(town.travelCost)})</span>)
         } else {
@@ -54,19 +56,19 @@ export class campaignUI {
     }
 
     this.selectedTownEl?.classList.remove('selected')
-    this.selectedTownEl = document.getElementById(`${this.townElId}${this.ref.currentTown}`)
+    this.selectedTownEl = document.getElementById(`${this.townElId}${this.campaign.currentTown}`)
     this.selectedTownEl?.classList.add('selected')
     if (this.selectedTownEl) {
-      this.addTooltip(this.selectedTownEl, <span>You are in {this.ref.currentTown}</span>)
+      this.addTooltip(this.selectedTownEl, <span>You are in {this.campaign.currentTown}</span>)
     }
     this.dungeonsEl.textContent = ''
 
-    for (const key in this.ref.towns[this.ref.currentTown].dungeons) {
-      if (Object.prototype.hasOwnProperty.call(this.ref.towns[this.ref.currentTown].dungeons, key)) {
-        const dungeon = this.ref.towns[this.ref.currentTown].dungeons[key]
+    for (const key in this.campaign.towns[this.campaign.currentTown].dungeons) {
+      if (Object.prototype.hasOwnProperty.call(this.campaign.towns[this.campaign.currentTown].dungeons, key)) {
+        const dungeon = this.campaign.towns[this.campaign.currentTown].dungeons[key]
         const el = <div className="button" onClick={() => {
           if (this.enabled) {
-            this.ref.loadDungeon(dungeon)
+            this.campaign.loadDungeon(dungeon)
           }
         }}>{key}</div>
         this.addTooltip(el, <span>Travel to {key}{dungeon.cost ? <span> (Travel cost {MoneyEl(dungeon.cost)})</span> : null}</span>)
@@ -76,10 +78,10 @@ export class campaignUI {
 
     this.shopsEl.textContent = ''
     // TODO add keybindings for opening a shop.
-    for (let i = 0; i < this.ref.towns[this.ref.currentTown].shops.length; i++) {
-      const shop = this.ref.towns[this.ref.currentTown].shops[i];
+    for (let i = 0; i < this.campaign.towns[this.campaign.currentTown].shops.length; i++) {
+      const shop = this.campaign.towns[this.campaign.currentTown].shops[i];
       const el = <div className="button" onClick={() => {
-        this.ref.inventoryUI.showShop(shop)
+        this.campaign.inventoryUI.showShop(shop)
       }}>
         {shop.name}
       </div>

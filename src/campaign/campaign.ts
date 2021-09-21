@@ -15,6 +15,9 @@ import { Character } from '../character/character';
 import { createStats } from '../character/stats';
 import { ItemName } from '../character/items';
 import { getKeybinding } from '../keybindings';
+import { MainQuestNames, Quest } from './quests';
+import { QuestBoardUI } from '../ui/questBoard';
+import { QuestUI } from '../ui/questUI';
 
 export type TownName = 'camera_1' | 'camera_2' //  | 'camera_3' | 'camera_4'
 
@@ -59,7 +62,15 @@ export class Campaign extends Renderer implements DungeonParent {
     money: 0
   }
   stats = createStats(this.character)
+  quest: {
+    main?: MainQuestNames,
+    // side: []
+  } = {
+      main: 'GetBanditBounty'
+    }
 
+  questBoardUI = new QuestBoardUI(this)
+  questUI = new QuestUI(this)
   inventoryUI = new InventoryUI(this.inventory, this.character, this.stats)
 
   ui = new campaignUI(this)
@@ -69,7 +80,6 @@ export class Campaign extends Renderer implements DungeonParent {
     this.stats.health = 10
     // this.inventoryUI.showShop(this.towns.camera_1.shops[0])
     this.load()
-
     window.addEventListener('keydown', this.keydown)
 
   }
@@ -201,13 +211,81 @@ export class Campaign extends Renderer implements DungeonParent {
     }
   }
 
-  private keydown = (e: KeyboardEvent) => {
-    if (this.inventoryUI.visible || this.dungeon) return;
-    e.preventDefault()
-    switch (e.key.toUpperCase()) {
-      case getKeybinding('Inventory', 'ToggleInventory'):
-        this.inventoryUI.toggle()
-        break;
+  checkQuest(quest: Quest<TownName, any, any>): Record<keyof Quest<TownName, any, any>['objective'] | 'canBeCompleted', boolean> {
+    let hasItem = false
+    let hasTraveledTo = false
+    let canBeCompleted = true
+    if (quest.objective.getItem) {
+      for (let i = 0; i < this.inventory.items.length; i++) {
+        const item = this.inventory.items[i];
+        if (item === quest.objective.getItem) {
+          hasItem = true
+          break;
+        }
+      }
+      if (!hasItem) {
+        canBeCompleted = false
+      }
+    }
+    // TODO add travel check
+    if (!hasTraveledTo) {
+      // canBeCompleted = false
+    }
+    return { getItem: hasItem, canBeCompleted, travelToTown: hasTraveledTo }
+  }
+
+  completeQuest(quest: Quest<TownName, any, any>, questName: string, isMain: boolean) {
+    if (this.checkQuest(quest).canBeCompleted) {
+      if (isMain) {
+        this.quest.main = quest.reward.unlockQuest as MainQuestNames
+      }
+      if (quest.reward.unlockQuest) {
+        // TODO
+
+      }
+
+      if (quest.objective.getItem) {
+        for (let i = 0; i < this.inventory.items.length; i++) {
+          const item = this.inventory.items[i];
+          if (item === quest.objective.getItem) {
+            this.inventory.items[i] = undefined
+            break;
+          }
+        }
+      }
+
+      if (quest.reward.money) {
+        this.character.money += quest.reward.money
+      }
+      if (quest.reward.unlockTown) {
+        this.towns[quest.reward.unlockTown].isUnlocked = true
+        this.ui.show()
+      }
+      if (quest.reward.loot) {
+        this.inventoryUI.show({ name: `${questName} Reward`, inventory: quest.reward.loot })
+        this.questBoardUI.hide()
+
+      } else {
+        this.questBoardUI.show()
+        this.questUI.show()
+      }
+    } else {
+      // TODO add ui hint
+      console.log('TODO add hint that quest could not be completed.')
     }
   }
+
+  private keydown = (e: KeyboardEvent) => {
+    if (this.inventoryUI.visible || this.dungeon || this.questBoardUI.visible) return;
+    switch (e.key.toUpperCase()) {
+      case getKeybinding('Inventory', 'ToggleInventory'):
+        e.preventDefault()
+        this.inventoryUI.toggle()
+        break;
+      case getKeybinding('Campaign', 'OpenQuestBoard'):
+        e.preventDefault()
+        this.questBoardUI.toggle()
+    }
+  }
+
 }
