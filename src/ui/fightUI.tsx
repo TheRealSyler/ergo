@@ -91,7 +91,9 @@ export class FightUI {
 
     for (const key in menus) {
       if (Object.prototype.hasOwnProperty.call(menus, key)) {
-        items.push(<div className="button" onClick={() => this.callMenuFunc(key as FightUIMenus)}>{this.menuKeyToKeybindingUI(key as FightUIMenus)} {this.menuKeyToText(key as FightUIMenus)}</div>)
+        if (menus[key as FightUIMenus]) {
+          items.push(<div className="button" onClick={() => this.callMenuFunc(key as FightUIMenus)}>{this.menuKeyToKeybindingUI(key as FightUIMenus)} {this.menuKeyToText(key as FightUIMenus)}</div>)
+        }
       }
     }
 

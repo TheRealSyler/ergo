@@ -58,7 +58,7 @@ export class InventoryUI {
 
   private readonly charSlots = <div className="inventory-char"></div>
 
-  private mainEl = <div className="inventory modal">
+  private mainEl = <div className={`inventory${this.isModal ? ' modal' : ''}`}>
     <div className="inventory-content">
 
       <div className="inventory-section">
@@ -82,13 +82,14 @@ export class InventoryUI {
     </div>
 
     <div className="inventory-info-bar">
-      <span className="button" onClick={() => this.toggle()}>{getKeybindingUI('Inventory', 'ToggleInventory')} Close</span>
-      | [CTRL + MOUSE CLICK] Equip/Use
-      | [SHIFT + MOUSE CLICK] Move to Inventory {this.lootInfo} </div>
+      {this.isModal && <span className="button" onClick={() => this.toggle()}>{getKeybindingUI('Inventory', 'ToggleInventory')} Close</span>}
+      {this.isModal && '|'}
+      [CTRL + MOUSE CLICK] Equip/Use |
+      [SHIFT + MOUSE CLICK] Move to Inventory {this.lootInfo} </div>
   </div>
   private lootInventory?: Inventory;
   private shop?: Shop;
-  constructor(private inventory: Inventory, private character: Character, private stats: CharacterStats) {
+  constructor(private inventory: Inventory, private character: Character, private stats: CharacterStats, private isModal = true, private parentEl: HTMLElement = MAIN_UI_ELEMENT) {
     this.lootName.style.whiteSpace = 'nowrap'
     this.shopMoneyEl.style.display = 'none'
     this.createAllSlots()
@@ -125,9 +126,9 @@ export class InventoryUI {
     window.addEventListener('mousemove', this.mousemove)
     window.addEventListener('mouseup', this.mouseup)
     window.addEventListener('keydown', this.keydown)
-    MAIN_UI_ELEMENT.appendChild(this.mainEl)
+    this.parentEl.appendChild(this.mainEl)
     this.tooltip.removeClasses()
-    MAIN_UI_ELEMENT.appendChild(this.tooltip.mainEL)
+    this.parentEl.appendChild(this.tooltip.mainEL)
     this.lootItemsEl.textContent = ''
     if (lootOrShop) {
       this.lootName.textContent = `${lootOrShop.name}`
@@ -243,7 +244,7 @@ export class InventoryUI {
 
         this.updateSlot(this.dragAndDropSlot, slotInfo, item, false)
         this.draggedSlotInfo = slotInfo
-        MAIN_UI_ELEMENT.appendChild(this.dragAndDropSlot)
+        this.parentEl.appendChild(this.dragAndDropSlot)
 
         const bounds = this.dragAndDropSlot.getBoundingClientRect()
         this.offset.x = -(bounds.width / 2)
