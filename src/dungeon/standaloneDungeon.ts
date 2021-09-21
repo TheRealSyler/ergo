@@ -1,4 +1,4 @@
-import { Character } from '../character/character';
+import { Character, createCharacter } from '../character/character';
 import { CharacterStats, createStats } from '../character/stats';
 import { Renderer } from '../renderer';
 import { Inventory, InventoryUI } from '../ui/inventoryUI';
@@ -7,11 +7,7 @@ import { Dungeon, DungeonInfo, DungeonParent } from './dungeon';
 export default class StandaloneDungeon<R extends string> extends Renderer implements DungeonParent {
   private dungeon: Dungeon<R>;
 
-  character: Character = {
-    class: 'base',
-    items: {},
-    money: 1000
-  }
+  character: Character = createCharacter()
 
   stats: CharacterStats = createStats(this.character)
 

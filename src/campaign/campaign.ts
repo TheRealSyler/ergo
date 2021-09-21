@@ -10,8 +10,10 @@ import { campaignUI } from '../ui/campaignUI';
 import { Dungeon, DungeonInfo, DungeonParent } from '../dungeon/dungeon';
 import { town1 } from './town1';
 import { town2 } from './town2';
+import { town4 } from './town4';
+import { town3 } from './town3';
 import { Inventory, InventoryUI } from '../ui/inventoryUI';
-import { Character } from '../character/character';
+import { Character, createCharacter } from '../character/character';
 import { createStats } from '../character/stats';
 import { ItemName } from '../character/items';
 import { getKeybinding } from '../keybindings';
@@ -19,7 +21,8 @@ import { MainQuestNames, Quest } from './quests';
 import { QuestBoardUI } from '../ui/questBoard';
 import { QuestUI } from '../ui/questUI';
 
-export type TownName = 'camera_1' | 'camera_2' //  | 'camera_3' | 'camera_4'
+
+export type TownName = 'camera_1' | 'camera_2' | 'camera_3' | 'camera_4'
 
 export interface Shop {
   name: string,
@@ -40,8 +43,8 @@ export class Campaign extends Renderer implements DungeonParent {
   private cameras: Record<TownName, PerspectiveCamera | null> = {
     camera_1: null,
     camera_2: null,
-    // camera_3: null,
-    // camera_4: null,
+    camera_3: null,
+    camera_4: null,
   }
 
   currentTown: TownName = 'camera_1';
@@ -49,18 +52,14 @@ export class Campaign extends Renderer implements DungeonParent {
   towns: Record<TownName, Town<any>> = {
     camera_1: town1,
     camera_2: town2,
-    // camera_3: town1,
-    // camera_4: town1,
+    camera_3: town3,
+    camera_4: town4,
   }
   inventory: Inventory = {
     items: ['BasicArmor', 'BasicGloves', 'BasicSword', 'SuperGloves', 'Bandage', 'BanditBounty'],
     size: 12
   }
-  character: Character = {
-    class: 'base',
-    items: {},
-    money: 0
-  }
+  character: Character = createCharacter()
   stats = createStats(this.character)
   quest: {
     main?: MainQuestNames,
@@ -77,7 +76,6 @@ export class Campaign extends Renderer implements DungeonParent {
   private dungeon?: Dungeon<any>;
   constructor() {
     super();
-    this.stats.health = 10
     // this.inventoryUI.showShop(this.towns.camera_1.shops[0])
     this.load()
     window.addEventListener('keydown', this.keydown)

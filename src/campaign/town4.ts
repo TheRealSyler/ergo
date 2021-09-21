@@ -1,8 +1,6 @@
 import { DungeonInfo } from '../dungeon/dungeon';
 import { Town } from './campaign';
 
-
-
 const d1: DungeonInfo<'Room1'> = {
   entryDir: 'north',
   firstRoom: 'Room1',
@@ -11,10 +9,9 @@ const d1: DungeonInfo<'Room1'> = {
   }
 }
 
+export type Town4Dungeons = 'awd1';
 
-export type Town2Dungeons = 'awd1';
-
-export const town2: Town<Town2Dungeons> = {
+export const town4: Town<Town4Dungeons> = {
   isUnlocked: false,
   travelCost: 10000,
   shops: [],

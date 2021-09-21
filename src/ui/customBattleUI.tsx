@@ -1,6 +1,5 @@
 import { h } from 'dom-chef'
-import { Character } from '../character/character'
-import { ITEMS } from '../character/items'
+import { Character, createCharacter } from '../character/character'
 import { CharacterClass } from '../character/stats'
 import { RoomNames } from '../rooms/rooms'
 import { Game, Player } from '../game'
@@ -10,16 +9,8 @@ import { MAIN_UI_ELEMENT } from './ui'
 
 export function CustomBattleUI(goToFight: Game['goToFight']) {
   MAIN_UI_ELEMENT.textContent = ''
-  const player1: Character = {
-    class: 'base',
-    items: {},
-    money: 0
-  }
-  const player2: Character = {
-    class: 'base',
-    items: {},
-    money: 0
-  }
+  const player1: Character = createCharacter()
+  const player2: Character = createCharacter()
 
   let stage: RoomNames = 'test'
   let humanPlayer: Player = 'player1'

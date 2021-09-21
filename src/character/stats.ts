@@ -1,6 +1,6 @@
 import { ATTACK_ACTIVE_TIME } from '../animation/attackState';
 import { NumberRange } from '../utils';
-import { Character } from './character';
+import { Character, Skills, SKILLS } from './character';
 import { ConsumableItem, Item, ITEMS, ItemWithStatChange } from './items';
 
 export interface CharacterStats {
@@ -46,31 +46,6 @@ const BASE_STATS: CharacterStats = {
   stamina: 25,
 }
 
-export function createStats(character: Character): CharacterStats {
-  const stats = getCharacterBaseStats(character.class);
-
-  applyStats(character, stats);
-
-  stats.health = stats.maxHealth
-  stats.stamina = stats.maxStamina
-
-  return stats
-}
-
-export function useConsumable(stats: CharacterStats, item: ConsumableItem) {
-  const health = item.effect.health;
-  if (health === 'Full') {
-    stats.health = stats.maxHealth;
-  } else if (health) {
-    stats.health = Math.min(stats.maxHealth, stats.health + health);
-  }
-}
-
-
-export function updateStatsWithItem(stats: CharacterStats, item: Item, add = true) {
-  applyItemToStats(stats, item, add)
-}
-
 function getCharacterBaseStats(charClass: CharacterClass): CharacterStats {
   const baseCopy = JSON.parse(JSON.stringify(BASE_STATS)) as CharacterStats;
   switch (charClass) {
@@ -96,7 +71,56 @@ function getCharacterBaseStats(charClass: CharacterClass): CharacterStats {
   }
 }
 
-function applyStats(character: Character, stats: CharacterStats) {
+export function createStats(character: Character): CharacterStats {
+  const stats = getCharacterBaseStats(character.class);
+
+  applyCharacterItems(character, stats);
+
+  applyCharacterSkills(character, stats);
+
+  stats.health = stats.maxHealth
+  stats.stamina = stats.maxStamina
+
+  return stats
+}
+
+function applyCharacterSkills(character: Character, stats: CharacterStats) {
+  for (const k in character.skills) {
+    if (Object.prototype.hasOwnProperty.call(character.skills, k)) {
+      const key = k as keyof typeof character.skills;
+      const skillName = character.skills[key];
+      if (skillName) applySkill(key, stats);
+    }
+  }
+}
+
+function applySkill(key: Skills, stats: CharacterStats) {
+  const skill = SKILLS[key];
+  for (const j in skill) {
+    if (Object.prototype.hasOwnProperty.call(skill, j)) {
+      const jKey = j as keyof typeof skill;
+      const change = skill[jKey];
+      if (change) {
+        applyStatChange(stats, jKey, change, true);
+      }
+    }
+  }
+}
+
+export function useConsumable(stats: CharacterStats, item: ConsumableItem) {
+  const health = item.effect.health;
+  if (health === 'Full') {
+    stats.health = stats.maxHealth;
+  } else if (health) {
+    stats.health = Math.min(stats.maxHealth, stats.health + health);
+  }
+}
+
+export function updateStatsWithItem(stats: CharacterStats, item: Item, add = true) {
+  applyItemToStats(stats, item, add)
+}
+
+function applyCharacterItems(character: Character, stats: CharacterStats) {
   for (const key in character.items) {
     if (Object.prototype.hasOwnProperty.call(character.items, key)) {
       const itemName = character.items[key as keyof Character['items']];
@@ -116,35 +140,39 @@ function applyItemToStats(stats: CharacterStats, item: Item, add = true) {
       const change = item.statChanges[key];
       if (!change) continue
 
-      if (key === 'maxHealth') {
-        const healthPercentage = stats.health / stats.maxHealth
-        stats.maxHealth += (add ? change : -change) as number
-        stats.health = stats.maxHealth * healthPercentage
-      } else if (key === 'maxStamina') {
-        const staminaPercentage = stats.stamina / stats.maxStamina
-        stats.maxStamina += (add ? change : -change) as number
-        stats.stamina = stats.maxStamina * staminaPercentage
+      applyStatChange(stats, key, change, add);
+    }
+  }
+}
 
-      } else {
-        switch (typeof change) {
-          case 'number':
-            if (add) {
-              (stats[key] as number) += change
-            } else {
-              (stats[key] as number) -= change
-            }
+function applyStatChange(stats: CharacterStats, key: keyof CharacterStats, change: number | NumberRange, add: boolean) {
+  if (key === 'maxHealth') {
+    const healthPercentage = stats.health / stats.maxHealth;
+    stats.maxHealth += (add ? change : -change) as number;
+    stats.health = stats.maxHealth * healthPercentage;
+  } else if (key === 'maxStamina') {
+    const staminaPercentage = stats.stamina / stats.maxStamina;
+    stats.maxStamina += (add ? change : -change) as number;
+    stats.stamina = stats.maxStamina * staminaPercentage;
 
-            break;
-          case 'object':
-            const old = (stats[key] as NumberRange);
-            if (add) {
-              (stats[key] as NumberRange) = NumberRange(old.min + change.min, old.max + change.max)
-            } else {
-              (stats[key] as NumberRange) = NumberRange(old.min - change.min, old.max - change.max)
-            }
-            break;
+  } else {
+    switch (typeof change) {
+      case 'number':
+        if (add) {
+          (stats[key] as number) += change;
+        } else {
+          (stats[key] as number) -= change;
         }
-      }
+
+        break;
+      case 'object':
+        const old = (stats[key] as NumberRange);
+        if (add) {
+          (stats[key] as NumberRange) = NumberRange(old.min + change.min, old.max + change.max);
+        } else {
+          (stats[key] as NumberRange) = NumberRange(old.min - change.min, old.max - change.max);
+        }
+        break;
     }
   }
 }
