@@ -81,7 +81,10 @@ export class InventoryUI {
 
     </div>
 
-    <div className="inventory-info-bar"> {getKeybindingUI('Inventory', 'ToggleInventory')} Close | [CTRL + MOUSE CLICK] Equip/Use | [SHIFT + MOUSE CLICK] Move to Inventory {this.lootInfo} </div>
+    <div className="inventory-info-bar">
+      <span className="button" onClick={() => this.toggle()}>{getKeybindingUI('Inventory', 'ToggleInventory')} Close</span>
+      | [CTRL + MOUSE CLICK] Equip/Use
+      | [SHIFT + MOUSE CLICK] Move to Inventory {this.lootInfo} </div>
   </div>
   private lootInventory?: Inventory;
   private shop?: Shop;
@@ -123,6 +126,7 @@ export class InventoryUI {
     window.addEventListener('mouseup', this.mouseup)
     window.addEventListener('keydown', this.keydown)
     MAIN_UI_ELEMENT.appendChild(this.mainEl)
+    this.tooltip.removeClasses()
     MAIN_UI_ELEMENT.appendChild(this.tooltip.mainEL)
     this.lootItemsEl.textContent = ''
     if (lootOrShop) {

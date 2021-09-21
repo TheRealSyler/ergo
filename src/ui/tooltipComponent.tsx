@@ -39,4 +39,10 @@ export class TooltipComponent {
     this.mainEL.classList.remove('tooltip-show')
     this.mainEL.classList.add('tooltip-hide')
   }
+
+  removeClasses() {
+    this.mainEL.classList.remove('tooltip-hide')
+    this.mainEL.classList.remove('tooltip-show')
+
+  }
 }
