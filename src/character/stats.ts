@@ -1,6 +1,7 @@
 import { ATTACK_ACTIVE_TIME } from '../animation/attackState';
 import { NumberRange } from '../utils';
-import { Character, Skills, SKILLS } from './character';
+import { Character } from './character';
+import { Skills, SKILLS } from "./skills";
 import { ConsumableItem, Item, ITEMS, ItemWithStatChange } from './items';
 
 export interface CharacterStats {
@@ -28,7 +29,7 @@ export interface CharacterStats {
   stamina: number
 }
 
-export type CharacterClass = 'base' | 'awd' | 'awd2' | 'awd3';
+export type CharacterClass = 'base' | 'awd2' | 'boss';
 
 const BASE_STATS: CharacterStats = {
   damage: NumberRange(3, 7),
@@ -51,9 +52,6 @@ function getCharacterBaseStats(charClass: CharacterClass): CharacterStats {
   switch (charClass) {
     case 'base':
       return baseCopy
-    case 'awd':
-      baseCopy.maxHealth = 50
-      return baseCopy
     case 'awd2':
       baseCopy.maxHealth = 100
       baseCopy.aiTimeToAttack = NumberRange(0.2, 1.3)
@@ -61,8 +59,8 @@ function getCharacterBaseStats(charClass: CharacterClass): CharacterStats {
       baseCopy.maxStamina = 20
       baseCopy.damage = NumberRange(20, 30)
       return baseCopy
-    case 'awd3':
-      baseCopy.maxHealth = 200
+    case 'boss':
+      baseCopy.maxHealth = 120
       baseCopy.aiTimeToAttack = NumberRange(0.1, 1)
       baseCopy.attackSpeed = 1.3
       baseCopy.maxStamina = 30
@@ -112,7 +110,7 @@ export function useConsumable(stats: CharacterStats, item: ConsumableItem) {
   if (health === 'Full') {
     stats.health = stats.maxHealth;
   } else if (health) {
-    stats.health = Math.min(stats.maxHealth, stats.health + health);
+    stats.health = Math.min(stats.maxHealth, stats.health + (stats.maxHealth * (health / 100)));
   }
 }
 

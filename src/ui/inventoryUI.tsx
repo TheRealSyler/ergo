@@ -554,7 +554,7 @@ export class InventoryUI {
       } else if (itemInfo.type === 'consumable') {
         const health = itemInfo.effect.health
         if (health) {
-          elements.push(<span ><span>Heal: </span> {StatEl(this.statSign(health, true), true)}</span>)
+          elements.push(<span ><span>Heal: </span> {StatEl(`${health === 'Full' ? health : `+${health}%`}`, true)}</span>)
         }
       } else {
         for (const key in itemInfo.statChanges) {
@@ -565,6 +565,8 @@ export class InventoryUI {
               const changeType = change >= 0
               let changeTypeClass = change >= 0
               switch (key as keyof typeof itemInfo.statChanges) {
+                case 'dodgeStaminaCost':
+                case 'attackStaminaCost':
                 case 'dodgeSpeed':
                   changeTypeClass = !changeType
                   break
