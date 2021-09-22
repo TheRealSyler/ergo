@@ -21,8 +21,7 @@
     color: #fc7
   &-loss
     color: red
-  &-pause-menu,
-  &-end-screen
+  &-menu
     display: flex
     flex-direction: column
     gap: 0.6rem
@@ -35,7 +34,8 @@
     font-size: 1.7rem
   &-start
     font-size: 4rem
-
+    user-select: none
+    pointer-events: none
   &-start-animate
     animation: start-fight 1s forwards
 

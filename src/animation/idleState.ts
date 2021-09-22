@@ -42,7 +42,7 @@ export class IdleState extends State<AnimationTypes> {
     } else if (this.charRef.input.keys.attack_up) {
       this.checkStaminaCost(fsm, 'attack_up', this.charRef.stats.attackStaminaCost)
     } else if (this.charRef.input.keys.attack_down) {
-      this.checkStaminaCost(fsm, 'attack_up', this.charRef.stats.attackStaminaCost)
+      this.checkStaminaCost(fsm, 'attack_down', this.charRef.stats.attackStaminaCost)
     } else if (this.charRef.input.keys.dodge_left) {
       this.checkStaminaCost(fsm, 'dodge_left', this.charRef.stats.dodgeStaminaCost)
     } else if (this.charRef.input.keys.dodge_right) {

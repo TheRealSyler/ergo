@@ -2,7 +2,15 @@ type Keybindings = typeof KEYBINDINGS
 
 /**ALWAYS in uppercase */
 export function getKeybinding<T extends keyof Keybindings>(type: T, name: keyof Keybindings[T]) {
-  return KEYBINDINGS[type][name]
+  const keyBinding = KEYBINDINGS[type][name] as unknown as string
+  if (keyBinding === 'SPACE') {
+    return ' '
+  }
+  return keyBinding
+}
+
+export function getKeybindingUI<T extends keyof Keybindings>(type: T, name: keyof Keybindings[T]) {
+  return `[${KEYBINDINGS[type][name]}]`
 }
 export function setKeybinding<T extends keyof Keybindings>(type: T, name: keyof Keybindings[T], value: Keybindings[T][keyof Keybindings[T]]) {
   // TODO implement checks etc.
@@ -17,11 +25,20 @@ const KEYBINDINGS = {
     MoveRight: 'D',
     MoveBack: 'S',
     Interact: 'E',
-    ToggleInventory: 'TAB',
+
   },
   Fight: {
     // TODO fight keybindings
     AttackLeft: 'ARROWLEFT',
-    // Attack
+    MenuRestart: 'ENTER',
+    MenuMainMenu: 'BACKSPACE',
+    MenuResume: 'SPACE',
+    MenuInventory: 'TAB'
+  },
+  Inventory: {
+    ToggleInventory: 'TAB',
+  },
+  Campaign: {
+    OpenQuestBoard: 'Q'
   }
 }

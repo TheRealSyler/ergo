@@ -8,9 +8,16 @@
     flex-grow: 1
     display: flex
     justify-content: space-between
-
+    position: relative
   &-bottom
     display: flex
     justify-content: space-between
     & > .button
       font-size: 2rem
+  &-top
+    display: flex
+    gap: 1rem
+  &-selected
+    background: #f22 !important
+    &:hover
+      background: #f44 !important

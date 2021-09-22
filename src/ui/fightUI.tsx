@@ -6,7 +6,10 @@ import { MAIN_UI_ELEMENT } from './ui'
 import './fightUI.sass'
 import { Player } from '../game'
 import { BarComponent } from './barComponent'
+import { getKeybinding, getKeybindingUI } from '../keybindings'
+import { Difficulty } from '../character/stats'
 
+type FightUIMenus = 'restart' | 'resume' | 'mainMenu' | 'inventory'
 export class FightUI {
   private health: Record<Player, BarComponent> = {
     player1: new BarComponent('health', 0),
@@ -16,17 +19,54 @@ export class FightUI {
     player1: new BarComponent('stamina', 0),
     player2: new BarComponent('stamina', 0)
   }
+  private difficultyEL = <span className="fixed" ></span>
   private fightStartTextEL = <span ></span>
   private fightStartEL = <div className="fight-start center-fixed">{this.fightStartTextEL}</div>
+
+  private menuListener = (e: KeyboardEvent) => {
+    e.preventDefault()
+    switch (e.key.toUpperCase()) {
+      case getKeybinding('Fight', 'MenuRestart'):
+        this.callMenuFunc('restart')
+        break;
+      case getKeybinding('Fight', 'MenuMainMenu'):
+        this.callMenuFunc('mainMenu')
+        break;
+      case getKeybinding('Fight', 'MenuResume'):
+        this.HUD()
+        this.callMenuFunc('resume')
+        break;
+      case getKeybinding('Fight', 'MenuInventory'):
+        this.callMenuFunc('inventory', false)
+        break;
+    }
+  }
+
+  private menuFunctions: Partial<Record<FightUIMenus, () => void>> = {}
+
+  private addMenuListener(listeners: Partial<Record<FightUIMenus, () => void>>) {
+    this.menuFunctions = listeners
+    window.addEventListener('keydown', this.menuListener)
+  }
+
+  private callMenuFunc = (type: FightUIMenus, removeListener = true) => {
+    if (removeListener) window.removeEventListener('keydown', this.menuListener)
+    const func = this.menuFunctions[type]
+    func && func()
+  }
 
   constructor() {
     this.HUD()
   }
 
+  showDifficulty(difficulty: Difficulty) {
+    this.difficultyEL.textContent = `aiDodge: ${difficulty.aiDodgeChance}% playerDodgeTime: ${difficulty.playerTimeToDodge}`
+  }
   HUD() {
     MAIN_UI_ELEMENT.textContent = ''
-
+    MAIN_UI_ELEMENT.appendChild(this.difficultyEL)
     MAIN_UI_ELEMENT.appendChild(<div className="fight-hud fixed">
+
       <div className="fight-bars">
         {this.health.player1.getEl()}
         {this.stamina.player1.getEl()}
@@ -44,30 +84,48 @@ export class FightUI {
     this[type][ref.player].set(current, max)
   }
 
-  endScreen(restart: () => void, exitToMainMenu: () => void) {
+  menu(menus: Partial<Record<FightUIMenus, () => void>>) {
+    this.addMenuListener(menus)
+
+    const items: JSX.Element[] = []
+
+    for (const key in menus) {
+      if (Object.prototype.hasOwnProperty.call(menus, key)) {
+        if (menus[key as FightUIMenus]) {
+          items.push(<div className="button" onClick={() => this.callMenuFunc(key as FightUIMenus)}>{this.menuKeyToKeybindingUI(key as FightUIMenus)} {this.menuKeyToText(key as FightUIMenus)}</div>)
+        }
+      }
+    }
+
     MAIN_UI_ELEMENT.textContent = ''
-    MAIN_UI_ELEMENT.appendChild(<div className="fight-end-screen">
-
-      <div className="button" onClick={exitToMainMenu}>Main Menu</div>
-      <div className="button" onClick={() => {
-        this.HUD()
-        restart()
-      }}>Restart</div>
-
+    MAIN_UI_ELEMENT.appendChild(<div className="fight-menu">
+      {items}
     </div>)
   }
 
-  pauseMenu(resume: () => void, exitToMainMenu: () => void) {
-    MAIN_UI_ELEMENT.textContent = ''
-    MAIN_UI_ELEMENT.appendChild(<div className="fight-pause-menu">
-
-      <div className="button" onClick={exitToMainMenu}>Main Menu</div>
-      <div className="button" onClick={() => {
-        resume()
-        this.HUD()
-      }}>Resume</div>
-
-    </div>)
+  private menuKeyToKeybindingUI(key: FightUIMenus) {
+    switch (key) {
+      case 'mainMenu':
+        return getKeybindingUI('Fight', 'MenuMainMenu')
+      case 'restart':
+        return getKeybindingUI('Fight', 'MenuRestart')
+      case 'resume':
+        return getKeybindingUI('Fight', 'MenuResume')
+      case 'inventory':
+        return getKeybindingUI('Fight', 'MenuInventory')
+    }
+  }
+  private menuKeyToText(key: FightUIMenus) {
+    switch (key) {
+      case 'mainMenu':
+        return 'Main Menu'
+      case 'restart':
+        return 'Restart'
+      case 'resume':
+        return 'Resume'
+      case 'inventory':
+        return 'Inventory'
+    }
   }
 
   async startFight(start: () => void) {

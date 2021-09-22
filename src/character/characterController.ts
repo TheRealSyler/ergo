@@ -59,15 +59,15 @@ export class CharacterController {
   }
 
   stance: CharStance = { type: 'idle' };
-  private initialHp = 0;
-  private initialStamina = 0;
+  private initialHpPercent = 1;
+  private initialStaminaPercent = 1;
   constructor(public player: Player, public ui: FightUI, char: LoadedCharacter, public stats: CharacterStats = createStats(char.character)) {
 
     this.mixer = char.mixer;
     this.animations = char.animations;
     this.model = char.model;
-    this.initialHp = this.hp
-    this.initialStamina = this.stamina
+    this.initialHpPercent = this.hp / this.stats.maxHealth
+    this.initialStaminaPercent = this.stamina / this.stats.maxStamina
     this.stateMachine = new FiniteStateMachine({
       attack_left: new AttackState('attack_left', this),
       attack_right: new AttackState('attack_right', this),
@@ -86,8 +86,8 @@ export class CharacterController {
   restart() {
     this.input = EMPTY_INPUT
     this.stateMachine.SetState('idle')
-    this.stamina = this.initialStamina
-    this.hp = this.initialHp
+    this.stamina = this.stats.maxStamina * this.initialStaminaPercent
+    this.hp = this.stats.maxHealth * this.initialHpPercent
   }
 
   dispose() {

@@ -3,8 +3,10 @@
   display: flex
   flex-direction: column
   justify-content: space-between
-
+  box-sizing: border-box
+  overflow: hidden
   &-content
+    overflow: auto
     display: flex
     gap: 2rem
 
@@ -12,9 +14,11 @@
     display: flex
     gap: 1rem
     flex-direction: column
+    user-select: none
   &-title
     font-size: 2.2rem
     padding: 0.6rem 0
+    text-transform: capitalize
   &-char
     display: flex
     gap: 1rem
@@ -22,8 +26,18 @@
     display: flex
     flex-wrap: wrap
     gap: 1rem
-
+  &-price
+    position: absolute
+    bottom: 0
+    left: 0
+    right: 0
+    background: #222
+    border-radius: 4px
+    padding: 0.2rem 0.4rem
+    margin: 0.2rem
+    pointer-events: none
   &-slot
+    position: relative
     user-select: none
     background: #333337
     padding: 1rem
@@ -42,8 +56,6 @@
   &-is-dragging
     opacity: 0.5
 
-  &-info-bar
-
   &-stats
     white-space: nowrap
     background: #333337
@@ -55,9 +67,20 @@
   &-stat
     display: flex
     justify-content: space-between
-
+    gap: 1rem
   &-bars
     display: flex
     flex-direction: column
     gap: 0.5rem
     margin: 0.5rem 0
+  &-not-for-sale
+    pointer-events: none
+    color: red
+    font-size: 0.8em
+    padding-bottom: 0.2em
+  &-info-bar
+    margin-top: 1rem
+  &-tooltip
+    display: flex
+    flex-direction: column
+    gap: 0.2rem

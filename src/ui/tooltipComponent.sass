@@ -1,0 +1,27 @@
+.tooltip
+  background: #212127
+  padding: 0.4rem
+  width: max-content
+  height: max-content
+  position: relative
+  opacity: 0
+  border-radius: 4px
+  border: solid #0af5 1px
+  pointer-events: none
+  &-show
+    animation: show-tooltip 150ms forwards
+  &-hide
+    animation: hide-tooltip 150ms forwards
+
+@keyframes show-tooltip
+  0%
+    opacity: 0
+  100%
+    opacity: 1
+
+@keyframes hide-tooltip
+  0%
+    opacity: 1
+
+  100%
+    opacity: 0

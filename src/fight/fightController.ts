@@ -8,22 +8,17 @@ import { degToRad } from 'three/src/math/MathUtils';
 // import { RoughnessMipmapper } from 'three/examples/jsm/utils/RoughnessMipmapper';
 import { Player } from '../game';
 import { FightUI, victoryOrLossUI } from '../ui/fightUI';
-import { AttackAnimations } from '../animation/types';
 import { AiInput } from '../ai/aiCharacterInput';
 import { PlayerInput } from '../playerInput';
 import { randomInRange } from '../utils';
 import { Renderer } from '../renderer';
+import { checkAiDifficulty } from '../character/stats';
 
-const oppositeAttackDir: Record<AttackAnimations, AttackAnimations> = {
-  attack_down: 'attack_up',
-  attack_left: 'attack_right',
-  attack_right: 'attack_left',
-  attack_up: 'attack_down'
-}
-type AttackResult = 'hit' | 'not_hit' | 'blocked';
+type AttackResult = 'hit' | 'not_hit';
 
 export interface FightControllerOptions {
   customEndScreen?: (victory: boolean, dispose: () => void, endScreen: () => void) => void
+  showInventoryInMenu?: () => void,
   exitToMainMenu: () => void;
 }
 
@@ -70,6 +65,7 @@ export class FightController {
   }
 
   private resetUi() {
+    this.ui.showDifficulty(this.difficulty())
     this.ui.update('health', this.players.player1);
     this.ui.update('health', this.players.player2);
     this.ui.update('stamina', this.players.player1);
@@ -77,10 +73,12 @@ export class FightController {
   }
 
   private startFight() {
+    this.isInEndScreen = true
     this.ui.startFight(() => {
+      this.isInEndScreen = false
       if (this.humanPlayer === 'player1') {
         this.players.player1.input = new PlayerInput();
-        this.players.player2.input = new AiInput(this.players.player2, this.players.player2);
+        this.players.player2.input = new AiInput(this.players.player2, this.players.player1);
       } else {
         this.players.player2.input = new PlayerInput();
         this.players.player1.input = new AiInput(this.players.player1, this.players.player2);
@@ -112,14 +110,20 @@ export class FightController {
         this.players.player1.pause()
         this.players.player2.pause()
         this.renderer.pause()
-        this.ui.pauseMenu(() => {
-          this.unpause()
-        }, this.exit.bind(this))
+        this.ui.menu({
+          mainMenu: this.exit.bind(this),
+          restart: this.restartFight.bind(this),
+          resume: () => {
+            this.unpause()
+            this.ui.HUD()
+          }
+        })
       }
     }
   }
 
   private unpause() {
+    this.ui.showDifficulty(this.difficulty())
     this.renderer.unpause()
     this.players.player1.unpause()
     this.players.player2.unpause()
@@ -131,19 +135,41 @@ export class FightController {
     this.isInEndScreen = true
     if (this.options.customEndScreen) {
       this.options.customEndScreen(victory, this.dispose.bind(this), () => {
-        this.ui.endScreen(this.restartFight.bind(this), this.exit.bind(this))
+        this.ui.menu({
+          mainMenu: this.exit.bind(this),
+          inventory: this.options.showInventoryInMenu,
+          restart: this.restartFight.bind(this)
+        })
         victoryOrLossUI(victory)
       })
     } else {
-      this.ui.endScreen(this.restartFight.bind(this), this.exit.bind(this))
+      this.ui.menu({
+        mainMenu: this.exit.bind(this),
+        inventory: this.options.showInventoryInMenu,
+        restart: this.restartFight.bind(this)
+      })
       victoryOrLossUI(victory)
     }
   }
 
+  private difficulty() {
+    if (this.humanPlayer === 'player1') {
+      return checkAiDifficulty(this.players.player1.stats, this.players.player2.stats)
+    } else {
+      return checkAiDifficulty(this.players.player2.stats, this.players.player1.stats)
+
+    }
+  }
+
   restartFight() {
+    this.isInEndScreen = false
+    if (this.paused) {
+      this.unpause()
+    }
     this.players.player1.restart()
     this.players.player2.restart()
     this.resetUi();
+    this.ui.HUD()
     this.startFight()
   }
 
@@ -192,10 +218,6 @@ export class FightController {
           this.players[defender].stateMachine.SetState('hit')
         }
         break;
-      case 'blocked':
-        (this.players[attacker].stance as AttackStance).attackProgress = 'hit';
-        this.players[defender].stateMachine.SetState('hit')
-        this.players[attacker].stateMachine.SetState('hit')
     }
   }
 
@@ -228,16 +250,7 @@ export class FightController {
       }
 
     } else if (defender.type === 'attack') {
-      if (defender.attackProgress === 'finished') {
-        return 'hit'
-      }
-
-      if (oppositeAttackDir[attacker.attackDirection] === defender.attackDirection) {
-        return 'blocked';
-      }
-
       return 'hit'
-
     }
     return 'not_hit';
   }
