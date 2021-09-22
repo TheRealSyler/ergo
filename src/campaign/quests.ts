@@ -30,9 +30,8 @@ export const MAIN_QUESTS: MainQuests = {
       getItem: 'BanditBounty',
     },
     reward: {
-      money: 10000,
+      money: 1000,
       unlockQuest: 'ExploreRuins',
-      loot: { items: ['Bandage', 'Bandage', 'Bandage'] },
       unlockTown: 'camera_2'
     },
     location: 'Bandit Camp'
