@@ -1,6 +1,6 @@
 import { h } from 'dom-chef'
 import { CharacterController } from '../character/characterController'
-import { wait } from '../utils'
+import { TextUI, wait } from '../utils'
 import { MAIN_UI_ELEMENT } from './ui'
 
 import './fightUI.sass'
@@ -98,7 +98,7 @@ export class FightUI {
     for (const key in menus) {
       if (Object.prototype.hasOwnProperty.call(menus, key)) {
         if (menus[key as FightUIMenus]) {
-          items.push(<div className="button" onClick={() => this.callMenuFunc(key as FightUIMenus)}>{this.menuKeyToKeybindingUI(key as FightUIMenus)} {key}</div>)
+          items.push(<div className="button" onClick={() => this.callMenuFunc(key as FightUIMenus)}>{this.menuKeyToKeybindingUI(key as FightUIMenus)} {TextUI(key)}</div>)
         }
       }
     }

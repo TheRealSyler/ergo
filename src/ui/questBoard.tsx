@@ -56,7 +56,7 @@ export class QuestBoardUI {
       </span>
     }
     return <div className="quest-board-quest">
-      <span>{this.campaign.quest.main}</span>
+      <span>{questName}</span>
       <span>{status}</span>
     </div>
   }
