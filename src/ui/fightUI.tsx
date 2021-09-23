@@ -9,7 +9,7 @@ import { BarComponent } from './barComponent'
 import { getKeybinding, getKeybindingUI } from '../keybindings'
 import { Difficulty } from '../character/stats'
 
-type FightUIMenus = 'restart' | 'resume' | 'mainMenu' | 'inventory' | 'run'
+type FightUIMenus = 'restart' | 'resume' | 'mainMenu' | 'inventory' | 'run' | 'options'
 export class FightUI {
   private health: Record<Player, BarComponent> = {
     player1: new BarComponent('health', 0),
@@ -41,6 +41,9 @@ export class FightUI {
         break;
       case getKeybinding('Fight', 'MenuRun'):
         this.callMenuFunc('run')
+        break;
+      case getKeybinding('Options', 'Toggle'):
+        this.callMenuFunc('options')
         break;
     }
   }
@@ -118,6 +121,8 @@ export class FightUI {
         return getKeybindingUI('Fight', 'MenuInventory')
       case 'run':
         return getKeybindingUI('Fight', 'MenuRun')
+      case 'options':
+        return getKeybindingUI('Options', 'Toggle')
     }
   }
 

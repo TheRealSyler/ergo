@@ -41,5 +41,8 @@ const KEYBINDINGS = {
   },
   Campaign: {
     OpenQuestBoard: 'Q'
+  },
+  Options: {
+    Toggle: 'O'
   }
 }

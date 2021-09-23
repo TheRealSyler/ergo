@@ -1,4 +1,5 @@
 import { AttackAnimations, BlockAnimations, DodgeAnimations } from './animation/types';
+import { getOption } from './options';
 import { MAIN_UI_ELEMENT } from './ui/ui';
 
 type InputKeys = (AttackAnimations | DodgeAnimations | BlockAnimations);
@@ -44,11 +45,11 @@ export class PlayerInput implements Input {
   private addListeners() {
     document.addEventListener('keydown', this.keydown);
     document.addEventListener('keyup', this.keyup);
-    if (this.enableMouseAttacks) {
-      document.addEventListener('mouseup', this.mouseup);
-      document.addEventListener('mousedown', this.mousedown);
-      document.addEventListener('mousemove', this.mousemove);
-    }
+
+    document.addEventListener('mouseup', this.mouseup);
+    document.addEventListener('mousedown', this.mousedown);
+    document.addEventListener('mousemove', this.mousemove);
+
   }
 
   unpause() { this.addListeners() }
@@ -135,50 +136,49 @@ export class PlayerInput implements Input {
   }
   private mousePos = { x: 0, y: 0 }
   private startPos?: { x: number, y: number }
-  // TODO cleanup this mess.
-  private mouseup = (e: MouseEvent) => {
-    if (this.startPos) {
+
+  private mouseup = () => {
+    if (getOption('input', 'enableMouseAttacks') && this.startPos) {
       const x = this.startPos.x - this.mousePos.x
       const y = this.startPos.y - this.mousePos.y
 
       if (Math.abs(x) > Math.abs(y)) {
         if (x > 0) {
-          this.keys.attack_left = true
-          setTimeout(() => {
-            this.keys.attack_left = false
-          }, 50);
+          this.setKeyWithWithTimer('attack_left');
         } else {
-          this.keys.attack_right = true
-          setTimeout(() => {
-            this.keys.attack_right = false
-          }, 50);
+          this.setKeyWithWithTimer('attack_right');;
         }
       } else {
         if (y > 0) {
-          this.keys.attack_up = true
-          setTimeout(() => {
-            this.keys.attack_up = false
-          }, 50);
+          this.setKeyWithWithTimer('attack_up');
         } else {
-          this.keys.attack_down = true
-          setTimeout(() => {
-            this.keys.attack_down = false
-          }, 50);
+          this.setKeyWithWithTimer('attack_down');
         }
       }
     }
   };
+
   private mousedown = (e: MouseEvent) => {
-    if (!document.pointerLockElement) {
-      MAIN_UI_ELEMENT.requestPointerLock()
+    if (getOption('input', 'enableMouseAttacks')) {
+      if (!document.pointerLockElement) {
+        MAIN_UI_ELEMENT.requestPointerLock()
+      }
+      this.startPos = { ...this.mousePos }
     }
-    this.startPos = { ...this.mousePos }
-
   };
+
   private mousemove = (e: MouseEvent) => {
-
-    this.mousePos.x += e.movementX
-    this.mousePos.y += e.movementY
+    if (getOption('input', 'enableMouseAttacks')) {
+      this.mousePos.x += e.movementX
+      this.mousePos.y += e.movementY
+    }
 
   };
+
+  private setKeyWithWithTimer(key: keyof Input['keys']) {
+    this.keys[key] = true;
+    setTimeout(() => {
+      this.keys[key] = false;
+    }, 50);
+  }
 };

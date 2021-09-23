@@ -14,6 +14,7 @@ import { randomInRange } from '../utils';
 import { Renderer } from '../renderer';
 import { checkAiDifficulty } from '../character/stats';
 import { AttackAnimations, BlockAnimations } from '../animation/types';
+import { OptionsUI } from '../ui/optionsUI';
 
 type AttackResult = 'hit' | 'not_hit' | 'blocked';
 
@@ -122,6 +123,7 @@ export class FightController {
         this.ui.menu({
           mainMenu: this.exit.bind(this),
           restart: this.restartFight.bind(this),
+          options: OptionsUI,
           run: this.options.run,
           resume: () => {
             this.unpause()
@@ -148,6 +150,7 @@ export class FightController {
       mainMenu: this.exit.bind(this),
       inventory: this.options.showInventoryInMenu,
       run: this.options.run,
+      options: OptionsUI,
       restart: this.restartFight.bind(this)
     });
 
