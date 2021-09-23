@@ -1,4 +1,5 @@
 import { AttackAnimations, DodgeAnimations } from './animation/types';
+import { MAIN_UI_ELEMENT } from './ui/ui';
 
 type InputKeys = (AttackAnimations | DodgeAnimations);
 
@@ -29,7 +30,7 @@ Object.freeze(EMPTY_INPUT.keys)
 export class PlayerInput implements Input {
   keys = { ...EMPTY_INPUT.keys };
 
-
+  private enableMouseAttacks = true
   constructor() {
     this.addListeners();
   }
@@ -37,8 +38,11 @@ export class PlayerInput implements Input {
   private addListeners() {
     document.addEventListener('keydown', this.keydown);
     document.addEventListener('keyup', this.keyup);
-    document.addEventListener('mouseup', this.mouseup);
-    document.addEventListener('mousedown', this.mousedown);
+    if (this.enableMouseAttacks) {
+      document.addEventListener('mouseup', this.mouseup);
+      document.addEventListener('mousedown', this.mousedown);
+      document.addEventListener('mousemove', this.mousemove);
+    }
   }
 
   unpause() { this.addListeners() }
@@ -49,6 +53,8 @@ export class PlayerInput implements Input {
     document.removeEventListener('keyup', this.keyup)
     document.removeEventListener('mouseup', this.mouseup)
     document.removeEventListener('mousedown', this.mousedown)
+    document.removeEventListener('mousemove', this.mousemove)
+    document.exitPointerLock()
   }
   private keydown = (event: KeyboardEvent) => {
     // TODO add keybindings
@@ -101,11 +107,12 @@ export class PlayerInput implements Input {
         break;
     }
   }
+  private mousePos = { x: 0, y: 0 }
   private startPos?: { x: number, y: number }
   private mouseup = (e: MouseEvent) => {
     if (this.startPos) {
-      const x = this.startPos.x - e.clientX
-      const y = this.startPos.y - e.clientY
+      const x = this.startPos.x - this.mousePos.x
+      const y = this.startPos.y - this.mousePos.y
 
       if (Math.abs(x) > Math.abs(y)) {
         if (x > 0) {
@@ -135,7 +142,16 @@ export class PlayerInput implements Input {
     }
   };
   private mousedown = (e: MouseEvent) => {
-    this.startPos = { x: e.clientX, y: e.clientY }
+    if (!document.pointerLockElement) {
+      MAIN_UI_ELEMENT.requestPointerLock()
+    }
+    this.startPos = { ...this.mousePos }
+
+  };
+  private mousemove = (e: MouseEvent) => {
+
+    this.mousePos.x += e.movementX
+    this.mousePos.y += e.movementY
 
   };
 };
