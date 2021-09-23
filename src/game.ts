@@ -17,7 +17,7 @@ export class Game {
 
   constructor() {
 
-    new Campaign()
+    // new Campaign()
     // new StandaloneDungeon({
     //   rooms: rooms,
     //   entryDir: 'north',
@@ -25,7 +25,7 @@ export class Game {
     // })
     // this.goToFight()
     // if (this.startInFight) {
-    // this.goToFight()
+    this.goToFight()
     // } else {
     // this.goToMainMenu()
     // }
@@ -36,7 +36,7 @@ export class Game {
   }
 
   goToFight = async (humanPlayer?: Player, player1?: Character, player2?: Character, room?: RoomNames) => {
-    await LoadFight(humanPlayer || 'player1', this, player1 || createCharacter({}), player2 || createCharacter({}), room || 'test');
+    await LoadFight(humanPlayer || 'player1', this, player1 || createCharacter({ skills: { Endurance: true } }), player2 || createCharacter({}), room || 'test');
   }
 
 }

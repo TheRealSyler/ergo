@@ -29,23 +29,28 @@ Object.freeze(EMPTY_INPUT.keys)
 export class PlayerInput implements Input {
   keys = { ...EMPTY_INPUT.keys };
 
+
   constructor() {
     this.addListeners();
   }
 
   private addListeners() {
-    document.addEventListener('keydown', this.onKeyDown);
-    document.addEventListener('keyup', this.onKeyUp);
+    document.addEventListener('keydown', this.keydown);
+    document.addEventListener('keyup', this.keyup);
+    document.addEventListener('mouseup', this.mouseup);
+    document.addEventListener('mousedown', this.mousedown);
   }
 
   unpause() { this.addListeners() }
   pause() { this.dispose() }
 
   dispose() {
-    document.removeEventListener('keydown', this.onKeyDown)
-    document.removeEventListener('keyup', this.onKeyUp)
+    document.removeEventListener('keydown', this.keydown)
+    document.removeEventListener('keyup', this.keyup)
+    document.removeEventListener('mouseup', this.mouseup)
+    document.removeEventListener('mousedown', this.mousedown)
   }
-  private onKeyDown = (event: KeyboardEvent) => {
+  private keydown = (event: KeyboardEvent) => {
     // TODO add keybindings
     switch (event.key) {
       case 'ArrowRight':
@@ -71,7 +76,7 @@ export class PlayerInput implements Input {
     }
   }
 
-  private onKeyUp = (event: KeyboardEvent) => {
+  private keyup = (event: KeyboardEvent) => {
     // TODO add keybindings
     switch (event.key) {
       case 'ArrowRight':
@@ -96,4 +101,41 @@ export class PlayerInput implements Input {
         break;
     }
   }
+  private startPos?: { x: number, y: number }
+  private mouseup = (e: MouseEvent) => {
+    if (this.startPos) {
+      const x = this.startPos.x - e.clientX
+      const y = this.startPos.y - e.clientY
+
+      if (Math.abs(x) > Math.abs(y)) {
+        if (x > 0) {
+          this.keys.attack_left = true
+          setTimeout(() => {
+            this.keys.attack_left = false
+          }, 50);
+        } else {
+          this.keys.attack_right = true
+          setTimeout(() => {
+            this.keys.attack_right = false
+          }, 50);
+        }
+      } else {
+        if (y > 0) {
+          this.keys.attack_up = true
+          setTimeout(() => {
+            this.keys.attack_up = false
+          }, 50);
+        } else {
+          this.keys.attack_down = true
+          setTimeout(() => {
+            this.keys.attack_down = false
+          }, 50);
+        }
+      }
+    }
+  };
+  private mousedown = (e: MouseEvent) => {
+    this.startPos = { x: e.clientX, y: e.clientY }
+
+  };
 };
