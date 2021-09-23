@@ -197,6 +197,7 @@ export class Campaign extends Renderer implements DungeonParent {
       this.scene = savedScene
       this.camera = savedCamera
       this.dungeon = undefined
+      this.updateRenderer(0)
       this.ui.show()
     })
 

@@ -6,7 +6,7 @@ import { chooseRandomArrayEl } from '../utils';
 import { AiStates } from './aiCharacterInput';
 
 export class AiAttackingState extends State<AiStates> {
-  constructor(private selfRef: CharacterController, private keysRef: Input['keys']) {
+  constructor(private aiChar: CharacterController, private keysRef: Input['keys']) {
     super('ai_attacking');
   }
   private direction?: AttackAnimations;
@@ -15,7 +15,7 @@ export class AiAttackingState extends State<AiStates> {
     this.keysRef[this.direction] = true;
   }
   Update(fsm: FiniteStateMachine<AiStates>) {
-    if (this.selfRef.stateMachine.currentState?.name === 'idle') {
+    if (this.aiChar.stateMachine.currentState?.name === 'idle') {
       fsm.SetState('ai_idle');
     }
   }

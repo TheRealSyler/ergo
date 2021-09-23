@@ -30,9 +30,6 @@ export class DodgeState extends State<AnimationTypes> {
     }
   }
 
-  Exit() {
-  }
-
   Update(fsm: FiniteStateMachine<AnimationTypes>, timeElapsedInSeconds: number) {
     if (this.charRef.input.keys[this.key]) {
       if (this.dodgeSpeedCounter > 0) {

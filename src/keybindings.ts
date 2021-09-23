@@ -33,12 +33,16 @@ const KEYBINDINGS = {
     MenuRestart: 'ENTER',
     MenuMainMenu: 'BACKSPACE',
     MenuResume: 'SPACE',
-    MenuInventory: 'TAB'
+    MenuInventory: 'TAB',
+    MenuRun: 'R'
   },
   Inventory: {
     ToggleInventory: 'TAB',
   },
   Campaign: {
     OpenQuestBoard: 'Q'
+  },
+  Options: {
+    Toggle: 'O'
   }
 }

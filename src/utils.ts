@@ -100,3 +100,7 @@ export function toFixedIfNotZero(n: number, fractionDigits: number) {
   return n.toFixed(fractionDigits).replace(/\.0$/, '')
 }
 
+export function TextUI(text: string) {
+  console.log(text, text.replace(/([A-Z])/g, ' $1'))
+  return text.replace(/([A-Z])/g, ' $1')
+}

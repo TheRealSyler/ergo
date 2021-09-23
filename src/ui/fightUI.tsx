@@ -1,6 +1,6 @@
 import { h } from 'dom-chef'
 import { CharacterController } from '../character/characterController'
-import { wait } from '../utils'
+import { TextUI, wait } from '../utils'
 import { MAIN_UI_ELEMENT } from './ui'
 
 import './fightUI.sass'
@@ -9,7 +9,7 @@ import { BarComponent } from './barComponent'
 import { getKeybinding, getKeybindingUI } from '../keybindings'
 import { Difficulty } from '../character/stats'
 
-type FightUIMenus = 'restart' | 'resume' | 'mainMenu' | 'inventory'
+type FightUIMenus = 'restart' | 'resume' | 'mainMenu' | 'inventory' | 'run' | 'options'
 export class FightUI {
   private health: Record<Player, BarComponent> = {
     player1: new BarComponent('health', 0),
@@ -19,7 +19,7 @@ export class FightUI {
     player1: new BarComponent('stamina', 0),
     player2: new BarComponent('stamina', 0)
   }
-  private difficultyEL = <span className="fixed" ></span>
+  private difficultyEL = <span className="fixed fight-difficulty" ></span>
   private fightStartTextEL = <span ></span>
   private fightStartEL = <div className="fight-start center-fixed">{this.fightStartTextEL}</div>
 
@@ -38,6 +38,12 @@ export class FightUI {
         break;
       case getKeybinding('Fight', 'MenuInventory'):
         this.callMenuFunc('inventory', false)
+        break;
+      case getKeybinding('Fight', 'MenuRun'):
+        this.callMenuFunc('run')
+        break;
+      case getKeybinding('Options', 'Toggle'):
+        this.callMenuFunc('options')
         break;
     }
   }
@@ -60,7 +66,7 @@ export class FightUI {
   }
 
   showDifficulty(difficulty: Difficulty) {
-    this.difficultyEL.textContent = `aiDodge: ${difficulty.aiDodgeChance}% playerDodgeTime: ${difficulty.playerTimeToDodge}`
+    this.difficultyEL.textContent = `aiDodge: ${difficulty.aiDodgeChance}% aiBlock: ${difficulty.aiBlockChance}% aiUseDodge: ${difficulty.aiUseDodge}% playerDodgeTime: ${difficulty.playerTimeToDodge}ms playerBlockTime: ${difficulty.playerTimeToBlock}ms`
   }
   HUD() {
     MAIN_UI_ELEMENT.textContent = ''
@@ -92,7 +98,7 @@ export class FightUI {
     for (const key in menus) {
       if (Object.prototype.hasOwnProperty.call(menus, key)) {
         if (menus[key as FightUIMenus]) {
-          items.push(<div className="button" onClick={() => this.callMenuFunc(key as FightUIMenus)}>{this.menuKeyToKeybindingUI(key as FightUIMenus)} {this.menuKeyToText(key as FightUIMenus)}</div>)
+          items.push(<div className="button" onClick={() => this.callMenuFunc(key as FightUIMenus)}>{this.menuKeyToKeybindingUI(key as FightUIMenus)} {TextUI(key)}</div>)
         }
       }
     }
@@ -103,7 +109,7 @@ export class FightUI {
     </div>)
   }
 
-  private menuKeyToKeybindingUI(key: FightUIMenus) {
+  private menuKeyToKeybindingUI(key: FightUIMenus): string {
     switch (key) {
       case 'mainMenu':
         return getKeybindingUI('Fight', 'MenuMainMenu')
@@ -113,18 +119,10 @@ export class FightUI {
         return getKeybindingUI('Fight', 'MenuResume')
       case 'inventory':
         return getKeybindingUI('Fight', 'MenuInventory')
-    }
-  }
-  private menuKeyToText(key: FightUIMenus) {
-    switch (key) {
-      case 'mainMenu':
-        return 'Main Menu'
-      case 'restart':
-        return 'Restart'
-      case 'resume':
-        return 'Resume'
-      case 'inventory':
-        return 'Inventory'
+      case 'run':
+        return getKeybindingUI('Fight', 'MenuRun')
+      case 'options':
+        return getKeybindingUI('Options', 'Toggle')
     }
   }
 

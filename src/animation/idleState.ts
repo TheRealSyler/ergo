@@ -47,6 +47,14 @@ export class IdleState extends State<AnimationTypes> {
       this.checkStaminaCost(fsm, 'dodge_left', this.charRef.stats.dodgeStaminaCost)
     } else if (this.charRef.input.keys.dodge_right) {
       this.checkStaminaCost(fsm, 'dodge_right', this.charRef.stats.dodgeStaminaCost)
+    } else if (this.charRef.input.keys.block_down) {
+      this.checkStaminaCost(fsm, 'block_down', this.charRef.stats.blockStaminaCost)
+    } else if (this.charRef.input.keys.block_left) {
+      this.checkStaminaCost(fsm, 'block_left', this.charRef.stats.blockStaminaCost)
+    } else if (this.charRef.input.keys.block_right) {
+      this.checkStaminaCost(fsm, 'block_right', this.charRef.stats.blockStaminaCost)
+    } else if (this.charRef.input.keys.block_up) {
+      this.checkStaminaCost(fsm, 'block_up', this.charRef.stats.blockStaminaCost)
     }
   }
 

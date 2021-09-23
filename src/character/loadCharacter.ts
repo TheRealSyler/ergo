@@ -80,6 +80,10 @@ export async function loadCharacter(loader: GLTFLoader, character: Character): P
     hit: addAndValidateAnimation('hit', animationsMesh, mixer)!,
     idle: addAndValidateAnimation('idle', animationsMesh, mixer)!,
     victory: addAndValidateAnimation('idle', animationsMesh, mixer)!, // TODO add victory animations.
+    block_down: addAndValidateAnimation('block_down', animationsMesh, mixer)!,
+    block_left: addAndValidateAnimation('block_left', animationsMesh, mixer)!,
+    block_right: addAndValidateAnimation('block_right', animationsMesh, mixer)!,
+    block_up: addAndValidateAnimation('block_up', animationsMesh, mixer)!,
   }
 
   return {

@@ -13,13 +13,23 @@ import { PlayerInput } from '../playerInput';
 import { randomInRange } from '../utils';
 import { Renderer } from '../renderer';
 import { checkAiDifficulty } from '../character/stats';
+import { AttackAnimations, BlockAnimations } from '../animation/types';
+import { OptionsUI } from '../ui/optionsUI';
 
-type AttackResult = 'hit' | 'not_hit';
+type AttackResult = 'hit' | 'not_hit' | 'blocked';
+
+export const BLOCK_DIRECTIONS: Record<AttackAnimations, BlockAnimations> = {
+  attack_down: 'block_up',
+  attack_left: 'block_left',
+  attack_right: 'block_right',
+  attack_up: 'block_down'
+}
 
 export interface FightControllerOptions {
   customEndScreen?: (victory: boolean, dispose: () => void, endScreen: () => void) => void
   showInventoryInMenu?: () => void,
   exitToMainMenu: () => void;
+  run?: () => void
 }
 
 export class FightController {
@@ -113,6 +123,8 @@ export class FightController {
         this.ui.menu({
           mainMenu: this.exit.bind(this),
           restart: this.restartFight.bind(this),
+          options: OptionsUI,
+          run: this.options.run,
           resume: () => {
             this.unpause()
             this.ui.HUD()
@@ -133,21 +145,22 @@ export class FightController {
 
   endScreen(victory: boolean) {
     this.isInEndScreen = true
+
+    const endScreenMenu = () => this.ui.menu({
+      mainMenu: this.exit.bind(this),
+      inventory: this.options.showInventoryInMenu,
+      run: this.options.run,
+      options: OptionsUI,
+      restart: this.restartFight.bind(this)
+    });
+
     if (this.options.customEndScreen) {
       this.options.customEndScreen(victory, this.dispose.bind(this), () => {
-        this.ui.menu({
-          mainMenu: this.exit.bind(this),
-          inventory: this.options.showInventoryInMenu,
-          restart: this.restartFight.bind(this)
-        })
+        endScreenMenu()
         victoryOrLossUI(victory)
       })
     } else {
-      this.ui.menu({
-        mainMenu: this.exit.bind(this),
-        inventory: this.options.showInventoryInMenu,
-        restart: this.restartFight.bind(this)
-      })
+      endScreenMenu();
       victoryOrLossUI(victory)
     }
   }
@@ -218,6 +231,11 @@ export class FightController {
           this.players[defender].stateMachine.SetState('hit')
         }
         break;
+      case 'blocked':
+        this.players[attacker].stats.stamina = Math.max(0, this.players[attacker].stats.stamina - (this.players[attacker].stats.maxStamina * 0.4))
+        this.players[attacker].stateMachine.SetState('hit')
+        this.players[defender].stateMachine.SetState('idle')
+        break;
     }
   }
 
@@ -250,6 +268,11 @@ export class FightController {
       }
 
     } else if (defender.type === 'attack') {
+      return 'hit'
+    } else if (defender.type === 'block') {
+      if (defender.blockProgress === 'active' && BLOCK_DIRECTIONS[attacker.attackDirection] === defender.blockDirection) {
+        return 'blocked';
+      }
       return 'hit'
     }
     return 'not_hit';
