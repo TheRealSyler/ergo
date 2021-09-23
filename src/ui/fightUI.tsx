@@ -19,7 +19,7 @@ export class FightUI {
     player1: new BarComponent('stamina', 0),
     player2: new BarComponent('stamina', 0)
   }
-  private difficultyEL = <span className="fixed" ></span>
+  private difficultyEL = <span className="fixed fight-difficulty" ></span>
   private fightStartTextEL = <span ></span>
   private fightStartEL = <div className="fight-start center-fixed">{this.fightStartTextEL}</div>
 
@@ -60,7 +60,7 @@ export class FightUI {
   }
 
   showDifficulty(difficulty: Difficulty) {
-    this.difficultyEL.textContent = `aiDodge: ${difficulty.aiDodgeChance}% playerDodgeTime: ${difficulty.playerTimeToDodge}  playerBlockTime: ${difficulty.playerTimeToBlock}`
+    this.difficultyEL.textContent = `aiDodge: ${difficulty.aiDodgeChance}% aiBlock: ${difficulty.aiBlockChance}% aiUseDodge: ${difficulty.aiUseDodge}% playerDodgeTime: ${difficulty.playerTimeToDodge}ms playerBlockTime: ${difficulty.playerTimeToBlock}ms`
   }
   HUD() {
     MAIN_UI_ELEMENT.textContent = ''

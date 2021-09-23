@@ -13,8 +13,16 @@ import { PlayerInput } from '../playerInput';
 import { randomInRange } from '../utils';
 import { Renderer } from '../renderer';
 import { checkAiDifficulty } from '../character/stats';
+import { AttackAnimations, BlockAnimations } from '../animation/types';
 
-type AttackResult = 'hit' | 'not_hit';
+type AttackResult = 'hit' | 'not_hit' | 'blocked';
+
+export const BLOCK_DIRECTIONS: Record<AttackAnimations, BlockAnimations> = {
+  attack_down: 'block_up',
+  attack_left: 'block_left',
+  attack_right: 'block_right',
+  attack_up: 'block_down'
+}
 
 export interface FightControllerOptions {
   customEndScreen?: (victory: boolean, dispose: () => void, endScreen: () => void) => void
@@ -218,6 +226,11 @@ export class FightController {
           this.players[defender].stateMachine.SetState('hit')
         }
         break;
+      case 'blocked':
+        this.players[attacker].stats.stamina = Math.max(0, this.players[attacker].stats.stamina - (this.players[attacker].stats.maxStamina * 0.4))
+        this.players[attacker].stateMachine.SetState('hit')
+        this.players[defender].stateMachine.SetState('idle')
+        break;
     }
   }
 
@@ -250,6 +263,11 @@ export class FightController {
       }
 
     } else if (defender.type === 'attack') {
+      return 'hit'
+    } else if (defender.type === 'block') {
+      if (defender.blockProgress === 'active' && BLOCK_DIRECTIONS[attacker.attackDirection] === defender.blockDirection) {
+        return 'blocked';
+      }
       return 'hit'
     }
     return 'not_hit';

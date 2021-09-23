@@ -1,12 +1,13 @@
 import { CharacterController } from '../character/characterController';
-import { Input } from '../playerInput';
+import { EMPTY_INPUT, Input } from '../playerInput';
 import { FiniteStateMachine } from '../finiteStateMachine';
 import { AttackAnimations, DodgeAnimations } from '../animation/types';
 import { AiAttackingState } from './aiAttackingState';
 import { AiDodgingState } from './aiDodgingState';
 import { AiIdleState } from './aiIdleState';
+import { AiBlockState } from './aiBlockState';
 
-export type AiStates = 'ai_idle' | 'ai_dodging' | 'ai_attacking';
+export type AiStates = 'ai_idle' | 'ai_dodging' | 'ai_attacking' | 'ai_block';
 
 export const DODGE_POSSIBILITIES: { [key in AttackAnimations]: DodgeAnimations | DodgeAnimations[] } = {
   attack_down: ['dodge_left', 'dodge_right'],
@@ -16,22 +17,16 @@ export const DODGE_POSSIBILITIES: { [key in AttackAnimations]: DodgeAnimations |
 }
 
 export class AiInput implements Input {
-  keys = {
-    attack_right: false,
-    attack_left: false,
-    attack_up: false,
-    attack_down: false,
-    dodge_left: false,
-    dodge_right: false
-  };
+  keys = { ...EMPTY_INPUT.keys };
 
   private aiStateMachine: FiniteStateMachine<AiStates> = new FiniteStateMachine<AiStates>({
-    ai_attacking: new AiAttackingState(this.selfRef, this.keys),
-    ai_dodging: new AiDodgingState(this.playerChar, this.keys),
-    ai_idle: new AiIdleState(this.playerChar)
+    ai_attacking: new AiAttackingState(this.aiChar, this.keys),
+    ai_dodging: new AiDodgingState(this.aiChar, this.playerChar, this.keys),
+    ai_idle: new AiIdleState(this.aiChar, this.playerChar),
+    ai_block: new AiBlockState(this.aiChar, this.playerChar, this.keys)
   })
 
-  constructor(private selfRef: CharacterController, private playerChar: CharacterController) {
+  constructor(private aiChar: CharacterController, private playerChar: CharacterController) {
     this.aiStateMachine.SetState('ai_idle')
   }
 

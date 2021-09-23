@@ -36,7 +36,7 @@ export class Game {
   }
 
   goToFight = async (humanPlayer?: Player, player1?: Character, player2?: Character, room?: RoomNames) => {
-    await LoadFight(humanPlayer || 'player1', this, player1 || createCharacter({ skills: { Endurance: true }, items: { weapon: 'Axe' } }), player2 || createCharacter({}), room || 'test');
+    await LoadFight(humanPlayer || 'player1', this, player1 || createCharacter(), player2 || createCharacter(), room || 'test');
   }
 
 }

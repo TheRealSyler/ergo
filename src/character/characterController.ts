@@ -4,7 +4,7 @@ import { DodgeState } from "../animation/dodgeState";
 import { IdleState } from "../animation/idleState";
 import { FiniteStateMachine } from "../finiteStateMachine";
 import { EMPTY_INPUT, Input } from '../playerInput';
-import { Animations, AnimationTypes, AttackAnimations, DodgeAnimations } from '../animation/types';
+import { Animations, AnimationTypes, AttackAnimations, BlockAnimations, DodgeAnimations } from '../animation/types';
 import { AiInput } from '../ai/aiCharacterInput';
 import { HitState } from '../animation/hitState';
 import { VictoryState } from '../animation/victoryState';
@@ -13,8 +13,9 @@ import { Player } from '../game';
 import { FightUI } from '../ui/fightUI';
 import { LoadedCharacter } from './loadCharacter';
 import { CharacterStats, createStats } from './stats';
+import { BlockState } from '../animation/blockState';
 
-export type CharStance = DodgeStance | AttackStance | IdleStance | HitStance | EndStance
+export type CharStance = DodgeStance | AttackStance | IdleStance | HitStance | EndStance | BlockStance
 
 export interface DodgeStance {
   type: 'dodge',
@@ -32,6 +33,11 @@ export interface IdleStance {
 }
 export interface HitStance {
   type: 'hit'
+}
+export interface BlockStance {
+  type: 'block'
+  blockDirection: BlockAnimations
+  blockProgress: 'started' | 'active'
 }
 export interface EndStance {
   type: 'end'
@@ -79,6 +85,10 @@ export class CharacterController {
       hit: new HitState(this),
       victory: new VictoryState(this),
       death: new DeathState(this),
+      block_down: new BlockState('block_down', this),
+      block_right: new BlockState('block_right', this),
+      block_left: new BlockState('block_left', this),
+      block_up: new BlockState('block_up', this),
     });
     this.stateMachine.SetState('idle')
   }

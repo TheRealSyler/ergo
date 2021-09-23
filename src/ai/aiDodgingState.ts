@@ -6,7 +6,7 @@ import { checkChance, chooseRandomArrayEl } from '../utils';
 import { AiStates, DODGE_POSSIBILITIES } from './aiCharacterInput';
 
 export class AiDodgingState extends State<AiStates> {
-  constructor(private playerChar: CharacterController, private keysRef: Input['keys']) {
+  constructor(private aiChar: CharacterController, private playerChar: CharacterController, private keysRef: Input['keys']) {
     super('ai_dodging');
   }
   private direction: DodgeAnimations = 'dodge_left';
@@ -14,7 +14,7 @@ export class AiDodgingState extends State<AiStates> {
   Enter() {
     const dodge = DODGE_POSSIBILITIES[(this.playerChar.stance as AttackStance).attackDirection];
     this.direction = Array.isArray(dodge) ? chooseRandomArrayEl(dodge) : dodge;
-    this.successfullyDodged = checkChance(this.playerChar.stats.aiDodgeChance);
+    this.successfullyDodged = checkChance(this.aiChar.stats.aiDodgeChance);
   }
 
   Update(fsm: FiniteStateMachine<AiStates>) {

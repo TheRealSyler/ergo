@@ -3,17 +3,21 @@ import { NumberRange } from '../utils';
 import { Character } from './character';
 import { Skills, SKILLS } from "./skills";
 import { ConsumableItem, Item, ITEMS, ItemWithStatChange } from './items';
+import { BLOCK_TIME } from '../animation/blockState';
 
 export interface CharacterStats {
   aiTimeToAttack: NumberRange
   aiDodgeChance: number
+  aiBlockChance: number
+  /**Chance that the ai will dodge instead of blocking */
+  aiUseDodge: number
   attackSpeed: number
   dodgeSpeed: number
-  blockSpeed: number
   hitTime: number
   staminaRegenRate: number
   attackStaminaCost: number
   dodgeStaminaCost: number
+  blockStaminaCost: number
   damage: NumberRange
   maxHealth: number
   health: number
@@ -26,7 +30,6 @@ export type CharacterClass = 'base' | 'awd2' | 'boss';
 export const FLIPPED_STAT_SIGN: Partial<Record<keyof CharacterStats, true>> = {
   dodgeStaminaCost: true,
   attackStaminaCost: true,
-  blockSpeed: true,
   dodgeSpeed: true
 }
 
@@ -36,13 +39,15 @@ const BASE_STATS: CharacterStats = {
   maxHealth: 25,
   maxStamina: 10,
   dodgeSpeed: 0.2,
-  blockSpeed: 0.2,
   aiDodgeChance: 0.3,
+  aiBlockChance: 0.3,
+  aiUseDodge: 0.5,
   aiTimeToAttack: NumberRange(0.5, 1.5),
   hitTime: 1.5,
   staminaRegenRate: 5,
   attackStaminaCost: 5,
   dodgeStaminaCost: 1,
+  blockStaminaCost: 2,
   health: 25,
   stamina: 25,
 }
@@ -177,13 +182,17 @@ function applyStatChange(stats: CharacterStats, key: keyof CharacterStats, chang
 export interface Difficulty {
   playerTimeToDodge: number,
   aiDodgeChance: number,
+  aiBlockChance: number
+  aiUseDodge: number
   playerTimeToBlock: number
 }
 export function checkAiDifficulty(playerStats: CharacterStats, aiStats: CharacterStats): Difficulty {
   const aiAttackSpeed = (1000 / aiStats.attackSpeed);
   return {
     playerTimeToDodge: (aiAttackSpeed * ATTACK_ACTIVE_TIME) - (playerStats.dodgeSpeed * 1000),
-    playerTimeToBlock: (aiAttackSpeed * ATTACK_ACTIVE_TIME) - (playerStats.blockSpeed * 1000),
+    playerTimeToBlock: (aiAttackSpeed * ATTACK_ACTIVE_TIME) - (BLOCK_TIME * 1000),
+    aiUseDodge: aiStats.aiUseDodge * 100,
     aiDodgeChance: aiStats.aiDodgeChance * 100,
+    aiBlockChance: aiStats.aiBlockChance * 100,
   }
 }
