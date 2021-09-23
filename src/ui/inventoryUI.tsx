@@ -5,7 +5,7 @@ import './inventoryUI.sass'
 import { ItemName, ITEMS, ITEM_TYPES } from '../character/items'
 import { Character } from '../character/character'
 import { getKeybinding, getKeybindingUI } from '../keybindings'
-import { CharacterStats, updateStatsWithItem, useConsumable } from '../character/stats'
+import { CharacterStats, FLIPPED_STAT_SIGN, updateStatsWithItem, useConsumable } from '../character/stats'
 import { toFixedIfNotZero } from '../utils'
 import { BarComponent } from './barComponent'
 import { Shop } from '../campaign/campaign'
@@ -564,12 +564,8 @@ export class InventoryUI {
             if (typeof change === 'number') {
               const changeType = change >= 0
               let changeTypeClass = change >= 0
-              switch (key as keyof typeof itemInfo.statChanges) {
-                case 'dodgeStaminaCost':
-                case 'attackStaminaCost':
-                case 'dodgeSpeed':
-                  changeTypeClass = !changeType
-                  break
+              if (FLIPPED_STAT_SIGN[key as keyof typeof itemInfo.statChanges]) {
+                changeTypeClass = !changeType
               }
               elements.push(<div className="inventory-stat">
                 <span>{key}:</span>

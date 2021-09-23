@@ -5,24 +5,16 @@ import { Skills, SKILLS } from "./skills";
 import { ConsumableItem, Item, ITEMS, ItemWithStatChange } from './items';
 
 export interface CharacterStats {
-  /** The time the ai does nothing/waits for the player to attack. */
   aiTimeToAttack: NumberRange
   aiDodgeChance: number
-  /**The attack animation speed. */
   attackSpeed: number
-  /**The time it takes to go from idle to dodge state. */
   dodgeSpeed: number
-  /** The hit animation speed. */
+  blockSpeed: number
   hitTime: number
-
-  /**Stamina Regeneration Per second */
   staminaRegenRate: number
-
   attackStaminaCost: number
   dodgeStaminaCost: number
-
   damage: NumberRange
-
   maxHealth: number
   health: number
   maxStamina: number
@@ -30,6 +22,13 @@ export interface CharacterStats {
 }
 
 export type CharacterClass = 'base' | 'awd2' | 'boss';
+// TODO find better name.
+export const FLIPPED_STAT_SIGN: Partial<Record<keyof CharacterStats, true>> = {
+  dodgeStaminaCost: true,
+  attackStaminaCost: true,
+  blockSpeed: true,
+  dodgeSpeed: true
+}
 
 const BASE_STATS: CharacterStats = {
   damage: NumberRange(3, 7),
@@ -37,6 +36,7 @@ const BASE_STATS: CharacterStats = {
   maxHealth: 25,
   maxStamina: 10,
   dodgeSpeed: 0.2,
+  blockSpeed: 0.2,
   aiDodgeChance: 0.3,
   aiTimeToAttack: NumberRange(0.5, 1.5),
   hitTime: 1.5,
@@ -177,11 +177,13 @@ function applyStatChange(stats: CharacterStats, key: keyof CharacterStats, chang
 export interface Difficulty {
   playerTimeToDodge: number,
   aiDodgeChance: number,
+  playerTimeToBlock: number
 }
 export function checkAiDifficulty(playerStats: CharacterStats, aiStats: CharacterStats): Difficulty {
   const aiAttackSpeed = (1000 / aiStats.attackSpeed);
   return {
     playerTimeToDodge: (aiAttackSpeed * ATTACK_ACTIVE_TIME) - (playerStats.dodgeSpeed * 1000),
+    playerTimeToBlock: (aiAttackSpeed * ATTACK_ACTIVE_TIME) - (playerStats.blockSpeed * 1000),
     aiDodgeChance: aiStats.aiDodgeChance * 100,
   }
 }

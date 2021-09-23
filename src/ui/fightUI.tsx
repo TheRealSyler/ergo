@@ -60,7 +60,7 @@ export class FightUI {
   }
 
   showDifficulty(difficulty: Difficulty) {
-    this.difficultyEL.textContent = `aiDodge: ${difficulty.aiDodgeChance}% playerDodgeTime: ${difficulty.playerTimeToDodge}`
+    this.difficultyEL.textContent = `aiDodge: ${difficulty.aiDodgeChance}% playerDodgeTime: ${difficulty.playerTimeToDodge}  playerBlockTime: ${difficulty.playerTimeToBlock}`
   }
   HUD() {
     MAIN_UI_ELEMENT.textContent = ''
