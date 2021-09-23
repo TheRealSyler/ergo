@@ -59,7 +59,7 @@ export class Campaign extends Renderer implements DungeonParent {
     items: [],
     size: 12
   }
-  character: Character = createCharacter()
+  character: Character = createCharacter({ items: { weapon: 'BasicSword' } })
   stats = createStats(this.character)
   quest: {
     main?: MainQuestNames,
@@ -76,7 +76,6 @@ export class Campaign extends Renderer implements DungeonParent {
   private dungeon?: Dungeon<any>;
   constructor() {
     super();
-    // this.inventoryUI.showShop(this.towns.camera_1.shops[0])
     this.load()
     window.addEventListener('keydown', this.keydown)
 

@@ -31,7 +31,7 @@ interface QuestItem {
 }
 export type ItemWithStatChange = NormalItem | WeaponItem
 export type Item = ItemWithStatChange | ConsumableItem | QuestItem
-export type WeaponNames = 'BasicSword' | 'SuperSword';
+export type WeaponNames = 'BasicSword' | 'SuperSword' | 'Axe';
 export type GloveNames = 'BasicGloves' | 'SuperGloves';
 export type ArmorNames = 'BasicArmor';
 export type QuestItemNames = 'BanditBounty';
@@ -59,7 +59,7 @@ export const ITEMS: { [key in ItemName]: Item } = {
   BasicArmor: {
     type: 'armor',
     statChanges: {
-      maxHealth: 100,
+      maxHealth: 25,
       maxStamina: 10,
       dodgeStaminaCost: 1,
       staminaRegenRate: -2,
@@ -68,9 +68,14 @@ export const ITEMS: { [key in ItemName]: Item } = {
   BasicSword: {
     type: 'weapon',
     statChanges: {
-      damage: NumberRange(10, 15)
+      damage: NumberRange(4, 6)
     },
     weaponHands: 'single'
+  },
+  Axe: {
+    type: 'weapon',
+    statChanges: { attackSpeed: -0.1, damage: NumberRange(10, 20) },
+    weaponHands: 'double'
   },
   SuperSword: {
     type: 'weapon',
@@ -90,7 +95,7 @@ export const ITEMS: { [key in ItemName]: Item } = {
     type: 'gloves',
     statChanges: {
       maxHealth: 40,
-      dodgeSpeed: -0.1
+      dodgeSpeed: -0.1,
     }
   },
   Bandage: {

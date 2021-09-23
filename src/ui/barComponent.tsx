@@ -20,7 +20,8 @@ export class BarComponent {
   }
 
   set(current: number, max: number) {
-    this.textEl.textContent = toFixedIfNotZero(current, this.fractionDigits)
-    this.barEl.style.width = `${(current / max) * 100}%`
+    const c = Math.max(current, 0)
+    this.textEl.textContent = toFixedIfNotZero(c, this.fractionDigits)
+    this.barEl.style.width = `${(c / max) * 100}%`
   }
 }
