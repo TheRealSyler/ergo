@@ -149,6 +149,10 @@ export class Dungeon<Rooms extends string> {
       this.fightCon = new FightController(players, ui, 'player1', this.parent, {
         exitToMainMenu: () => { console.log('TODO exit to main menu') },
         showInventoryInMenu: () => { this.parent.inventoryUI.toggle() },
+        run: () => {
+          this.parent.stats.health = this.parent.stats.maxHealth * 0.1
+          this.exit()
+        },
         customEndScreen: async (victory, dispose, endScreen) => {
           if (victory) {
             victoryOrLossUI(victory)

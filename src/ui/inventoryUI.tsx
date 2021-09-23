@@ -83,7 +83,7 @@ export class InventoryUI {
 
     <div className="inventory-info-bar">
       {this.isModal && <span className="button" onClick={() => this.toggle()}>{getKeybindingUI('Inventory', 'ToggleInventory')} Close</span>}
-      {this.isModal && '|'}
+      {this.isModal && '| '}
       [CTRL + MOUSE CLICK] Equip/Use |
       [SHIFT + MOUSE CLICK] Move to Inventory {this.lootInfo} </div>
   </div>

@@ -9,7 +9,7 @@ import { BarComponent } from './barComponent'
 import { getKeybinding, getKeybindingUI } from '../keybindings'
 import { Difficulty } from '../character/stats'
 
-type FightUIMenus = 'restart' | 'resume' | 'mainMenu' | 'inventory'
+type FightUIMenus = 'restart' | 'resume' | 'mainMenu' | 'inventory' | 'run'
 export class FightUI {
   private health: Record<Player, BarComponent> = {
     player1: new BarComponent('health', 0),
@@ -38,6 +38,9 @@ export class FightUI {
         break;
       case getKeybinding('Fight', 'MenuInventory'):
         this.callMenuFunc('inventory', false)
+        break;
+      case getKeybinding('Fight', 'MenuRun'):
+        this.callMenuFunc('run')
         break;
     }
   }
@@ -92,7 +95,7 @@ export class FightUI {
     for (const key in menus) {
       if (Object.prototype.hasOwnProperty.call(menus, key)) {
         if (menus[key as FightUIMenus]) {
-          items.push(<div className="button" onClick={() => this.callMenuFunc(key as FightUIMenus)}>{this.menuKeyToKeybindingUI(key as FightUIMenus)} {this.menuKeyToText(key as FightUIMenus)}</div>)
+          items.push(<div className="button" onClick={() => this.callMenuFunc(key as FightUIMenus)}>{this.menuKeyToKeybindingUI(key as FightUIMenus)} {key}</div>)
         }
       }
     }
@@ -103,7 +106,7 @@ export class FightUI {
     </div>)
   }
 
-  private menuKeyToKeybindingUI(key: FightUIMenus) {
+  private menuKeyToKeybindingUI(key: FightUIMenus): string {
     switch (key) {
       case 'mainMenu':
         return getKeybindingUI('Fight', 'MenuMainMenu')
@@ -113,18 +116,8 @@ export class FightUI {
         return getKeybindingUI('Fight', 'MenuResume')
       case 'inventory':
         return getKeybindingUI('Fight', 'MenuInventory')
-    }
-  }
-  private menuKeyToText(key: FightUIMenus) {
-    switch (key) {
-      case 'mainMenu':
-        return 'Main Menu'
-      case 'restart':
-        return 'Restart'
-      case 'resume':
-        return 'Resume'
-      case 'inventory':
-        return 'Inventory'
+      case 'run':
+        return getKeybindingUI('Fight', 'MenuRun')
     }
   }
 

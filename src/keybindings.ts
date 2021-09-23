@@ -33,7 +33,8 @@ const KEYBINDINGS = {
     MenuRestart: 'ENTER',
     MenuMainMenu: 'BACKSPACE',
     MenuResume: 'SPACE',
-    MenuInventory: 'TAB'
+    MenuInventory: 'TAB',
+    MenuRun: 'R'
   },
   Inventory: {
     ToggleInventory: 'TAB',

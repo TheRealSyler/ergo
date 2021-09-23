@@ -28,6 +28,7 @@ export interface FightControllerOptions {
   customEndScreen?: (victory: boolean, dispose: () => void, endScreen: () => void) => void
   showInventoryInMenu?: () => void,
   exitToMainMenu: () => void;
+  run?: () => void
 }
 
 export class FightController {
@@ -121,6 +122,7 @@ export class FightController {
         this.ui.menu({
           mainMenu: this.exit.bind(this),
           restart: this.restartFight.bind(this),
+          run: this.options.run,
           resume: () => {
             this.unpause()
             this.ui.HUD()
@@ -141,21 +143,21 @@ export class FightController {
 
   endScreen(victory: boolean) {
     this.isInEndScreen = true
+
+    const endScreenMenu = () => this.ui.menu({
+      mainMenu: this.exit.bind(this),
+      inventory: this.options.showInventoryInMenu,
+      run: this.options.run,
+      restart: this.restartFight.bind(this)
+    });
+
     if (this.options.customEndScreen) {
       this.options.customEndScreen(victory, this.dispose.bind(this), () => {
-        this.ui.menu({
-          mainMenu: this.exit.bind(this),
-          inventory: this.options.showInventoryInMenu,
-          restart: this.restartFight.bind(this)
-        })
+        endScreenMenu()
         victoryOrLossUI(victory)
       })
     } else {
-      this.ui.menu({
-        mainMenu: this.exit.bind(this),
-        inventory: this.options.showInventoryInMenu,
-        restart: this.restartFight.bind(this)
-      })
+      endScreenMenu();
       victoryOrLossUI(victory)
     }
   }
