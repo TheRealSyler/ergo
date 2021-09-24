@@ -145,7 +145,8 @@ export class FightController {
 
   endScreen(victory: boolean) {
     this.isInEndScreen = true
-
+    this.players.player1.pause()
+    this.players.player2.pause()
     const endScreenMenu = () => this.ui.menu({
       mainMenu: this.exit.bind(this),
       inventory: this.options.showInventoryInMenu,
@@ -179,6 +180,8 @@ export class FightController {
     if (this.paused) {
       this.unpause()
     }
+    this.players.player1.unpause()
+    this.players.player2.unpause()
     this.players.player1.restart()
     this.players.player2.restart()
     this.resetUi();
