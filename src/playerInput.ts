@@ -37,7 +37,6 @@ Object.freeze(EMPTY_INPUT.keys)
 export class PlayerInput implements Input {
   keys = { ...EMPTY_INPUT.keys };
 
-  private enableMouseAttacks = false // TODO add option to ui.
   constructor() {
     this.addListeners();
   }
