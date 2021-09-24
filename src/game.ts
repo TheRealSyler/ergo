@@ -8,6 +8,7 @@ import { LoadFight } from './fight/loadFight';
 import { RoomNames } from './rooms/rooms';
 import { CustomBattleUI } from './ui/customBattleUI';
 import { MainMenuUi } from './ui/mainMenuUI';
+import { OptionsUI } from './ui/optionsUI';
 
 export type Player = 'player1' | 'player2'
 
@@ -16,8 +17,8 @@ export class Game {
   startInFight = true
 
   constructor() {
-
-    // new Campaign()
+    // OptionsUI()
+    new Campaign()
     // new StandaloneDungeon({
     //   rooms: rooms,
     //   entryDir: 'north',
@@ -25,7 +26,7 @@ export class Game {
     // })
     // this.goToFight()
     // if (this.startInFight) {
-    this.goToFight()
+    // this.goToFight()
     // } else {
     // this.goToMainMenu()
     // }
