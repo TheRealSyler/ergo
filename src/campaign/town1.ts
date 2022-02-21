@@ -13,23 +13,24 @@ const banditCamp: DungeonInfo<'Entry' | 'Room 1' | 'Room 2' | 'Room 3'> = {
         north: { type: 'room', roomId: 'Room 1', asset: 'basic' },
         south: { type: 'exit', asset: 'basic' }
       },
-      name: 'basic',
+      fight: { char: createCharacter({ money: 500, class: 'base', skills: { Evasion: true } }), loot: { items: ['BanditBounty'] } },
+      name: 'test',
       objectInfos: []
     },
     'Room 1': {
       doors: { south: { type: 'room', asset: 'basic', roomId: 'Entry' }, north: { asset: 'basic', roomId: 'Room 2', type: 'room' } },
       name: 'basic', objectInfos: [],
-      fight: { char: createCharacter({ money: 100, items: { gloves: 'BasicGloves' } }) }
+      // fight: { char: createCharacter({ money: 100, items: { gloves: 'BasicGloves' } }) }
     },
     'Room 2': {
       doors: { south: { type: 'room', asset: 'basic', roomId: 'Room 1' }, north: { asset: 'basic', roomId: 'Room 3', type: 'room' } },
       name: 'basic', objectInfos: [],
-      fight: { char: createCharacter({ items: { weapon: 'BasicSword', gloves: 'BasicGloves' }, money: 200 }) }
+      // fight: { char: createCharacter({ items: { weapon: 'BasicSword', gloves: 'BasicGloves' }, money: 200 }) }
     },
     'Room 3': {
-      doors: { south: { type: 'room', asset: 'basic', roomId: 'Room 2' }, north: { type: 'exit', asset: 'basic' } },
+      doors: { south: { type: 'room', asset: 'basic', roomId: 'Room 2' }, north: { type: 'exit-completed', asset: 'basic' } },
       name: 'basic', objectInfos: [],
-      fight: { char: createCharacter({ items: { gloves: 'BasicGloves', weapon: 'Axe', armor: 'BasicArmor' }, money: 500, class: 'awd2', skills: { Evasion: true } }), loot: { items: ['BanditBounty'] } }
+      // fight: { char: createCharacter({ items: { gloves: 'BasicGloves', weapon: 'Axe', armor: 'BasicArmor' }, money: 500, class: 'awd2', skills: { Evasion: true } }), loot: { items: ['BanditBounty'] } }
     }
   }
 }
@@ -42,6 +43,7 @@ const d2: DungeonInfo<'Entry' | 'Room North' | 'Room1' | 'Room2' | 'Room3'> = {
       doors: {
         north: { type: 'room', roomId: 'Room North', asset: 'basic' },
         south: { type: 'exit', asset: 'basic' },
+        east: { type: 'exit-completed', asset: 'basic' },
         west: { type: 'room', roomId: 'Room1', asset: 'basic' }
       },
       objectInfos: [{ asset: 'chest', items: { items: ['Bandage', 'Bandage'], size: 12 }, position: new Vector3(-2, 0, 0), rotation: new Vector3(0, degToRad(-90)) }],
@@ -70,7 +72,7 @@ const d2: DungeonInfo<'Entry' | 'Room North' | 'Room1' | 'Room2' | 'Room3'> = {
       doors: { east: { roomId: 'Room2', type: 'room', asset: 'basic' }, south: { type: 'exit', asset: 'basic' } },
       name: 'test',
       objectInfos: [],
-      fight: { char: createCharacter({ items: { gloves: 'SuperGloves', weapon: 'SuperSword', armor: 'BasicArmor' }, money: 1000, class: 'boss', skills: { "Strength II": true, Evasion: true, "Evasion II": true, Speed: true } }) }
+      // fight: { char: createCharacter({ items: { gloves: 'SuperGloves', weapon: 'SuperSword', armor: 'BasicArmor' }, money: 1000, class: 'boss', skills: { "Strength II": true, Evasion: true, "Evasion II": true, Speed: true } }) }
     }
   }
 }
@@ -80,6 +82,7 @@ export type Town1Dungeons = 'Bandit Camp' | 'Ruins';
 
 export const town1: Town<Town1Dungeons> = {
   isUnlocked: true,
+  hasBeenVisited: true,
   travelCost: 0,
   shops: [
     {

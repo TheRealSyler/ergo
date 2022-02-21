@@ -1,13 +1,13 @@
 import { h } from 'dom-chef'
 import { Campaign, TownName } from '../campaign/campaign'
-import { MAIN_QUESTS, Quest } from '../campaign/quests'
+import { CAMPAIGN_QUESTS, Quest } from '../campaign/quests'
 import { getKeybinding, getKeybindingUI } from '../keybindings'
 import { StatEl } from './components'
 import './questBoard.sass'
 import { MAIN_UI_ELEMENT } from './ui'
 
 export class QuestBoardUI {
-  private questsEl = <div></div>
+  private questsEl = <div className="quest-board-quests"></div>
   private mainEl = <div className="fixed modal quest-board">
 
     {this.questsEl}
@@ -30,29 +30,28 @@ export class QuestBoardUI {
   show() {
     MAIN_UI_ELEMENT.appendChild(this.mainEl)
     this.questsEl.textContent = ''
-    if (this.campaign.quest.main) {
-      const mainQuest = MAIN_QUESTS[this.campaign.quest.main]
-
-      this.questsEl.appendChild(<h1>Main Quest</h1>)
-      this.questsEl.appendChild(this.addQuest(mainQuest, this.campaign.quest.main, true))
+    this.questsEl.appendChild(<h1>Quest Board</h1>)
+    for (let i = 0; i < this.campaign.quests.length; i++) {
+      const quest = this.campaign.quests[i];
+      this.questsEl.appendChild(this.addQuest(CAMPAIGN_QUESTS[quest], quest))
     }
-    this.questsEl.appendChild(<h1>Side Quests</h1>)
-    // TODO add side quests.
+
     window.addEventListener('keydown', this.keydown)
     this.visible = true
   }
-  private addQuest(quest: Quest<TownName, any, any>, questName: string, isMain = false) {
-    const { canBeCompleted, getItem: hasItem, travelToTown: hasTraveledTo } = this.campaign.checkQuest(quest)
+  private addQuest(quest: Quest<TownName, any>, questName: string) {
+    const { canBeCompleted, getItem: hasItem, travelToTown: hasTraveledTo, completeDungeon } = this.campaign.checkQuest(quest)
 
     let status;
     if (canBeCompleted) {
       status = <span className="button" onClick={() => {
-        this.campaign.completeQuest(quest, questName, isMain)
+        this.campaign.completeQuest(quest, questName)
       }}>Complete Quest</span>
     } else {
       status = <span className="quest-board-status">
         {quest.objective.getItem && <span>Get item: {StatEl(quest.objective.getItem, hasItem)}</span>}
-        {quest.objective.travelToTown ? <span>Go to: {StatEl(quest.objective.travelToTown, hasTraveledTo)}</span> : ''}
+        {quest.objective.travelToTown && <span>Go to: {StatEl(quest.objective.travelToTown, hasTraveledTo)}</span>}
+        {quest.objective.completeDungeon && <span>Complete Dungeon: {StatEl(quest.objective.completeDungeon.dungeon, completeDungeon)} in {quest.objective.completeDungeon.town}</span>}
       </span>
     }
     return <div className="quest-board-quest">

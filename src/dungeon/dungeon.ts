@@ -2,7 +2,7 @@ import { Renderer } from '../renderer';
 import { Object3D, Raycaster, Vector3, LoadingManager, Group } from 'three';
 import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls'
 import { loadRoom } from '../rooms/rooms';
-import { DungeonRoom, DungeonRooms, RoomItemInfo } from './dungeonRoom';
+import { DungeonDoor, DungeonRoom, DungeonRooms, RoomItemInfo } from './dungeonRoom';
 import { LoaderUI } from '../ui/loaderUI';
 import { Character } from '../character/character';
 import { loadCharacter } from '../character/loadCharacter';
@@ -20,15 +20,17 @@ import { Inventory, InventoryUI } from '../ui/inventoryUI';
 import { getKeybinding, getKeybindingUI } from '../keybindings';
 import { ItemName } from '../character/items';
 import { CharacterStats } from '../character/stats';
-import { PauseMenuUI } from '../ui/pauseMenu';
+import { PauseMenuUI } from '../ui/pauseMenuUI';
 import { OptionsUI } from '../ui/optionsUI';
+import { CampaignQuestNames } from '../campaign/quests';
 
 
 export interface DungeonParent extends Renderer {
   inventory: Inventory,
   character: Character,
   stats: CharacterStats,
-  inventoryUI: InventoryUI
+  inventoryUI: InventoryUI,
+  quests?: CampaignQuestNames[]
 }
 interface InterActableObject {
   collision: Object3D;
@@ -55,7 +57,8 @@ export interface DungeonInfo<Rooms extends string> {
   rooms: DungeonRooms<Rooms>,
   firstRoom: Rooms,
   entryDir: DungeonDir,
-  cost?: number
+  cost?: number,
+  hasBeenCompleted?: boolean
 }
 
 export class Dungeon<Rooms extends string> {
@@ -80,11 +83,11 @@ export class Dungeon<Rooms extends string> {
   private fightCon?: FightController;
   private currentRoom: DungeonRoom<Rooms>
 
-  private ui = new DungeonUI()
+  private ui = new DungeonUI(this.parent.quests)
   private pauseMenu = new PauseMenuUI()
   private isPauseMenuVisible = false
   private rooms: DungeonRooms<Rooms>
-  constructor(dungeonInfo: DungeonInfo<Rooms>, private parent: DungeonParent, private onLoad: (() => void) | false, private onExit: () => void, private goToMainMenu: () => void, private runOption = false) {
+  constructor(private dungeonInfo: DungeonInfo<Rooms>, private parent: DungeonParent, private onLoad: (() => void) | false, private onExit: () => void, private goToMainMenu: () => void, private runOption = false) {
     this.rooms = dungeonInfo.rooms;
     this.currentRoom = this.rooms[dungeonInfo.firstRoom]
     this.load(this.rooms[dungeonInfo.firstRoom], dungeonInfo.entryDir);
@@ -156,7 +159,9 @@ export class Dungeon<Rooms extends string> {
 
       this.fightCon = new FightController(players, ui, 'player1', this.parent, {
         exitToMainMenu: () => { console.log('TODO exit to main menu') },
-        showInventoryInMenu: () => { this.parent.inventoryUI.toggle() },
+        showInventoryInMenu: (addListeners) => {
+          this.parent.inventoryUI.show(undefined, addListeners)
+        },
         run: this.runOption ? this.run.bind(this) : undefined,
         customEndScreen: async (victory, dispose, endScreen) => {
           if (victory) {
@@ -278,12 +283,18 @@ export class Dungeon<Rooms extends string> {
       this.interActableObjects.push({
         scene: asset.scene,
         collision: asset.collision,
-        name: door.type === 'exit' ? 'Exit ' + dir : door.roomId + ' ' + dir,
+        name: door.type === 'room' ? door.roomId + ' ' + dir : 'Exit ' + dir + (door.type === 'exit-completed' ? ' (Complete Dungeon)' : ''),
         func: () => {
-          if (door.type === 'exit') {
-            this.exit()
-          } else {
-            this.load(this.rooms[door.roomId], dir);
+          switch (door.type) {
+            case 'exit-completed':
+              this.dungeonInfo.hasBeenCompleted = true
+            case 'exit':
+              this.exit()
+              break;
+
+            case 'room':
+              this.load(this.rooms[door.roomId], dir);
+              break;
           }
         }
       })
@@ -308,7 +319,7 @@ export class Dungeon<Rooms extends string> {
   update(timeElapsedSeconds: number) {
     if (this.fightCon) {
       this.fightCon.update(timeElapsedSeconds)
-    } else {
+    } else if (!this.isPauseMenuVisible) {
       this.updateMovement(timeElapsedSeconds);
 
       this.setActiveObject();
@@ -461,6 +472,9 @@ export class Dungeon<Rooms extends string> {
       mainMenu: () => {
         this.exit()
         this.goToMainMenu()
+      },
+      inventory: (addListeners) => {
+        this.parent.inventoryUI.show(undefined, addListeners)
       },
       options: OptionsUI,
       run: this.runOption ? this.run.bind(this) : undefined,

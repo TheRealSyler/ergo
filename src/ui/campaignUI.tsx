@@ -71,7 +71,11 @@ export class campaignUI {
             this.campaign.loadDungeon(dungeon)
           }
         }}>{key}</div>
-        this.addTooltip(el, <span>Travel to {key}{dungeon.cost ? <span> (Travel cost {MoneyEl(dungeon.cost)})</span> : null}</span>)
+        if (dungeon.hasBeenCompleted) {
+          el.classList.add('campaign-completed-dungeon')
+        }
+
+        this.addTooltip(el, <span> Travel to {key}{dungeon.cost ? <span> (Travel cost {MoneyEl(dungeon.cost)})</span> : null}{dungeon.hasBeenCompleted && ' (Completed)'}</span>)
         this.dungeonsEl.appendChild(el)
       }
     }

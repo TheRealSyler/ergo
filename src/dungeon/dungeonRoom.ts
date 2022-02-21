@@ -6,7 +6,7 @@ import { RoomDoorName } from './doors';
 import { DungeonDir } from './dungeon';
 import { RoomItemNames } from './dungeonRoomItem';
 
-export type DungeonDoor<Rooms extends string> = { type: 'exit'; asset: RoomDoorName } | { type: 'room'; roomId: Rooms; asset: RoomDoorName };
+export type DungeonDoor<Rooms extends string> = { type: 'exit' | 'exit-completed'; asset: RoomDoorName } | { type: 'room'; roomId: Rooms; asset: RoomDoorName };
 
 export interface RoomItemInfo {
   asset: RoomItemNames

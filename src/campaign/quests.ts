@@ -1,46 +1,50 @@
 import { QuestItemNames } from '../character/items';
 import { Inventory } from '../ui/inventoryUI';
-import { TownName } from './campaign';
+import { TownName, Towns } from './campaign';
 import { Town1Dungeons } from './town1';
 import { Town2Dungeons } from './town2';
 
-export type Quest<TownName, QuestName, Locations> = {
+
+export type Quest<TownName, Locations> = {
   reward: {
     unlockTown?: TownName
-    unlockQuest?: QuestName
+    unlockQuest?: CampaignQuestNames | CampaignQuestNames[]
     money?: number
     loot?: Inventory
   }
   location?: Locations
   objective: {
     travelToTown?: TownName,
-    getItem?: QuestItemNames
+    getItem?: QuestItemNames,
+    completeDungeon?: CompleteDungeon<Towns, keyof Towns>,
   },
   description: string
 }
 
+class CompleteDungeon<A extends Towns, K extends keyof A> {
+  constructor(public town: K, public dungeon: A[K]) { }
+}
 
-export type MainQuestNames = 'GetBanditBounty' | 'ExploreRuins'
+export type CampaignQuestNames = 'GetBanditBounty' | 'ExploreRuins'
 export type QuestLocations = Town1Dungeons | Town2Dungeons
 
-export type MainQuests = Record<MainQuestNames, Quest<TownName, MainQuestNames, QuestLocations>>;
+export type MainQuests = Record<CampaignQuestNames, Quest<TownName, QuestLocations>>;
 
-export const MAIN_QUESTS: MainQuests = {
+export const CAMPAIGN_QUESTS: MainQuests = {
   GetBanditBounty: {
     objective: {
       getItem: 'BanditBounty',
     },
     reward: {
       money: 1000,
-      unlockQuest: 'ExploreRuins',
-      unlockTown: 'camera_2'
+      unlockQuest: 'ExploreRuins'
     },
     location: 'Bandit Camp',
     description: 'Go to the bandit camp and get the bounty.'
   },
   ExploreRuins: {
     objective: {
-      // TODO
+      completeDungeon: new CompleteDungeon('camera_1', 'Ruins')
     },
     reward: {
       unlockTown: 'camera_2'
