@@ -14,7 +14,7 @@ export class QuestUI {
     MAIN_UI_ELEMENT.appendChild(this.mainEl)
     if (this.campaign.quest.main) {
       const questInfo = MAIN_QUESTS[this.campaign.quest.main]
-      this.mainEl.textContent = `Quest: ${this.campaign.quest.main} Objective: item ${questInfo.objective.getItem} travel ${questInfo.objective.travelToTown}`
+      this.mainEl.textContent = `[${this.campaign.quest.main}] ${questInfo.description}`
     }
   }
   hide() {
