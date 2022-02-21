@@ -88,6 +88,7 @@ export class Campaign extends Renderer implements DungeonParent {
     }
     this.character.money -= this.towns[newTown].travelCost
     this.ui.hide()
+    this.ui.tooltip.setPos({ x: -10000, y: -1000 }) // to hide the tooltip.
     this.currentTown = newTown
     this.isAnimatingCamera = true
     const newCamera = this.cameras[newTown]!;

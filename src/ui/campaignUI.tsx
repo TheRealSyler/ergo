@@ -7,7 +7,7 @@ import { MAIN_UI_ELEMENT } from './ui'
 
 export class campaignUI {
   private townsEl = <div className="campaign-towns"></div>
-  private tooltip = new TooltipComponent()
+  public tooltip = new TooltipComponent()
   private townElId = 'campaign-town-'
   private selectedTownEl?: HTMLElement | null
   private dungeonsEl = <div className="campaign-list"></div>
@@ -31,7 +31,6 @@ export class campaignUI {
   constructor(private campaign: Campaign) { }
 
   show() {
-    this.tooltip.hide()
     this.enabled = true
     MAIN_UI_ELEMENT.textContent = ''
     MAIN_UI_ELEMENT.appendChild(this.mainEl)
@@ -97,6 +96,7 @@ export class campaignUI {
     this.mainEl.classList.remove('campaign-hide')
   }
   hide() {
+    this.tooltip.hide()
     this.enabled = false
     this.mainEl.classList.add('campaign-hide')
     this.mainEl.classList.remove('campaign-show')
