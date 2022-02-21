@@ -2,7 +2,7 @@ import { h } from 'dom-chef'
 import { MAIN_UI_ELEMENT } from './ui'
 
 import './inventoryUI.sass'
-import { ItemName, ITEMS, ITEM_TYPES } from '../character/items'
+import { ItemName, ITEMS, ItemWithStatChange, ITEM_TYPES } from '../character/items'
 import { Character } from '../character/character'
 import { getKeybinding, getKeybindingUI } from '../keybindings'
 import { CharacterStats, FLIPPED_STAT_SIGN, updateStatsWithItem, useConsumable } from '../character/stats'
@@ -557,32 +557,23 @@ export class InventoryUI {
           elements.push(<span ><span>Heal: </span> {StatEl(`${health === 'Full' ? health : `+${health}%`}`, true)}</span>)
         }
       } else {
-        for (const key in itemInfo.statChanges) {
-          if (Object.prototype.hasOwnProperty.call(itemInfo.statChanges, key)) {
-            const change = itemInfo.statChanges[key as keyof typeof itemInfo.statChanges]
+        this.addItemInfoToTooltip(itemInfo, elements)
 
-            if (typeof change === 'number') {
-              const changeType = change >= 0
-              let changeTypeClass = change >= 0
-              if (FLIPPED_STAT_SIGN[key as keyof typeof itemInfo.statChanges]) {
-                changeTypeClass = !changeType
+        if (slotInfo.type === 'inventory' || slotInfo.type === 'loot') {
+          for (const key in ITEM_TYPES) {
+            if (Object.prototype.hasOwnProperty.call(ITEM_TYPES, key)) {
+              const target = document.getElementById(`${this.characterItemId}${key}`)
+              if (target && itemInfo.type === key) {
+                const charItem = this.character.items[key]
+                if (charItem) {
+                  elements.push(<span style={{ textAlign: 'center' }}>Equipped Item</span>)
+                  this.addItemInfoToTooltip(ITEMS[charItem] as ItemWithStatChange, elements)
+                }
               }
-              elements.push(<div className="inventory-stat">
-                <span>{key}:</span>
-                {StatEl(this.statSign(change, changeType), changeTypeClass)}
-              </div>)
-            } else if (change) {
-              const typeMin = change.min > 0
-              const typeMax = change.max > 0
-              elements.push(<div className="inventory-stat">
-                <span>{key}:</span>
-                <span>{StatEl(this.statSign(change.min, typeMin), typeMin)} - {StatEl(this.statSign(change.max, typeMax), typeMax)}</span>
-              </div>)
             }
           }
         }
       }
-
 
       this.tooltip.show(
         <div className="inventory-tooltip">
@@ -590,6 +581,33 @@ export class InventoryUI {
         </div>,
         { x: bounds.x + bounds.width / 2, y: bounds.y + bounds.height + 4 }
       )
+    }
+  }
+
+  private addItemInfoToTooltip(itemInfo: ItemWithStatChange, elements: HTMLElement[]) {
+    for (const key in itemInfo.statChanges) {
+      if (Object.prototype.hasOwnProperty.call(itemInfo.statChanges, key)) {
+        const change = itemInfo.statChanges[key as keyof typeof itemInfo.statChanges]
+
+        if (typeof change === 'number') {
+          const changeType = change >= 0
+          let changeTypeClass = change >= 0
+          if (FLIPPED_STAT_SIGN[key as keyof typeof itemInfo.statChanges]) {
+            changeTypeClass = !changeType
+          }
+          elements.push(<div className="inventory-stat">
+            <span>{key}:</span>
+            {StatEl(this.statSign(change, changeType), changeTypeClass)}
+          </div>)
+        } else if (change) {
+          const typeMin = change.min > 0
+          const typeMax = change.max > 0
+          elements.push(<div className="inventory-stat">
+            <span>{key}:</span>
+            <span>{StatEl(this.statSign(change.min, typeMin), typeMin)} - {StatEl(this.statSign(change.max, typeMax), typeMax)}</span>
+          </div>)
+        }
+      }
     }
   }
 
