@@ -20,6 +20,8 @@ import { Inventory, InventoryUI } from '../ui/inventoryUI';
 import { getKeybinding, getKeybindingUI } from '../keybindings';
 import { ItemName } from '../character/items';
 import { CharacterStats } from '../character/stats';
+import { PauseMenuUI } from '../ui/pauseMenu';
+import { OptionsUI } from '../ui/optionsUI';
 
 
 export interface DungeonParent extends Renderer {
@@ -79,9 +81,10 @@ export class Dungeon<Rooms extends string> {
   private currentRoom: DungeonRoom<Rooms>
 
   private ui = new DungeonUI()
-
+  private pauseMenu = new PauseMenuUI()
+  private isPauseMenuVisible = false
   private rooms: DungeonRooms<Rooms>
-  constructor(dungeonInfo: DungeonInfo<Rooms>, private parent: DungeonParent, private onLoad: () => void, private onExit: () => void) {
+  constructor(dungeonInfo: DungeonInfo<Rooms>, private parent: DungeonParent, private onLoad: (() => void) | false, private onExit: () => void, private goToMainMenu: () => void, private runOption = false) {
     this.rooms = dungeonInfo.rooms;
     this.currentRoom = this.rooms[dungeonInfo.firstRoom]
     this.load(this.rooms[dungeonInfo.firstRoom], dungeonInfo.entryDir);
@@ -106,6 +109,11 @@ export class Dungeon<Rooms extends string> {
     this.controls.dispose()
     this.removeListeners()
     this.onExit()
+  }
+  /**exits the dungeon with low health */
+  private run = () => {
+    this.parent.stats.health = this.parent.stats.maxHealth * 0.1
+    this.exit()
   }
 
   private async load(dungeonRoom: DungeonRoom<Rooms>, dir: DungeonDir) {
@@ -149,10 +157,7 @@ export class Dungeon<Rooms extends string> {
       this.fightCon = new FightController(players, ui, 'player1', this.parent, {
         exitToMainMenu: () => { console.log('TODO exit to main menu') },
         showInventoryInMenu: () => { this.parent.inventoryUI.toggle() },
-        run: () => {
-          this.parent.stats.health = this.parent.stats.maxHealth * 0.1
-          this.exit()
-        },
+        run: this.runOption ? this.run.bind(this) : undefined,
         customEndScreen: async (victory, dispose, endScreen) => {
           if (victory) {
             victoryOrLossUI(victory)
@@ -188,7 +193,7 @@ export class Dungeon<Rooms extends string> {
         }
       })
     }
-    this.onLoad()
+    this.onLoad && this.onLoad();
   }
 
   private extractRoomItemPromisees(dungeonRoom: DungeonRoom<Rooms>, loader: GLTFLoader) {
@@ -387,15 +392,15 @@ export class Dungeon<Rooms extends string> {
   }
 
   private click = () => {
-    if (!this.fightCon && !this.parent.inventoryUI.visible) {
+    if (!this.fightCon && !this.parent.inventoryUI.visible && !this.isPauseMenuVisible) {
       this.controls.lock();
     }
   }
 
   private keydown = (e: KeyboardEvent) => {
-    if (!this.fightCon) {
-      e.preventDefault()
+    if (!this.fightCon && !this.isPauseMenuVisible) {
       if (e.key.toUpperCase() === getKeybinding('Inventory', 'ToggleInventory')) {
+        e.preventDefault()
         if (this.parent.inventoryUI.visible) {
           this.parent.inventoryUI.hide()
           this.controls.lock()
@@ -408,6 +413,10 @@ export class Dungeon<Rooms extends string> {
       if (this.parent.inventoryUI.visible) return;
 
       switch (e.key.toUpperCase()) {
+        case getKeybinding('Dungeon', 'PauseMenu'):
+          this.controls.unlock()
+          this.showPauseMenu();
+          break;
         case getKeybinding('Dungeon', 'MoveForward'):
           this.keys.forward = true;
           break;
@@ -444,6 +453,23 @@ export class Dungeon<Rooms extends string> {
         this.keys.right = false;
         break;
     }
+  }
+
+  private showPauseMenu() {
+    this.isPauseMenuVisible = true
+    this.pauseMenu.show({
+      mainMenu: () => {
+        this.exit()
+        this.goToMainMenu()
+      },
+      options: OptionsUI,
+      run: this.runOption ? this.run.bind(this) : undefined,
+      resume: () => {
+        this.ui.show()
+        this.controls.lock()
+        this.isPauseMenuVisible = false
+      }
+    });
   }
 
   private areItemsEmpty(items: Inventory['items']) {

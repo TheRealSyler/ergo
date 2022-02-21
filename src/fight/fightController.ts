@@ -15,6 +15,8 @@ import { Renderer } from '../renderer';
 import { checkAiDifficulty } from '../character/stats';
 import { AttackAnimations, BlockAnimations } from '../animation/types';
 import { OptionsUI } from '../ui/optionsUI';
+import { PauseMenuUI } from '../ui/pauseMenu';
+import { getKeybinding } from '../keybindings';
 
 type AttackResult = 'hit' | 'not_hit' | 'blocked';
 
@@ -36,7 +38,7 @@ export class FightController {
   private paused = false;
   private isInEndScreen = false;
   private lookAtPoint = new Vector3(0, 1, 0)
-
+  private pauseUI = new PauseMenuUI()
   constructor(private players: Record<Player, CharacterController>, public ui: FightUI, private humanPlayer: Player, private renderer: Renderer, private options: FightControllerOptions) {
 
     this.setPlayerPositions();
@@ -107,11 +109,10 @@ export class FightController {
 
   private exit() {
     this.dispose()
-    this.options.exitToMainMenu()
   }
 
   private keyListener = (e: KeyboardEvent) => {
-    if (e.key === 'Escape' && !this.isInEndScreen) { // TODO add keybindings
+    if (e.key.toUpperCase() === getKeybinding('Fight', 'PauseMenu') && !this.isInEndScreen) { // TODO add keybindings
       if (this.paused) {
         this.unpause();
         this.ui.HUD()
@@ -120,11 +121,14 @@ export class FightController {
         this.players.player1.pause()
         this.players.player2.pause()
         this.renderer.pause()
-        this.ui.menu({
-          mainMenu: this.exit.bind(this),
-          restart: this.restartFight.bind(this),
+        this.pauseUI.show({
+          mainMenu: () => {
+            this.exit.bind(this)
+            this.options.exitToMainMenu()
+          },
           options: OptionsUI,
           run: this.options.run,
+          restart: this.restartFight.bind(this),
           resume: () => {
             this.unpause()
             this.ui.HUD()
@@ -147,11 +151,14 @@ export class FightController {
     this.isInEndScreen = true
     this.players.player1.pause()
     this.players.player2.pause()
-    const endScreenMenu = () => this.ui.menu({
-      mainMenu: this.exit.bind(this),
+    const endScreenMenu = () => this.pauseUI.show({
+      mainMenu: () => {
+        this.exit.bind(this)
+        this.options.exitToMainMenu()
+      },
+      options: OptionsUI,
       inventory: this.options.showInventoryInMenu,
       run: this.options.run,
-      options: OptionsUI,
       restart: this.restartFight.bind(this)
     });
 

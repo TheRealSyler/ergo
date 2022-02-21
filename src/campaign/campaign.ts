@@ -77,7 +77,6 @@ export class Campaign extends Renderer implements DungeonParent {
   constructor() {
     super();
     this.load()
-    window.addEventListener('keydown', this.keydown)
 
   }
 
@@ -173,11 +172,12 @@ export class Campaign extends Renderer implements DungeonParent {
     }
 
     this.updateRenderer(0)
-
+    window.addEventListener('keydown', this.keydown)
+    this.questUI.show()
   }
 
   private exit() {
-    // TODO exit to main menu
+
     window.removeEventListener('keydown', this.keydown)
     this.disposeRenderer();
   }
@@ -193,13 +193,15 @@ export class Campaign extends Renderer implements DungeonParent {
     const savedCamera = this.camera;
     this.scene = new Scene()
     this.camera = new PerspectiveCamera(90, window.innerWidth / window.innerHeight, 0.01, 1000)
-    this.dungeon = new Dungeon(dungeonInfo, this, () => { }, () => {
+    this.dungeon = new Dungeon(dungeonInfo, this, false, () => {
       this.scene = savedScene
       this.camera = savedCamera
       this.dungeon = undefined
       this.updateRenderer(0)
       this.ui.show()
-    })
+    }, () => this.exit.bind(this),
+      true
+    )
 
   }
 

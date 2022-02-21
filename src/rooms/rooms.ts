@@ -1,6 +1,6 @@
-import { EquirectangularReflectionMapping, Group, LoadingManager, Object3D, sRGBEncoding, Texture, TextureLoader } from 'three';
+import { EquirectangularReflectionMapping, Group, LoadingManager, Object3D, PointLight, sRGBEncoding, Texture, TextureLoader } from 'three';
 
-import test from '../assets/rooms/test.glb'
+import test from '../assets/untitled.glb'
 import test2 from '../assets/rooms/room_test2.glb'
 import test3 from '../assets/rooms/room_test3.glb'
 import awd from '../assets/rooms/awd.jpg'
@@ -55,14 +55,14 @@ export async function loadRoom(room: RoomNames, manager: LoadingManager, gltfLoa
         textureEquirectangular.mapping = EquirectangularReflectionMapping;
         textureEquirectangular.encoding = sRGBEncoding;
 
-        // let light = new DirectionalLight(0xFFFFFF, 0.4);
-        // light.position.set(-5, 5, 0);
+        let light = new PointLight(0xFFFFFF, 4);
+        light.position.set(0, 4, 0);
         // light.target.position.set(0, 0, 0);
-        // light.castShadow = true;
-        // light.shadow.mapSize.width = 1024 * 4
-        // light.shadow.mapSize.height = 1024 * 4
-        // light.shadow.radius = 2
-        // group.add(light);
+        light.castShadow = true;
+        light.shadow.mapSize.width = 1024 * 4
+        light.shadow.mapSize.height = 1024 * 4
+        light.shadow.radius = 2
+        group.add(light);
 
 
         return {
