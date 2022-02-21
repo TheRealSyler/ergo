@@ -15,7 +15,8 @@ export type Quest<TownName, QuestName, Locations> = {
   objective: {
     travelToTown?: TownName,
     getItem?: QuestItemNames
-  }
+  },
+  description: string
 }
 
 
@@ -34,7 +35,8 @@ export const MAIN_QUESTS: MainQuests = {
       unlockQuest: 'ExploreRuins',
       unlockTown: 'camera_2'
     },
-    location: 'Bandit Camp'
+    location: 'Bandit Camp',
+    description: 'Go to the bandit camp and get the bounty.'
   },
   ExploreRuins: {
     objective: {
@@ -42,6 +44,7 @@ export const MAIN_QUESTS: MainQuests = {
     },
     reward: {
       unlockTown: 'camera_2'
-    }
+    },
+    description: 'AWD'
   }
 }
