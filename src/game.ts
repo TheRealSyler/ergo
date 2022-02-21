@@ -19,8 +19,8 @@ export class Game {
   constructor() {
     // OptionsUI()
     new Campaign()
-    // new StandaloneDungeon({
-    //   rooms: rooms,
+    // new StandaloneDungeon(this, {
+    //   rooms: { awd: { fight: { char: createCharacter() }, doors: {}, name: 'test', objectInfos: [] } },
     //   entryDir: 'north',
     //   firstRoom: 'awd'
     // })

@@ -8,21 +8,26 @@ import awd from '../assets/campaign/hdri.jpg'
 import { lerp } from 'three/src/math/MathUtils';
 import { campaignUI } from '../ui/campaignUI';
 import { Dungeon, DungeonInfo, DungeonParent } from '../dungeon/dungeon';
-import { town1 } from './town1';
-import { town2 } from './town2';
-import { town4 } from './town4';
-import { town3 } from './town3';
+import { town1, Town1Dungeons } from './town1';
+import { town2, Town2Dungeons } from './town2';
+import { town4, Town4Dungeons } from './town4';
+import { town3, Town3Dungeons } from './town3';
 import { Inventory, InventoryUI } from '../ui/inventoryUI';
 import { Character, createCharacter } from '../character/character';
 import { createStats } from '../character/stats';
 import { ItemName } from '../character/items';
 import { getKeybinding } from '../keybindings';
-import { MainQuestNames, Quest } from './quests';
+import { CampaignQuestNames, Quest } from './quests';
 import { QuestBoardUI } from '../ui/questBoard';
-import { QuestUI } from '../ui/questUI';
 
+export interface Towns {
+  'camera_1': Town1Dungeons
+  'camera_2': Town2Dungeons
+  'camera_3': Town3Dungeons
+  'camera_4': Town4Dungeons
+}
 
-export type TownName = 'camera_1' | 'camera_2' | 'camera_3' | 'camera_4'
+export type TownName = keyof Towns
 
 export interface Shop {
   name: string,
@@ -35,7 +40,8 @@ export type Town<D extends string> = {
   dungeons: Record<D, DungeonInfo<any>>
   shops: Shop[]
   travelCost: number,
-  isUnlocked: boolean
+  isUnlocked: boolean,
+  hasBeenVisited: boolean, // TODO update this when changing town.
 }
 
 export class Campaign extends Renderer implements DungeonParent {
@@ -56,20 +62,14 @@ export class Campaign extends Renderer implements DungeonParent {
     camera_4: town4,
   }
   inventory: Inventory = {
-    items: [],
+    items: ['BanditBounty'],
     size: 12
   }
-  character: Character = createCharacter({ items: { weapon: 'BasicSword' } })
+  character: Character = createCharacter({ items: { weapon: 'BasicSword' }, money: 20000 })
   stats = createStats(this.character)
-  quest: {
-    main?: MainQuestNames,
-    // side: []
-  } = {
-      main: 'GetBanditBounty'
-    }
+  quests: CampaignQuestNames[] = ['GetBanditBounty', 'GetBanditBounty']
 
   questBoardUI = new QuestBoardUI(this)
-  questUI = new QuestUI(this)
   inventoryUI = new InventoryUI(this.inventory, this.character, this.stats)
 
   ui = new campaignUI(this)
@@ -173,7 +173,7 @@ export class Campaign extends Renderer implements DungeonParent {
 
     this.updateRenderer(0)
     window.addEventListener('keydown', this.keydown)
-    this.questUI.show()
+
   }
 
   private exit() {
@@ -198,6 +198,7 @@ export class Campaign extends Renderer implements DungeonParent {
       this.camera = savedCamera
       this.dungeon = undefined
       this.updateRenderer(0)
+      this.unpause()
       this.ui.show()
     }, () => this.exit.bind(this),
       true
@@ -211,9 +212,10 @@ export class Campaign extends Renderer implements DungeonParent {
     }
   }
 
-  checkQuest(quest: Quest<TownName, any, any>): Record<keyof Quest<TownName, any, any>['objective'] | 'canBeCompleted', boolean> {
+  checkQuest(quest: Quest<TownName, any>): Record<keyof Quest<TownName, any>['objective'] | 'canBeCompleted', boolean> {
     let hasItem = false
-    let hasTraveledTo = false
+    let hasTraveledToTown = false
+    let hasCompletedDungeon = false
     let canBeCompleted = true
     if (quest.objective.getItem) {
       for (let i = 0; i < this.inventory.items.length; i++) {
@@ -227,21 +229,36 @@ export class Campaign extends Renderer implements DungeonParent {
         canBeCompleted = false
       }
     }
-    // TODO add travel check
-    if (!hasTraveledTo) {
-      // canBeCompleted = false
+    const town = quest.objective.travelToTown;
+    if (town) {
+      if (this.towns[town].hasBeenVisited) {
+        hasTraveledToTown = true
+      } else {
+        canBeCompleted = false
+      }
     }
-    return { getItem: hasItem, canBeCompleted, travelToTown: hasTraveledTo }
+    const completeDungeon = quest.objective.completeDungeon;
+    if (completeDungeon) {
+      if (this.towns[completeDungeon.town].dungeons[completeDungeon.dungeon].hasBeenCompleted) {
+        hasCompletedDungeon = true
+      } else {
+        canBeCompleted = false
+      }
+    }
+    return { getItem: hasItem, canBeCompleted, travelToTown: hasTraveledToTown, completeDungeon: hasCompletedDungeon }
   }
 
-  completeQuest(quest: Quest<TownName, any, any>, questName: string, isMain: boolean) {
+  completeQuest(quest: Quest<TownName, any>, completedQuestName: string) {
     if (this.checkQuest(quest).canBeCompleted) {
-      if (isMain) {
-        this.quest.main = quest.reward.unlockQuest as MainQuestNames
-      }
-      if (quest.reward.unlockQuest) {
-        // TODO
+      this.quests = this.quests.filter((quest) => quest != completedQuestName)
 
+      const unlockedQuests = quest.reward.unlockQuest
+      if (unlockedQuests) {
+        if (typeof unlockedQuests === 'string') {
+          this.quests.push(unlockedQuests)
+        } else {
+          this.quests.push(...unlockedQuests)
+        }
       }
 
       if (quest.objective.getItem) {
@@ -261,14 +278,16 @@ export class Campaign extends Renderer implements DungeonParent {
         this.towns[quest.reward.unlockTown].isUnlocked = true
         this.ui.show()
       }
+
       if (quest.reward.loot) {
-        this.inventoryUI.show({ name: `${questName} Reward`, inventory: quest.reward.loot })
+        this.inventoryUI.show({ name: `${completedQuestName} Reward`, inventory: quest.reward.loot }, () => this.questBoardUI.show())
         this.questBoardUI.hide()
 
       } else {
         this.questBoardUI.show()
-        this.questUI.show()
       }
+
+
     } else {
       // TODO add ui hint
       console.log('TODO add hint that quest could not be completed.')

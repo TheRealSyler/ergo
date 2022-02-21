@@ -15,7 +15,7 @@ import { Renderer } from '../renderer';
 import { checkAiDifficulty } from '../character/stats';
 import { AttackAnimations, BlockAnimations } from '../animation/types';
 import { OptionsUI } from '../ui/optionsUI';
-import { PauseMenuUI } from '../ui/pauseMenu';
+import { PauseMenuUI } from '../ui/pauseMenuUI';
 import { getKeybinding } from '../keybindings';
 
 type AttackResult = 'hit' | 'not_hit' | 'blocked';
@@ -29,7 +29,7 @@ export const BLOCK_DIRECTIONS: Record<AttackAnimations, BlockAnimations> = {
 
 export interface FightControllerOptions {
   customEndScreen?: (victory: boolean, dispose: () => void, endScreen: () => void) => void
-  showInventoryInMenu?: () => void,
+  showInventoryInMenu?: (addPauseMenuListeners: () => void) => void,
   exitToMainMenu: () => void;
   run?: () => void
 }
@@ -112,7 +112,7 @@ export class FightController {
   }
 
   private keyListener = (e: KeyboardEvent) => {
-    if (e.key.toUpperCase() === getKeybinding('Fight', 'PauseMenu') && !this.isInEndScreen) { // TODO add keybindings
+    if (e.key.toUpperCase() === getKeybinding('Fight', 'PauseMenu') && !this.isInEndScreen) {
       if (this.paused) {
         this.unpause();
         this.ui.HUD()
