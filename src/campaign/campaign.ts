@@ -14,7 +14,7 @@ import { town4, Town4Dungeons } from './town4';
 import { town3, Town3Dungeons } from './town3';
 import { Inventory, InventoryUI } from '../ui/inventoryUI';
 import { Character, createCharacter } from '../character/character';
-import { createStats } from '../character/stats';
+import { createStats, LevelCharacter } from '../character/stats';
 import { ItemName } from '../character/items';
 import { getKeybinding } from '../keybindings';
 import { CampaignQuestNames, Quest } from './quests';
@@ -62,12 +62,12 @@ export class Campaign extends Renderer implements DungeonParent {
     camera_4: town4,
   }
   inventory: Inventory = {
-    items: ['BanditBounty'],
+    items: ['BanditBounty', 'Axe', 'Scroll', 'Scroll'],
     size: 12
   }
   character: Character = createCharacter({ items: { weapon: 'BasicSword' }, money: 20000 })
   stats = createStats(this.character)
-  quests: CampaignQuestNames[] = ['GetBanditBounty', 'GetBanditBounty']
+  quests: CampaignQuestNames[] = ['GetBanditBounty']
 
   questBoardUI = new QuestBoardUI(this)
   inventoryUI = new InventoryUI(this.inventory, this.character, this.stats)
@@ -174,7 +174,7 @@ export class Campaign extends Renderer implements DungeonParent {
 
     this.updateRenderer(0)
     window.addEventListener('keydown', this.keydown)
-
+    this.inventoryUI.show()
   }
 
   private exit() {
@@ -277,8 +277,10 @@ export class Campaign extends Renderer implements DungeonParent {
       }
       if (quest.reward.unlockTown) {
         this.towns[quest.reward.unlockTown].isUnlocked = true
-        this.ui.show()
+        // TODO add ui hint.
       }
+
+      LevelCharacter(this.character, this.stats, quest.reward.exp)
 
       if (quest.reward.loot) {
         this.inventoryUI.show({ name: `${completedQuestName} Reward`, inventory: quest.reward.loot }, () => this.questBoardUI.show())

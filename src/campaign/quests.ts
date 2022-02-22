@@ -1,3 +1,4 @@
+import { expGainAtLevel } from '../character/character';
 import { QuestItemNames } from '../character/items';
 import { Inventory } from '../ui/inventoryUI';
 import { TownName, Towns } from './campaign';
@@ -11,6 +12,7 @@ export type Quest<TownName, Locations> = {
     unlockQuest?: CampaignQuestNames | CampaignQuestNames[]
     money?: number
     loot?: Inventory
+    exp: number
   }
   location?: Locations
   objective: {
@@ -37,7 +39,8 @@ export const CAMPAIGN_QUESTS: MainQuests = {
     },
     reward: {
       money: 1000,
-      unlockQuest: 'ExploreRuins'
+      unlockQuest: 'ExploreRuins',
+      exp: expGainAtLevel(10)
     },
     location: 'Bandit Camp',
     description: 'Go to the bandit camp and get the bounty.'
@@ -47,7 +50,8 @@ export const CAMPAIGN_QUESTS: MainQuests = {
       completeDungeon: new CompleteDungeon('camera_1', 'Ruins')
     },
     reward: {
-      unlockTown: 'camera_2'
+      unlockTown: 'camera_2',
+      exp: expGainAtLevel(2)
     },
     description: 'AWD'
   }

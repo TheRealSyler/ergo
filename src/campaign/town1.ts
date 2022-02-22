@@ -13,7 +13,7 @@ const banditCamp: DungeonInfo<'Entry' | 'Room 1' | 'Room 2' | 'Room 3'> = {
         north: { type: 'room', roomId: 'Room 1', asset: 'basic' },
         south: { type: 'exit', asset: 'basic' }
       },
-      fight: { char: createCharacter({ money: 500, class: 'base', skills: { Evasion: true } }), loot: { items: ['BanditBounty'] } },
+      fight: { char: createCharacter({ money: 500, class: 'base' }), loot: { items: ['BanditBounty'] } },
       name: 'test',
       objectInfos: []
     },
@@ -30,7 +30,7 @@ const banditCamp: DungeonInfo<'Entry' | 'Room 1' | 'Room 2' | 'Room 3'> = {
     'Room 3': {
       doors: { south: { type: 'room', asset: 'basic', roomId: 'Room 2' }, north: { type: 'exit-completed', asset: 'basic' } },
       name: 'basic', objectInfos: [],
-      // fight: { char: createCharacter({ items: { gloves: 'BasicGloves', weapon: 'Axe', armor: 'BasicArmor' }, money: 500, class: 'awd2', skills: { Evasion: true } }), loot: { items: ['BanditBounty'] } }
+      // fight: { char: createCharacter({ items: { gloves: 'BasicGloves', weapon: 'Axe', armor: 'BasicArmor' }, money: 500, class: 'awd2'}), loot: { items: ['BanditBounty'] } }
     }
   }
 }
