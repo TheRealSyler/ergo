@@ -17,6 +17,7 @@ export interface CharacterStats {
   attackSpeed: number
   dodgeSpeed: number
   hitTime: number
+  attackStunTime: number
   staminaRegenRate: number
   attackStaminaCost: number
   dodgeStaminaCost: number
@@ -47,6 +48,7 @@ const BASE_STATS: CharacterStats = {
   aiUseDodge: 0.5,
   aiTimeToAttack: NumberRange(0.5, 1.5),
   hitTime: 1.5,
+  attackStunTime: 1,
   staminaRegenRate: 5,
   attackStaminaCost: 5,
   dodgeStaminaCost: 1,

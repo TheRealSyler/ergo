@@ -243,7 +243,8 @@ export class FightController {
         break;
       case 'blocked':
         this.players[attacker].stats.stamina = Math.max(0, this.players[attacker].stats.stamina - (this.players[attacker].stats.maxStamina * 0.4))
-        this.players[attacker].stateMachine.SetState('hit')
+        this.players[attacker].stance = { type: 'stunned', time: this.players[defender].stats.attackStunTime }
+        this.players[attacker].stateMachine.SetState('stunned')
         this.players[defender].stateMachine.SetState('idle')
         break;
     }
@@ -283,6 +284,8 @@ export class FightController {
       if (defender.blockProgress === 'active' && BLOCK_DIRECTIONS[attacker.attackDirection] === defender.blockDirection) {
         return 'blocked';
       }
+      return 'hit'
+    } else if (defender.type === 'stunned') {
       return 'hit'
     }
     return 'not_hit';

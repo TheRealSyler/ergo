@@ -14,8 +14,9 @@ import { FightUI } from '../ui/fightUI';
 import { LoadedCharacter } from './loadCharacter';
 import { CharacterStats, createStats } from './stats';
 import { BlockState } from '../animation/blockState';
+import { StunnedState } from '../animation/stunnedState';
 
-export type CharStance = DodgeStance | AttackStance | IdleStance | HitStance | EndStance | BlockStance
+export type CharStance = DodgeStance | AttackStance | IdleStance | HitStance | EndStance | BlockStance | StunnedStance
 
 export interface DodgeStance {
   type: 'dodge',
@@ -33,6 +34,10 @@ export interface IdleStance {
 }
 export interface HitStance {
   type: 'hit'
+}
+export interface StunnedStance {
+  type: 'stunned',
+  time: number
 }
 export interface BlockStance {
   type: 'block'
@@ -89,6 +94,7 @@ export class CharacterController {
       block_right: new BlockState('block_right', this),
       block_left: new BlockState('block_left', this),
       block_up: new BlockState('block_up', this),
+      stunned: new StunnedState(this)
     });
     this.stateMachine.SetState('idle')
   }

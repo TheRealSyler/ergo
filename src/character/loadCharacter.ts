@@ -84,6 +84,7 @@ export async function loadCharacter(loader: GLTFLoader, character: Character): P
     block_left: addAndValidateAnimation('block_left', animationsMesh, mixer)!,
     block_right: addAndValidateAnimation('block_right', animationsMesh, mixer)!,
     block_up: addAndValidateAnimation('block_up', animationsMesh, mixer)!,
+    stunned: addAndValidateAnimation('stunned', animationsMesh, mixer)!,
   }
 
   return {

@@ -177,6 +177,9 @@ export class InventoryUI {
         switch (key as keyof CharacterStats) {
           case 'aiDodgeChance':
           case 'aiTimeToAttack':
+          case 'aiBlockChance':
+          case 'aiUseDodge':
+          case 'hitTime':
           case 'health':
           case 'stamina':
           case 'maxHealth':
