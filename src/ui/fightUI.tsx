@@ -5,18 +5,17 @@ import { MAIN_UI_ELEMENT } from './ui'
 
 import './fightUI.sass'
 import { Player } from '../game'
-import { BarComponent } from './barComponent'
-import { getKeybinding, getKeybindingUI } from '../keybindings'
+import { BarComponent, BAR_COLORS } from './barComponent'
 import { Difficulty } from '../character/stats'
 
 export class FightUI {
   private health: Record<Player, BarComponent> = {
-    player1: new BarComponent('health', 0),
-    player2: new BarComponent('health', 0)
+    player1: new BarComponent(BAR_COLORS.health, 0),
+    player2: new BarComponent(BAR_COLORS.health, 0)
   }
   private stamina: Record<Player, BarComponent> = {
-    player1: new BarComponent('stamina', 0),
-    player2: new BarComponent('stamina', 0)
+    player1: new BarComponent(BAR_COLORS.stamina, 0),
+    player2: new BarComponent(BAR_COLORS.stamina, 0)
   }
   private difficultyEL = <span className="fixed fight-difficulty" ></span>
   private fightStartTextEL = <span ></span>
