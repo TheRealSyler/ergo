@@ -10,7 +10,7 @@ import { toFixedIfNotZero } from '../utils'
 import { BarComponent, BAR_COLORS } from './barComponent'
 import { Shop } from '../campaign/campaign'
 import { TooltipComponent } from './tooltipComponent'
-import { LevelEl, MoneyEl, StatEl } from './components'
+import { ColorText, StatEl } from './components'
 
 export interface Inventory {
   items: (ItemName | undefined)[],
@@ -151,15 +151,15 @@ export class InventoryUI {
 
   private updateMoney() {
     this.charMoneyEl.textContent = ''
-    this.charMoneyEl.appendChild(MoneyEl(this.character.money))
+    this.charMoneyEl.appendChild(ColorText(this.character.money, 'Money'))
     if (this.shop) {
       this.shopMoneyEl.textContent = ''
-      this.shopMoneyEl.appendChild(MoneyEl(this.shop.money))
+      this.shopMoneyEl.appendChild(ColorText(this.shop.money, 'Level'))
     }
   }
   private updateLevel() {
     this.charLevelEl.textContent = ''
-    this.charLevelEl.appendChild(LevelEl(this.character.level))
+    this.charLevelEl.appendChild(ColorText(this.character.level, 'Level'))
 
   }
 
@@ -399,9 +399,9 @@ export class InventoryUI {
       const price = this.shop.prices[itemName]
       if (price) {
         if (type === 'loot') {
-          return <div className="inventory-price">{MoneyEl(price.buy)}</div>
+          return <div className="inventory-price">{ColorText(price.buy, 'Money')}</div>
         } else {
-          return <div className="inventory-price">{MoneyEl(price.sell)}</div>
+          return <div className="inventory-price">{ColorText(price.sell, 'Money')}</div>
         }
       } else {
         return <div className="inventory-price"><span className="inventory-not-for-sale">Not for sale</span></div>
@@ -568,7 +568,7 @@ export class InventoryUI {
         }
         const exp = itemInfo.effect.exp
         if (exp) {
-          elements.push(<span ><span>Gain Exp: </span> {LevelEl(`${exp === 'Level' ? `+${expGainAtLevel(this.character.level)}` : `+${exp}`}`)}</span>)
+          elements.push(<span ><span>Gain Exp: </span> {ColorText(`${exp === 'Level' ? `+${expGainAtLevel(this.character.level)}` : `+${exp}`}`, 'Level')}</span>)
         }
       } else {
         this.addItemInfoToTooltip(itemInfo, elements)

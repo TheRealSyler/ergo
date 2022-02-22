@@ -4,8 +4,9 @@ import { BaseExponent, Character, expGainAtLevel, expToNextLevel } from './chara
 import { ConsumableItem, Item, ITEMS, ItemWithStatChange } from './items';
 import { BLOCK_TIME } from '../animation/blockState';
 import { NOTIFICATIONS } from '../ui/ui';
-import { LevelEl } from '../ui/components';
 import { h } from 'dom-chef'
+import { ColorText } from '../ui/components';
+import { expGainNotification } from '../ui/notifications';
 
 export interface CharacterStats {
   aiTimeToAttack: NumberRange
@@ -105,11 +106,15 @@ export function useConsumable(character: Character, stats: CharacterStats, item:
     stats.health = Math.min(stats.maxHealth, stats.health + (stats.maxHealth * (health / 100)));
   }
   if (exp === 'Level') {
-    LevelCharacter(character, stats, expGainAtLevel(character.level))
+    const expGain = expGainAtLevel(character.level);
+    expGainNotification(expGain)
+    LevelCharacter(character, stats, expGain)
   } else if (exp) {
+    expGainNotification(exp)
     LevelCharacter(character, stats, exp)
   }
 }
+
 
 export function LevelCharacter(character: Character, stats: CharacterStats, exp: number) {
   const totalExp = character.exp + exp
@@ -121,7 +126,7 @@ export function LevelCharacter(character: Character, stats: CharacterStats, exp:
     applyLevel(character.level - 1, stats, false)
     applyLevel(character.level, stats, true)
     const remainingExp = totalExp - expToLevelUp
-    NOTIFICATIONS.Show(<span>Level UP ▲ {LevelEl(character.level)} ▲</span>)
+    NOTIFICATIONS.Show(<span>Level UP ▲ {ColorText(character.level, 'Level')} ▲</span>)
     LevelCharacter(character, stats, remainingExp)
   } else {
     character.exp = totalExp

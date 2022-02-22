@@ -1,12 +1,14 @@
 import { h } from 'dom-chef'
 import { toPx } from '../utils'
+import { JoinSpanEl, ColorText } from './components'
 import './notifications.sass'
+import { NOTIFICATIONS } from './ui'
 
 
 export class Notifications {
 
   private slots: boolean[] = []
-  async Show(text: string | HTMLElement, button?: { func: () => void, text: string | HTMLElement }, hideDelay = 4) {
+  async Show(text: string | HTMLElement, button?: { func: () => void, text: string | HTMLElement }, hideDelay = 6) {
     const height = 40
     const timeout = setTimeout(() => close(), hideDelay * 1000)
     const index = this.findFreeSlot()
@@ -30,7 +32,7 @@ export class Notifications {
           }}>{button.text}</span> : null}
 
 
-          <span className="button notification-left" onClick={close}>X</span>
+          {/* <span className="button notification-left" onClick={close}>X</span> */}
 
         </div>
 
@@ -53,4 +55,15 @@ export class Notifications {
     }
     return this.slots.length
   }
+}
+
+export function NotEnoughMoneyNotification(money: number) {
+  NOTIFICATIONS.Show(
+    JoinSpanEl(ColorText('You Don\'t have enough money, you need', 'StatNeg'),
+      JoinSpanEl(ColorText(money, 'Money'), ColorText('more.', 'StatNeg')))
+  );
+}
+
+export function expGainNotification(exp: number, from?: string | HTMLElement) {
+  NOTIFICATIONS.Show(<span>{from} {ColorText(`+${exp}`, 'Level')} Exp</span>)
 }

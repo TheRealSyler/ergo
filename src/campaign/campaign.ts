@@ -19,6 +19,9 @@ import { ItemName } from '../character/items';
 import { getKeybinding } from '../keybindings';
 import { CampaignQuestNames, Quest } from './quests';
 import { QuestBoardUI } from '../ui/questBoard';
+import { ColorText, JoinSpanEl } from '../ui/components';
+import { NOTIFICATIONS } from '../ui/ui';
+import { NotEnoughMoneyNotification, expGainNotification } from '../ui/notifications';
 
 export interface Towns {
   'camera_1': Town1Dungeons
@@ -41,7 +44,7 @@ export type Town<D extends string> = {
   shops: Shop[]
   travelCost: number,
   isUnlocked: boolean,
-  hasBeenVisited: boolean, // TODO update this when changing town.
+  hasBeenVisited: boolean,
 }
 
 export class Campaign extends Renderer implements DungeonParent {
@@ -82,11 +85,12 @@ export class Campaign extends Renderer implements DungeonParent {
 
   changeTown(newTown: TownName) {
     if (newTown === this.currentTown || this.isAnimatingCamera || !this.ui.enabled || !this.towns[newTown].isUnlocked) return
-    if (this.character.money - this.towns[newTown].travelCost < 0) {
-      console.log('You don\' have enough money to travel to', newTown)
-      return // TODO add ui hint.
+    if (!this.towns[newTown].hasBeenVisited) {
+      if (!this.SpendMoney(this.towns[newTown].travelCost)) return
+
+      this.towns[newTown].hasBeenVisited = true
     }
-    this.character.money -= this.towns[newTown].travelCost
+
     this.ui.hide()
     this.ui.tooltip.setPos({ x: -10000, y: -1000 }) // to hide the tooltip.
     this.currentTown = newTown
@@ -174,7 +178,8 @@ export class Campaign extends Renderer implements DungeonParent {
 
     this.updateRenderer(0)
     window.addEventListener('keydown', this.keydown)
-    this.inventoryUI.show()
+    // this.inventoryUI.show()
+    // this.questBoardUI.show()
   }
 
   private exit() {
@@ -185,10 +190,7 @@ export class Campaign extends Renderer implements DungeonParent {
 
   loadDungeon(dungeonInfo: DungeonInfo<any>) {
     if (dungeonInfo.cost) {
-      if (this.character.money - dungeonInfo.cost < 0) {
-        return // TODO add ui hint.
-      }
-      this.character.money -= dungeonInfo.cost
+      if (!this.SpendMoney(dungeonInfo.cost)) return
     }
     const savedScene = this.scene
     const savedCamera = this.camera;
@@ -252,16 +254,24 @@ export class Campaign extends Renderer implements DungeonParent {
   completeQuest(quest: Quest<TownName, any>, completedQuestName: string) {
     if (this.checkQuest(quest).canBeCompleted) {
       this.quests = this.quests.filter((quest) => quest != completedQuestName)
-
+      const CompletedQuest = () => JoinSpanEl(ColorText(completedQuestName, 'Quest'), ColorText('COMPLETED', 'StatPos'));
+      NOTIFICATIONS.Show(CompletedQuest())
       const unlockedQuests = quest.reward.unlockQuest
       if (unlockedQuests) {
+        const UnlockedQuestNotification = (quest: string) => NOTIFICATIONS.Show(JoinSpanEl(CompletedQuest(), JoinSpanEl(ColorText('Unlocked', 'White'), ColorText(quest, 'Quest'))));
         if (typeof unlockedQuests === 'string') {
           this.quests.push(unlockedQuests)
+          UnlockedQuestNotification(unlockedQuests)
         } else {
+          for (let i = 0; i < unlockedQuests.length; i++) {
+            const unlockedQuest = unlockedQuests[i]
+            UnlockedQuestNotification(unlockedQuest)
+          }
           this.quests.push(...unlockedQuests)
         }
       }
 
+      // remove item from play inventory.
       if (quest.objective.getItem) {
         for (let i = 0; i < this.inventory.items.length; i++) {
           const item = this.inventory.items[i];
@@ -273,13 +283,14 @@ export class Campaign extends Renderer implements DungeonParent {
       }
 
       if (quest.reward.money) {
+        NOTIFICATIONS.Show(JoinSpanEl(CompletedQuest(), JoinSpanEl(ColorText(`+${quest.reward.money}`, 'Money'), 'Gold')))
         this.character.money += quest.reward.money
       }
       if (quest.reward.unlockTown) {
+        NOTIFICATIONS.Show(JoinSpanEl(CompletedQuest(), JoinSpanEl(ColorText('Unlocked', 'White'), ColorText(quest.reward.unlockTown, 'Town'))));
         this.towns[quest.reward.unlockTown].isUnlocked = true
-        // TODO add ui hint.
       }
-
+      expGainNotification(quest.reward.exp, CompletedQuest())
       LevelCharacter(this.character, this.stats, quest.reward.exp)
 
       if (quest.reward.loot) {
@@ -292,8 +303,7 @@ export class Campaign extends Renderer implements DungeonParent {
 
 
     } else {
-      // TODO add ui hint
-      console.log('TODO add hint that quest could not be completed.')
+      NOTIFICATIONS.Show(JoinSpanEl(ColorText(completedQuestName, 'Quest'), ColorText('[ERROR] Quest Could not be Completed (this should never happen)', 'StatNeg')))
     }
   }
 
@@ -310,4 +320,17 @@ export class Campaign extends Renderer implements DungeonParent {
     }
   }
 
+  EnoughMoneyCheck(cost: number) {
+    return this.character.money - cost > 0
+  }
+
+  /**Returns TRUE if the player has enough money. */
+  SpendMoney(cost: number) { // TODO find better name ?
+    if (!this.EnoughMoneyCheck(cost)) {
+      NotEnoughMoneyNotification(cost - this.character.money);
+      return false
+    }
+    this.character.money -= cost
+    return true
+  }
 }

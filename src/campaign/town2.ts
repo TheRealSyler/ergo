@@ -16,7 +16,7 @@ export type Town2Dungeons = 'awd1';
 
 export const town2: Town<Town2Dungeons> = {
   isUnlocked: true,
-  travelCost: 500,
+  travelCost: 5666600,
   hasBeenVisited: false,
   shops: [],
   dungeons: {

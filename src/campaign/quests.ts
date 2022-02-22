@@ -40,7 +40,8 @@ export const CAMPAIGN_QUESTS: MainQuests = {
     reward: {
       money: 1000,
       unlockQuest: 'ExploreRuins',
-      exp: expGainAtLevel(10)
+      unlockTown: 'camera_2',
+      exp: expGainAtLevel(100)
     },
     location: 'Bandit Camp',
     description: 'Go to the bandit camp and get the bounty.'

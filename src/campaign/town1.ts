@@ -37,7 +37,7 @@ const banditCamp: DungeonInfo<'Entry' | 'Room 1' | 'Room 2' | 'Room 3'> = {
 const d2: DungeonInfo<'Entry' | 'Room North' | 'Room1' | 'Room2' | 'Room3'> = {
   entryDir: 'north',
   firstRoom: 'Entry',
-  // cost: 1000,
+  cost: 100000,
   rooms: {
     Entry: {
       doors: {

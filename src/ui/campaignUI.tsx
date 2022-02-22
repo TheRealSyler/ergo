@@ -1,7 +1,7 @@
 import { h } from 'dom-chef'
 import { Campaign } from '../campaign/campaign'
 import './campaignUI.sass'
-import { MoneyEl } from './components'
+import { ColorText } from './components'
 import { TooltipComponent } from './tooltipComponent'
 import { MAIN_UI_ELEMENT } from './ui'
 
@@ -46,7 +46,11 @@ export class campaignUI {
 
         const town = this.campaign.towns[key as keyof Campaign['towns']]
         if (town.isUnlocked) {
-          this.addTooltip(el, <span>Travel to {key} (Travel cost {MoneyEl(town.travelCost)})</span>)
+          if (town.hasBeenVisited) {
+            this.addTooltip(el, <span> Travel to {key}</span>)
+          } else {
+            this.addTooltip(el, <span> Travel to {key} (Travel cost {ColorText(town.travelCost, 'Money')}) <br />{!this.campaign.EnoughMoneyCheck(town.travelCost) && ColorText(" You don't have enough money.", 'StatNeg')}</span>)
+          }
         } else {
           this.addTooltip(el, <span>You cannot travel to {key}</span>)
         }
@@ -73,9 +77,16 @@ export class campaignUI {
         if (dungeon.hasBeenCompleted) {
           el.classList.add('campaign-completed-dungeon')
         }
-
-        this.addTooltip(el, <span> Travel to {key}{dungeon.cost ? <span> (Travel cost {MoneyEl(dungeon.cost)})</span> : null}{dungeon.hasBeenCompleted && ' (Completed)'}</span>)
-        this.dungeonsEl.appendChild(el)
+        if (dungeon.cost) {
+          this.addTooltip(el, <span> Travel to {key}{
+            dungeon.cost ? <span> (Travel cost {ColorText(dungeon.cost, 'Money')})</span> : null}{dungeon.hasBeenCompleted && ' (Completed)'}
+            <br />{!this.campaign.EnoughMoneyCheck(dungeon.cost) && ColorText(" You don't have enough money.", 'StatNeg')}
+          </span>)
+          this.dungeonsEl.appendChild(el)
+        } else {
+          this.addTooltip(el, <span> Travel to {key}{dungeon.hasBeenCompleted && ' (Completed)'}</span>)
+          this.dungeonsEl.appendChild(el)
+        }
       }
     }
 

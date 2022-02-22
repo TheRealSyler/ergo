@@ -1,13 +1,24 @@
 import { h } from 'dom-chef'
-import './components.sass'
-
-export function MoneyEl(amount: string | number) {
-  return <span className="component-money">{amount}</span>
-}
-export function LevelEl(amount: string | number) {
-  return <span className="component-level">{amount}</span>
-}
 
 export function StatEl(amount: string | number, positive: boolean) {
-  return <span className={`stat ${positive ? 'component-stat-positive' : 'component-stat-negative'}`}>{amount}</span>
+  return ColorText(amount, positive ? 'StatPos' : 'StatNeg')
+}
+
+const TEXT_COLORS = {
+  White: '#eee',
+  Level: '#0df',
+  Money: '#fc4',
+  Quest: '#fEa178',
+  Town: '#569CD6',
+  Skill: '#C586C0',
+  StatPos: 'green',
+  StatNeg: 'red'
+}
+
+export function ColorText(input: string | number, color: keyof typeof TEXT_COLORS) {
+  return <span style={{ color: TEXT_COLORS[color] }}>{input}</span>
+}
+
+export function JoinSpanEl(a?: string | HTMLElement, b?: string | HTMLElement) {
+  return <span>{a} {b}</span>
 }
