@@ -154,7 +154,7 @@ export class InventoryUI {
     this.charMoneyEl.appendChild(ColorText(this.character.money, 'Money'))
     if (this.shop) {
       this.shopMoneyEl.textContent = ''
-      this.shopMoneyEl.appendChild(ColorText(this.shop.money, 'Level'))
+      this.shopMoneyEl.appendChild(ColorText(this.shop.money, 'Money'))
     }
   }
   private updateLevel() {
