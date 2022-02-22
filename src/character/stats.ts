@@ -1,7 +1,6 @@
 import { ATTACK_ACTIVE_TIME } from '../animation/attackState';
 import { NumberRange } from '../utils';
-import { Character } from './character';
-import { Skills, SKILLS } from "./skills";
+import { BaseExponent, Character, expGainAtLevel, expToNextLevel } from './character';
 import { ConsumableItem, Item, ITEMS, ItemWithStatChange } from './items';
 import { BLOCK_TIME } from '../animation/blockState';
 
@@ -78,44 +77,50 @@ export function createStats(character: Character): CharacterStats {
   const stats = getCharacterBaseStats(character.class);
 
   applyCharacterItems(character, stats);
-
-  applyCharacterSkills(character, stats);
-
+  applyLevel(character.level, stats, true)
   stats.health = stats.maxHealth
   stats.stamina = stats.maxStamina
 
   return stats
 }
 
-function applyCharacterSkills(character: Character, stats: CharacterStats) {
-  for (const k in character.skills) {
-    if (Object.prototype.hasOwnProperty.call(character.skills, k)) {
-      const key = k as keyof typeof character.skills;
-      const skillName = character.skills[key];
-      if (skillName) applySkill(key, stats);
-    }
-  }
+function applyLevel(level: number, stats: CharacterStats, add: boolean) {
+  // stats.aiDodgeChance = Math.min(75, stats.aiDodgeChance + level)
+  // stats.aiBlockChance = Math.min(75, stats.aiDodgeChance + level)
+  // graph for visualization https://www.desmos.com/calculator/obq0ttbnlg
+  applyStatChange(stats, 'damage', NumberRange(BaseExponent(level, 0.95, 1.1), BaseExponent(level, 1.2, 1.1)), add)
+  applyStatChange(stats, 'maxHealth', BaseExponent(level, 2.1, 0.9), add)
+  applyStatChange(stats, 'maxStamina', BaseExponent(level, 0.2, 1.15), add)
 }
 
-function applySkill(key: Skills, stats: CharacterStats) {
-  const skill = SKILLS[key];
-  for (const j in skill) {
-    if (Object.prototype.hasOwnProperty.call(skill, j)) {
-      const jKey = j as keyof typeof skill;
-      const change = skill[jKey];
-      if (change) {
-        applyStatChange(stats, jKey, change, true);
-      }
-    }
-  }
-}
-
-export function useConsumable(stats: CharacterStats, item: ConsumableItem) {
+export function useConsumable(character: Character, stats: CharacterStats, item: ConsumableItem) {
   const health = item.effect.health;
+  const exp = item.effect.exp;
   if (health === 'Full') {
     stats.health = stats.maxHealth;
   } else if (health) {
     stats.health = Math.min(stats.maxHealth, stats.health + (stats.maxHealth * (health / 100)));
+  }
+  if (exp === 'Level') {
+    LevelCharacter(character, stats, expGainAtLevel(character.level))
+  } else if (exp) {
+    LevelCharacter(character, stats, exp)
+  }
+}
+
+export function LevelCharacter(character: Character, stats: CharacterStats, exp: number) {
+  const totalExp = character.exp + exp
+  const expToLevelUp = expToNextLevel(character.level);
+  if (totalExp >= expToLevelUp) {
+    character.level++
+    character.skillPoints++
+    character.exp = 0
+    applyLevel(character.level - 1, stats, false)
+    applyLevel(character.level, stats, true)
+    const remainingExp = totalExp - expToLevelUp
+    LevelCharacter(character, stats, remainingExp)
+  } else {
+    character.exp = totalExp
   }
 }
 

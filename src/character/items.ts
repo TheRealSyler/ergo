@@ -1,4 +1,5 @@
 import { NumberRange } from '../utils'
+import { expGainAtLevel } from './character';
 import { CharacterStats } from './stats'
 
 type StatChanges = Partial<Omit<CharacterStats, 'health' | 'stamina' | 'aiDodgeReactionTime' | 'aiTimeToAttack'>>;
@@ -20,6 +21,7 @@ interface NormalItem {
 
 export type ConsumableEffect = {
   health?: number | 'Full';
+  exp?: number | 'Level'
 };
 
 export interface ConsumableItem {
@@ -35,7 +37,7 @@ export type WeaponNames = 'BasicSword' | 'SuperSword' | 'Axe';
 export type GloveNames = 'BasicGloves' | 'SuperGloves';
 export type ArmorNames = 'BasicArmor';
 export type QuestItemNames = 'BanditBounty';
-export type ConsumableNames = 'Bandage';
+export type ConsumableNames = 'Bandage' | 'Scroll' | 'ScrollLevel';
 
 export type EquipAbleItems = GloveNames | WeaponNames | ArmorNames;
 
@@ -102,6 +104,18 @@ export const ITEMS: { [key in ItemName]: Item } = {
     type: 'consumable',
     effect: {
       health: 10
+    }
+  },
+  Scroll: {
+    type: 'consumable',
+    effect: {
+      exp: expGainAtLevel(100)
+    }
+  },
+  ScrollLevel: {
+    type: 'consumable',
+    effect: {
+      exp: 'Level'
     }
   },
   BanditBounty: {

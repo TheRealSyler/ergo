@@ -3,14 +3,14 @@ import { MAIN_UI_ELEMENT } from './ui'
 
 import './inventoryUI.sass'
 import { ItemName, ITEMS, ItemWithStatChange, ITEM_TYPES } from '../character/items'
-import { Character } from '../character/character'
+import { Character, expGainAtLevel, expToNextLevel } from '../character/character'
 import { getKeybinding, getKeybindingUI } from '../keybindings'
 import { CharacterStats, FLIPPED_STAT_SIGN, updateStatsWithItem, useConsumable } from '../character/stats'
 import { toFixedIfNotZero } from '../utils'
-import { BarComponent } from './barComponent'
+import { BarComponent, BAR_COLORS } from './barComponent'
 import { Shop } from '../campaign/campaign'
 import { TooltipComponent } from './tooltipComponent'
-import { MoneyEl, StatEl } from './components'
+import { LevelEl, MoneyEl, StatEl } from './components'
 
 export interface Inventory {
   items: (ItemName | undefined)[],
@@ -45,9 +45,11 @@ export class InventoryUI {
   private lootInfo = <span>| [ALT + MOUSE CLICK] Move to {this.lootNameInfo}</span>
 
   private statsEl = <div className="inventory-stats"></div>
-  private charMoneyEl = <div className="inventory-stats"></div>
-  private healthBar = new BarComponent('health')
-  private staminaBar = new BarComponent('stamina')
+  private charMoneyEl = <div className="inventory-stats"></div> // TODO add tooltip on hover
+  private charLevelEl = <div className="inventory-stats"></div> // TODO add tooltip on hover
+  private healthBar = new BarComponent(BAR_COLORS.health)
+  private staminaBar = new BarComponent(BAR_COLORS.stamina)
+  private levelBar = new BarComponent(BAR_COLORS.level)
   private lootEl = <div className="inventory-section">
     {this.lootName}
     {this.shopMoneyEl}
@@ -64,8 +66,9 @@ export class InventoryUI {
       <div className="inventory-section">
         <span className="inventory-title">Character</span>
         {this.charMoneyEl}
+        {this.charLevelEl}
         <div className="inventory-stats">
-          <div className="inventory-bars">{this.healthBar.getEl()} {this.staminaBar.getEl()}</div>
+          <div className="inventory-bars">{this.healthBar.getEl()} {this.staminaBar.getEl()} {this.levelBar.getEl()}</div>
 
         </div>
         {this.statsEl}
@@ -142,7 +145,7 @@ export class InventoryUI {
       this.lootInfo.style.display = 'none'
       this.lootInventory = undefined
     }
-    this.updateMoney()
+
     this.updateStats()
   }
 
@@ -154,12 +157,19 @@ export class InventoryUI {
       this.shopMoneyEl.appendChild(MoneyEl(this.shop.money))
     }
   }
+  private updateLevel() {
+    this.charLevelEl.textContent = ''
+    this.charLevelEl.appendChild(LevelEl(this.character.level))
+
+  }
 
   private updateStats() {
     this.statsEl.textContent = ''
-
+    this.updateMoney()
+    this.updateLevel()
     this.healthBar.set(this.stats.health, this.stats.maxHealth)
     this.staminaBar.set(this.stats.stamina, this.stats.maxStamina)
+    this.levelBar.set(this.character.exp, expToNextLevel(this.character.level))
 
     for (const key in this.stats) {
       if (Object.prototype.hasOwnProperty.call(this.stats, key)) {
@@ -287,7 +297,7 @@ export class InventoryUI {
         }
         const itemInfo = ITEMS[item]
         if (itemInfo.type === 'consumable') {
-          useConsumable(this.stats, itemInfo)
+          useConsumable(this.character, this.stats, itemInfo)
           this.setItem(slot, undefined)
           this.updateSlot(this.getSlotElement(slot), slot)
           this.updateStats()
@@ -555,6 +565,10 @@ export class InventoryUI {
         const health = itemInfo.effect.health
         if (health) {
           elements.push(<span ><span>Heal: </span> {StatEl(`${health === 'Full' ? health : `+${health}%`}`, true)}</span>)
+        }
+        const exp = itemInfo.effect.exp
+        if (exp) {
+          elements.push(<span ><span>Gain Exp: </span> {LevelEl(`${exp === 'Level' ? `+${expGainAtLevel(this.character.level)}` : `+${exp}`}`)}</span>)
         }
       } else {
         this.addItemInfoToTooltip(itemInfo, elements)
