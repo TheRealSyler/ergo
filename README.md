@@ -1,5 +1,4 @@
 # TODOs
-* TODO add Notification System.
 * TODO add Add Dialog System.
 * TODO stop health item consumption when char is full health
 * TODO add shortcut indicator on questBoard button.

@@ -3,6 +3,9 @@ import { NumberRange } from '../utils';
 import { BaseExponent, Character, expGainAtLevel, expToNextLevel } from './character';
 import { ConsumableItem, Item, ITEMS, ItemWithStatChange } from './items';
 import { BLOCK_TIME } from '../animation/blockState';
+import { NOTIFICATIONS } from '../ui/ui';
+import { LevelEl } from '../ui/components';
+import { h } from 'dom-chef'
 
 export interface CharacterStats {
   aiTimeToAttack: NumberRange
@@ -118,6 +121,7 @@ export function LevelCharacter(character: Character, stats: CharacterStats, exp:
     applyLevel(character.level - 1, stats, false)
     applyLevel(character.level, stats, true)
     const remainingExp = totalExp - expToLevelUp
+    NOTIFICATIONS.Show(<span>Level UP ▲ {LevelEl(character.level)} ▲</span>)
     LevelCharacter(character, stats, remainingExp)
   } else {
     character.exp = totalExp
