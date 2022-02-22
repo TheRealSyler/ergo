@@ -18,11 +18,9 @@ export class StunnedState extends State<AnimationTypes> {
     } else {
       this.stunnedTime = 1000
     }
-    console.log(stance, this.stunnedTime)
     this.startTime = performance.now()
 
     const curAction = getAnimAction(this.charRef.animations, 'stunned');
-
 
     curAction.reset();
 
@@ -38,7 +36,6 @@ export class StunnedState extends State<AnimationTypes> {
   Update(fsm: FiniteStateMachine<AnimationTypes>,) {
 
     if (this.startTime + this.stunnedTime <= performance.now()) {
-
       fsm.SetState('idle');
     }
   }
