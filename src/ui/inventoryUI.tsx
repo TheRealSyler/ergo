@@ -131,7 +131,7 @@ export class InventoryUI {
     window.addEventListener('keydown', this.keydown)
     this.parentEl.appendChild(this.mainEl)
     this.tooltip.removeClasses()
-    this.parentEl.appendChild(this.tooltip.mainEL)
+    this.parentEl.appendChild(this.tooltip.mainEl)
     this.lootItemsEl.textContent = ''
     if (lootOrShop) {
       this.lootName.textContent = `${lootOrShop.name}`
@@ -196,7 +196,7 @@ export class InventoryUI {
   hide() {
     this.visible = false
     this.mainEl.remove()
-    this.tooltip.mainEL.remove()
+    this.tooltip.mainEl.remove()
     window.removeEventListener('mousemove', this.mousemove)
     window.removeEventListener('mouseup', this.mouseup)
     window.removeEventListener('keydown', this.keydown)

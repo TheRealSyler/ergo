@@ -34,7 +34,7 @@ export class campaignUI {
     this.enabled = true
     MAIN_UI_ELEMENT.textContent = ''
     MAIN_UI_ELEMENT.appendChild(this.mainEl)
-    MAIN_UI_ELEMENT.appendChild(this.tooltip.mainEL)
+    MAIN_UI_ELEMENT.appendChild(this.tooltip.mainEl)
 
     this.townsEl.textContent = ''
 

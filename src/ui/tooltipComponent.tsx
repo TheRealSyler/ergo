@@ -2,10 +2,10 @@ import { h } from 'dom-chef'
 import './tooltipComponent.sass'
 
 export class TooltipComponent {
-  mainEL = <div className="fixed tooltip"></div>
+  mainEl = <div className="fixed tooltip"></div>
 
   setPos(pos: { x: number, y: number }) {
-    const bounds = this.mainEL.getBoundingClientRect()
+    const bounds = this.mainEl.getBoundingClientRect()
 
     let xOffset = 0
     const tempX = pos.x + (bounds.width / 2)
@@ -22,27 +22,27 @@ export class TooltipComponent {
     }
     const x = pos.x - (bounds.width / 2) + xOffset
     const y = pos.y + yOffset
-    this.mainEL.style.transform = `translate(${x}px, ${y}px)`
+    this.mainEl.style.transform = `translate(${x}px, ${y}px)`
   }
 
   show(content: HTMLElement, pos?: { x: number, y: number }) {
-    this.mainEL.textContent = ''
-    this.mainEL.appendChild(content)
+    this.mainEl.textContent = ''
+    this.mainEl.appendChild(content)
     if (pos) {
       this.setPos(pos)
     }
-    this.mainEL.classList.remove('tooltip-hide')
-    this.mainEL.classList.add('tooltip-show')
+    this.mainEl.classList.remove('tooltip-hide')
+    this.mainEl.classList.add('tooltip-show')
   }
 
   hide() {
-    this.mainEL.classList.remove('tooltip-show')
-    this.mainEL.classList.add('tooltip-hide')
+    this.mainEl.classList.remove('tooltip-show')
+    this.mainEl.classList.add('tooltip-hide')
   }
 
   removeClasses() {
-    this.mainEL.classList.remove('tooltip-hide')
-    this.mainEL.classList.remove('tooltip-show')
+    this.mainEl.classList.remove('tooltip-hide')
+    this.mainEl.classList.remove('tooltip-show')
 
   }
 }
