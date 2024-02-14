@@ -15,7 +15,7 @@ const d1: DungeonInfo<'Room1'> = {
 export type Town2Dungeons = 'awd1';
 
 export const town2: Town<Town2Dungeons> = {
-  isUnlocked: true,
+  isUnlocked: false,
   travelCost: 500,
   hasBeenVisited: false,
   shops: [],
