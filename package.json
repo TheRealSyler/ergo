@@ -14,7 +14,7 @@
     "@babel/plugin-transform-react-jsx": "^7.17.3",
     "@babel/preset-env": "^7.16.11",
     "@babel/preset-typescript": "^7.16.7",
-    "@types/three": "^0.137.0",
+    "@types/three": "^0.161.0",
     "@types/webpack": "^5.28.0",
     "babel-loader": "^8.2.3",
     "css-loader": "^6.6.0",
@@ -34,6 +34,6 @@
   "dependencies": {
     "dom-chef": "^5.0.0",
     "sass": "^1.49.8",
-    "three": "^0.137.5"
+    "three": "^0.161.0"
   }
 }

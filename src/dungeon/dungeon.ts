@@ -1,28 +1,28 @@
-import { Renderer } from '../renderer';
-import { Object3D, Raycaster, Vector3, LoadingManager, Group } from 'three';
+import { Group, LoadingManager, Object3D, Raycaster, Vector2, Vector3 } from 'three'
 import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls'
-import { loadRoom } from '../rooms/rooms';
-import { DungeonDoor, DungeonRoom, DungeonRooms, RoomItemInfo } from './dungeonRoom';
-import { LoaderUI } from '../ui/loaderUI';
-import { Character } from '../character/character';
-import { loadCharacter } from '../character/loadCharacter';
-import { dirToRadians, getGLTFLoader, wait } from '../utils';
-import { FightController } from '../fight/fightController';
-import { FightUI, victoryOrLossUI } from '../ui/fightUI';
-import { CharacterController } from '../character/characterController';
-import { Player } from '../game';
-import { loadRoomItem, RoomItemAsset } from './dungeonRoomItem';
-import { DungeonUI } from '../ui/dungeonUI';
-import { degToRad } from 'three/src/math/MathUtils';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
-import { loadRoomDoor, RoomDoorAsset } from './doors';
-import { Inventory, InventoryUI } from '../ui/inventoryUI';
-import { getKeybinding, getKeybindingUI } from '../keybindings';
-import { ItemName } from '../character/items';
-import { CharacterStats } from '../character/stats';
-import { PauseMenuUI } from '../ui/pauseMenuUI';
-import { OptionsUI } from '../ui/optionsUI';
-import { CampaignQuestNames } from '../campaign/quests';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
+import { degToRad } from 'three/src/math/MathUtils'
+import { CampaignQuestNames } from '../campaign/quests'
+import { Character } from '../character/character'
+import { CharacterController } from '../character/characterController'
+import { ItemName } from '../character/items'
+import { loadCharacter } from '../character/loadCharacter'
+import { CharacterStats } from '../character/stats'
+import { FightController } from '../fight/fightController'
+import { Player } from '../game'
+import { getKeybinding, getKeybindingUI } from '../keybindings'
+import { Renderer } from '../renderer'
+import { loadRoom } from '../rooms/rooms'
+import { DungeonUI } from '../ui/dungeonUI'
+import { FightUI, victoryOrLossUI } from '../ui/fightUI'
+import { Inventory, InventoryUI } from '../ui/inventoryUI'
+import { LoaderUI } from '../ui/loaderUI'
+import { OptionsUI } from '../ui/optionsUI'
+import { PauseMenuUI } from '../ui/pauseMenuUI'
+import { dirToRadians, getGLTFLoader, wait } from '../utils'
+import { RoomDoorAsset, loadRoomDoor } from './doors'
+import { DungeonRoom, DungeonRooms, RoomItemInfo } from './dungeonRoom'
+import { RoomItemAsset, loadRoomItem } from './dungeonRoomItem'
 
 
 export interface DungeonParent extends Renderer {
@@ -65,7 +65,7 @@ export class Dungeon<Rooms extends string> {
   private collisionObjects: Object3D[] = []
   private collisionRaycaster = new Raycaster(undefined, undefined, undefined, 5);
   private activeItemRaycaster = new Raycaster(undefined, undefined, undefined, 1.8);
-  private readonly activeItemRayCasterCoords = { x: 0, y: 0 };
+  private readonly activeItemRayCasterCoords = new Vector2(0, 0);
   private reusableVec = new Vector3();
 
   private keys = {

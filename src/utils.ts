@@ -1,9 +1,9 @@
-import { AnimationAction, Group, LoadingManager, Mesh, Object3D, PointLight } from 'three';
-import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader';
-import { GLTF, GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
-import { degToRad } from 'three/src/math/MathUtils';
-import { Animations } from './animation/types';
-import { DungeonDir } from './dungeon/dungeon';
+import { AnimationAction, Group, LoadingManager, Mesh, Object3D, PointLight } from 'three'
+import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader'
+import { GLTF, GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
+import { degToRad } from 'three/src/math/MathUtils'
+import { Animations } from './animation/types'
+import { DungeonDir } from './dungeon/dungeon'
 
 export interface Position3 {
   x: number,
@@ -51,15 +51,15 @@ export function toPx(t: string | number) {
 }
 
 export function getGLTFLoader(manager?: LoadingManager) {
-  const loader = new GLTFLoader(manager);
-  const dracoLoader = new DRACOLoader();
-  dracoLoader.setDecoderPath('https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/js/libs/draco/');
-  loader.setDRACOLoader(dracoLoader);
-  return loader;
+  const loader = new GLTFLoader(manager)
+  const dracoLoader = new DRACOLoader()
+  dracoLoader.setDecoderPath('https://raw.githubusercontent.com/mrdoob/three.js/a79f0788dced39e925d001a9566931f03d984951/examples/jsm/libs/draco/')
+  loader.setDRACOLoader(dracoLoader)
+  return loader
 }
 
 export function addModelWithCollision(gltf: GLTF, collisionObjects: Object3D[], group: Group) {
-  const objects: Object3D[] = [];
+  const objects: Object3D[] = []
   gltf.scene.traverse((o) => {
     if ((o as Mesh).isMesh) {
       if (o.name.startsWith('collision_')) {

@@ -3,6 +3,6 @@
     "automagically",
     "GLTF",
     "Regen"
-  ]
-
+  ],
+  "typescript.format.semicolons": "ignore"
 }
