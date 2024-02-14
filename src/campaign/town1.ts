@@ -66,7 +66,7 @@ const d2: DungeonInfo<'Entry' | 'Room North' | 'Room1' | 'Room2' | 'Room3'> = {
       doors: { east: { roomId: 'Room1', type: 'room', asset: 'basic', }, west: { roomId: 'Room3', type: 'room', asset: 'basic' } },
       name: 'test',
       objectInfos: [],
-      fight: { char: createCharacter({ items: { gloves: 'SuperGloves', weapon: 'SuperSword', armor: 'BasicArmor' }, class: 'awd3', money: 750 }) }
+      fight: { char: createCharacter({ items: { gloves: 'SuperGloves', weapon: 'SuperSword', armor: 'BasicArmor' }, class: 'awd2', money: 750 }) }
     },
     Room3: {
       doors: { east: { roomId: 'Room2', type: 'room', asset: 'basic' }, south: { type: 'exit', asset: 'basic' } },
