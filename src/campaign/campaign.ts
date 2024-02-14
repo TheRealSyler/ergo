@@ -65,7 +65,7 @@ export class Campaign extends Renderer implements DungeonParent {
     camera_4: town4,
   }
   inventory: Inventory = {
-    items: ['BanditBounty', 'Axe', 'Scroll', 'Scroll'],
+    items: [],
     size: 12
   }
   character: Character = createCharacter({ items: {}, money: 50 })
