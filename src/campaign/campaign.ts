@@ -1,27 +1,27 @@
 import { Clock, EquirectangularReflectionMapping, LoadingManager, Object3D, PerspectiveCamera, Quaternion, Scene, sRGBEncoding, TextureLoader, Vector3 } from 'three';
+import map from '../assets/campaign/campaign_map.glb';
+import awd from '../assets/campaign/hdri.jpg';
 import { Renderer } from '../renderer';
 import { LoaderUI } from '../ui/loaderUI';
 import { error, getGLTFLoader } from '../utils';
-import map from '../assets/campaign/campaign_map.glb'
-import awd from '../assets/campaign/hdri.jpg'
 
 import { lerp } from 'three/src/math/MathUtils';
-import { campaignUI } from '../ui/campaignUI';
+import { Character, createCharacter } from '../character/character';
+import { ItemName } from '../character/items';
+import { createStats, LevelCharacter } from '../character/stats';
 import { Dungeon, DungeonInfo, DungeonParent } from '../dungeon/dungeon';
+import { getKeybinding } from '../keybindings';
+import { campaignUI } from '../ui/campaignUI';
+import { ColorText, JoinSpanEl } from '../ui/components';
+import { Inventory, InventoryUI } from '../ui/inventoryUI';
+import { expGainNotification, NotEnoughMoneyNotification } from '../ui/notifications';
+import { QuestBoardUI } from '../ui/questBoard';
+import { NOTIFICATIONS } from '../ui/ui';
+import { CampaignQuestNames, Quest } from './quests';
 import { town1, Town1Dungeons } from './town1';
 import { town2, Town2Dungeons } from './town2';
-import { town4, Town4Dungeons } from './town4';
 import { town3, Town3Dungeons } from './town3';
-import { Inventory, InventoryUI } from '../ui/inventoryUI';
-import { Character, createCharacter } from '../character/character';
-import { createStats, LevelCharacter } from '../character/stats';
-import { ItemName } from '../character/items';
-import { getKeybinding } from '../keybindings';
-import { CampaignQuestNames, Quest } from './quests';
-import { QuestBoardUI } from '../ui/questBoard';
-import { ColorText, JoinSpanEl } from '../ui/components';
-import { NOTIFICATIONS } from '../ui/ui';
-import { NotEnoughMoneyNotification, expGainNotification } from '../ui/notifications';
+import { town4, Town4Dungeons } from './town4';
 
 export interface Towns {
   'camera_1': Town1Dungeons
@@ -68,7 +68,7 @@ export class Campaign extends Renderer implements DungeonParent {
     items: ['BanditBounty', 'Axe', 'Scroll', 'Scroll'],
     size: 12
   }
-  character: Character = createCharacter({ items: { weapon: 'BasicSword' }, money: 20000 })
+  character: Character = createCharacter({ items: {}, money: 50 })
   stats = createStats(this.character)
   quests: CampaignQuestNames[] = ['GetBanditBounty']
 
