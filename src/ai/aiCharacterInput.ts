@@ -1,11 +1,11 @@
+import type { AttackAnimations, DodgeAnimations } from '../animation/types';
 import { CharacterController } from '../character/characterController';
-import { EMPTY_INPUT, Input } from '../playerInput';
 import { FiniteStateMachine } from '../finiteStateMachine';
-import { AttackAnimations, DodgeAnimations } from '../animation/types';
+import { EMPTY_INPUT, type Input } from '../playerInput';
 import { AiAttackingState } from './aiAttackingState';
+import { AiBlockState } from './aiBlockState';
 import { AiDodgingState } from './aiDodgingState';
 import { AiIdleState } from './aiIdleState';
-import { AiBlockState } from './aiBlockState';
 
 export type AiStates = 'ai_idle' | 'ai_dodging' | 'ai_attacking' | 'ai_block';
 

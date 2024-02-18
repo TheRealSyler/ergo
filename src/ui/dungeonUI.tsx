@@ -1,5 +1,5 @@
 import { h } from 'dom-chef'
-import { CampaignQuestNames, CAMPAIGN_QUESTS } from '../campaign/quests'
+import { CAMPAIGN_QUESTS, type CampaignQuestNames } from '../campaign/quests'
 import './dungeonUI.sass'
 import { MAIN_UI_ELEMENT } from './ui'
 
@@ -21,12 +21,9 @@ export class DungeonUI {
 
       MAIN_UI_ELEMENT.appendChild(this.questEL)
       this.questEL.textContent = ''
-      for (let i = 0; i < this.quests.length; i++) {
-        const questName = this.quests[i];
+      for (const questName of this.quests) {
         const questInfo = CAMPAIGN_QUESTS[questName]
-        const el = document.createElement('div')
-        el.textContent = `[${questName}] ${questInfo.description}`
-        this.questEL.appendChild(el)
+        this.questEL.appendChild(<div>[{questName}] {questInfo.description}</div>)
       }
     }
   }

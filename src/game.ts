@@ -1,14 +1,8 @@
-import { degToRad } from 'three/src/math/MathUtils';
 import { Campaign } from './campaign/campaign';
-import { Character, createCharacter } from './character/character';
-import { Dungeon } from './dungeon/dungeon';
-import { DungeonRooms } from './dungeon/dungeonRoom';
-import StandaloneDungeon from './dungeon/standaloneDungeon';
+import { createCharacter, type Character } from './character/character';
 import { LoadFight } from './fight/loadFight';
-import { RoomNames } from './rooms/rooms';
-import { CustomBattleUI } from './ui/customBattleUI';
+import type { RoomNames } from './rooms/rooms';
 import { MainMenuUi } from './ui/mainMenuUI';
-import { OptionsUI } from './ui/optionsUI';
 
 export type Player = 'player1' | 'player2'
 

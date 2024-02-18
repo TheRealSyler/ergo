@@ -1,12 +1,12 @@
+import { h } from 'dom-chef';
 import { ATTACK_ACTIVE_TIME } from '../animation/attackState';
-import { NumberRange } from '../utils';
-import { BaseExponent, Character, expGainAtLevel, expToNextLevel } from './character';
-import { ConsumableItem, Item, ITEMS, ItemWithStatChange } from './items';
 import { BLOCK_TIME } from '../animation/blockState';
-import { NOTIFICATIONS } from '../ui/ui';
-import { h } from 'dom-chef'
 import { ColorText } from '../ui/components';
 import { expGainNotification } from '../ui/notifications';
+import { NOTIFICATIONS } from '../ui/ui';
+import { NumberRange } from '../utils';
+import { BaseExponent, expGainAtLevel, expToNextLevel, type Character } from './character';
+import { ITEMS, type ConsumableItem, type Item, type ItemWithStatChange } from './items';
 
 export interface CharacterStats {
   aiTimeToAttack: NumberRange

@@ -1,9 +1,9 @@
 
-import { Input } from '../playerInput';
-import { State, FiniteStateMachine } from '../finiteStateMachine';
-import { getAnimAction } from "../utils";
-import { AnimationTypes, DodgeAnimations } from './types';
 import { CharacterController } from '../character/characterController';
+import { FiniteStateMachine, State } from '../finiteStateMachine';
+import type { Input } from '../playerInput';
+import { getAnimAction } from "../utils";
+import type { AnimationTypes, DodgeAnimations } from './types';
 
 export class DodgeState extends State<AnimationTypes> {
 

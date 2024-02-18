@@ -1,8 +1,8 @@
 import { CharacterController } from '../character/characterController';
-import { Player } from '../game';
-import { FightUI } from '../ui/fightUI';
-import { Room } from '../rooms/rooms';
+import type { Player } from '../game';
 import { Renderer } from '../renderer';
+import type { Room } from '../rooms/rooms';
+import { FightUI } from '../ui/fightUI';
 import { FightController } from './fightController';
 
 export class FightControllerStandalone extends Renderer {

@@ -1,22 +1,20 @@
 import {
+  MathUtils,
   SkeletonHelper,
   Vector3,
 } from 'three';
-
-import { AttackStance, CharacterController, CharStance } from '../character/characterController';
-import { degToRad } from 'three/src/math/MathUtils';
-// import { RoughnessMipmapper } from 'three/examples/jsm/utils/RoughnessMipmapper';
-import { Player } from '../game';
-import { FightUI, victoryOrLossUI } from '../ui/fightUI';
 import { AiInput } from '../ai/aiCharacterInput';
-import { PlayerInput } from '../playerInput';
-import { randomInRange } from '../utils';
-import { Renderer } from '../renderer';
+import { type AttackAnimations, type BlockAnimations } from '../animation/types';
+import { CharacterController, type AttackStance, type CharStance } from '../character/characterController';
 import { checkAiDifficulty } from '../character/stats';
-import { AttackAnimations, BlockAnimations } from '../animation/types';
+import type { Player } from '../game';
+import { getKeybinding } from '../keybindings';
+import { PlayerInput } from '../playerInput';
+import { Renderer } from '../renderer';
+import { FightUI, victoryOrLossUI } from '../ui/fightUI';
 import { OptionsUI } from '../ui/optionsUI';
 import { PauseMenuUI } from '../ui/pauseMenuUI';
-import { getKeybinding } from '../keybindings';
+import { randomInRange } from '../utils';
 
 type AttackResult = 'hit' | 'not_hit' | 'blocked';
 
@@ -198,7 +196,7 @@ export class FightController {
 
   private setPlayerPositions() {
     this.players.player1.model.translateZ(0.6);
-    this.players.player1.model.rotateY(degToRad(180));
+    this.players.player1.model.rotateY(MathUtils.degToRad(180));
     this.players.player2.model.translateZ(-0.6);
 
   }

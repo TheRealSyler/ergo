@@ -1,9 +1,9 @@
 import { expGainAtLevel } from '../character/character';
-import { QuestItemNames } from '../character/items';
-import { Inventory } from '../ui/inventoryUI';
-import { TownName, Towns } from './campaign';
-import { Town1Dungeons } from './town1';
-import { Town2Dungeons } from './town2';
+import type { QuestItemNames } from '../character/items';
+import type { Inventory } from '../ui/inventoryUI';
+import type { TownName, Towns } from './campaign';
+import type { Town1Dungeons } from './town1';
+import type { Town2Dungeons } from './town2';
 
 
 export type Quest<TownName, Locations> = {

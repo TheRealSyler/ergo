@@ -1,9 +1,9 @@
+import type { BlockAnimations } from '../animation/types';
 import { CharacterController } from '../character/characterController';
-import { Input } from '../playerInput';
 import { FiniteStateMachine, State } from '../finiteStateMachine';
-import { BlockAnimations } from '../animation/types';
-import { AiStates } from './aiCharacterInput';
+import type { Input } from '../playerInput';
 import { checkChance } from '../utils';
+import type { AiStates } from './aiCharacterInput';
 
 export class AiBlockState extends State<AiStates> {
   constructor(private aiChar: CharacterController, private playerChar: CharacterController, private keysRef: Input['keys']) {

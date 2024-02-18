@@ -1,28 +1,27 @@
-import { Group, LoadingManager, Object3D, Raycaster, Vector2, Vector3 } from 'three'
-import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls'
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
-import { degToRad } from 'three/src/math/MathUtils'
-import { CampaignQuestNames } from '../campaign/quests'
-import { Character } from '../character/character'
+import { Group, LoadingManager, MathUtils, Object3D, Raycaster, Vector2, Vector3 } from 'three'
+import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js'
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
+import type { CampaignQuestNames } from '../campaign/quests'
+import type { Character } from '../character/character'
 import { CharacterController } from '../character/characterController'
-import { ItemName } from '../character/items'
+import type { ItemName } from '../character/items'
 import { loadCharacter } from '../character/loadCharacter'
-import { CharacterStats } from '../character/stats'
+import type { CharacterStats } from '../character/stats'
 import { FightController } from '../fight/fightController'
-import { Player } from '../game'
+import type { Player } from '../game'
 import { getKeybinding, getKeybindingUI } from '../keybindings'
 import { Renderer } from '../renderer'
 import { loadRoom } from '../rooms/rooms'
 import { DungeonUI } from '../ui/dungeonUI'
 import { FightUI, victoryOrLossUI } from '../ui/fightUI'
-import { Inventory, InventoryUI } from '../ui/inventoryUI'
+import { InventoryUI, type Inventory } from '../ui/inventoryUI'
 import { LoaderUI } from '../ui/loaderUI'
 import { OptionsUI } from '../ui/optionsUI'
 import { PauseMenuUI } from '../ui/pauseMenuUI'
 import { dirToRadians, getGLTFLoader, wait } from '../utils'
-import { RoomDoorAsset, loadRoomDoor } from './doors'
-import { DungeonRoom, DungeonRooms, RoomItemInfo } from './dungeonRoom'
-import { RoomItemAsset, loadRoomItem } from './dungeonRoomItem'
+import { loadRoomDoor, type RoomDoorAsset } from './doors'
+import type { DungeonRoom, DungeonRooms, RoomItemInfo } from './dungeonRoom'
+import { loadRoomItem, type RoomItemAsset } from './dungeonRoomItem'
 
 
 export interface DungeonParent extends Renderer {
@@ -203,9 +202,7 @@ export class Dungeon<Rooms extends string> {
 
   private extractRoomItemPromisees(dungeonRoom: DungeonRoom<Rooms>, loader: GLTFLoader) {
     const roomItemPromises: Promise<RoomItemInfoAndAsset>[] = [];
-
-    for (let i = 0; i < dungeonRoom.objectInfos.length; i++) {
-      const info = dungeonRoom.objectInfos[i];
+    for (const info of dungeonRoom.objectInfos) {
       roomItemPromises.push(new Promise(async (res) => {
         res({
           asset: await loadRoomItem(loader, info.asset),
@@ -237,8 +234,7 @@ export class Dungeon<Rooms extends string> {
   }
 
   private addRoomItems(roomItems: RoomItemInfoAndAsset[]) {
-    for (let i = 0; i < roomItems.length; i++) {
-      const { asset, info } = roomItems[i];
+    for (const { asset, info } of roomItems) {
       this.parent.scene.add(asset.scene)
       if (info.position) {
         const { x, y, z } = info.position;
@@ -273,8 +269,7 @@ export class Dungeon<Rooms extends string> {
   }
 
   private addRoomDoor(dungeonRoom: DungeonRoom<Rooms>, doors: RoomDoorAssetAndDir[]) {
-    for (let i = 0; i < doors.length; i++) {
-      const { asset, dir } = doors[i];
+    for (const { asset, dir } of doors) {
       const door = dungeonRoom.doors[dir]!
       this.parent.scene.add(asset.scene)
       this.collisionObjects.push(asset.collision);
@@ -304,10 +299,10 @@ export class Dungeon<Rooms extends string> {
   private setCamera(dir: DungeonDir) {
     this.parent.camera.near = 0.01
     this.parent.camera.updateProjectionMatrix()
-    this.parent.camera.rotation.set(0, dirToRadians(dir) + degToRad(180), 0);
+    this.parent.camera.rotation.set(0, dirToRadians(dir) + MathUtils.degToRad(180), 0);
     this.parent.camera.position.set(0, 1.6, 0);
     this.parent.camera.translateZ(-4)
-    this.parent.camera.rotateY(degToRad(180))
+    this.parent.camera.rotateY(MathUtils.degToRad(180))
   }
 
   private reset() {
@@ -331,9 +326,7 @@ export class Dungeon<Rooms extends string> {
     const intersections = this.activeItemRaycaster.intersectObjects(this.collisionObjects);
 
     let closestObj: { i: InterActableObject; dist: number; } | undefined;
-
-    for (let i = 0; i < intersections.length; i++) {
-      const intersection = intersections[i];
+    for (const intersection of intersections) {
       const interActableItem = this.interActableObjects.find((item) => item.collision === intersection.object);
       if (interActableItem) {
         if (!closestObj || closestObj.dist > intersection.distance) {
@@ -391,9 +384,7 @@ export class Dungeon<Rooms extends string> {
     const interSections = this.collisionRaycaster.intersectObjects(this.collisionObjects);
 
     if (interSections.length > 0) {
-      for (let i = 0; i < interSections.length; i++) {
-        const intersection = interSections[i];
-
+      for (const intersection of interSections) {
         if (intersection.distance < 0.3) {
           return false
         }

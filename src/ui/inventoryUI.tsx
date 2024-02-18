@@ -1,16 +1,15 @@
 import { h } from 'dom-chef'
-import { MAIN_UI_ELEMENT } from './ui'
-
-import './inventoryUI.sass'
-import { ItemName, ITEMS, ItemWithStatChange, ITEM_TYPES } from '../character/items'
-import { Character, expGainAtLevel, expToNextLevel } from '../character/character'
+import type { Shop } from '../campaign/campaign'
+import { expGainAtLevel, expToNextLevel, type Character } from '../character/character'
+import { ITEMS, ITEM_TYPES, type ItemName, type ItemWithStatChange } from '../character/items'
+import { FLIPPED_STAT_SIGN, updateStatsWithItem, useConsumable, type CharacterStats } from '../character/stats'
 import { getKeybinding, getKeybindingUI } from '../keybindings'
-import { CharacterStats, FLIPPED_STAT_SIGN, updateStatsWithItem, useConsumable } from '../character/stats'
 import { toFixedIfNotZero } from '../utils'
-import { BarComponent, BAR_COLORS } from './barComponent'
-import { Shop } from '../campaign/campaign'
-import { TooltipComponent } from './tooltipComponent'
+import { BAR_COLORS, BarComponent } from './barComponent'
 import { ColorText, StatEl } from './components'
+import './inventoryUI.sass'
+import { TooltipComponent } from './tooltipComponent'
+import { MAIN_UI_ELEMENT } from './ui'
 
 export interface Inventory {
   items: (ItemName | undefined)[],

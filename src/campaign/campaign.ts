@@ -1,27 +1,25 @@
-import { Clock, EquirectangularReflectionMapping, LoadingManager, Object3D, PerspectiveCamera, Quaternion, Scene, sRGBEncoding, TextureLoader, Vector3 } from 'three';
+import { Clock, EquirectangularReflectionMapping, LoadingManager, MathUtils, Object3D, PerspectiveCamera, Quaternion, Scene, TextureLoader, Vector3, sRGBEncoding } from 'three';
 import map from '../assets/campaign/campaign_map.glb';
 import awd from '../assets/campaign/hdri.jpg';
-import { Renderer } from '../renderer';
-import { LoaderUI } from '../ui/loaderUI';
-import { error, getGLTFLoader } from '../utils';
-
-import { lerp } from 'three/src/math/MathUtils';
-import { Character, createCharacter } from '../character/character';
-import { ItemName } from '../character/items';
-import { createStats, LevelCharacter } from '../character/stats';
-import { Dungeon, DungeonInfo, DungeonParent } from '../dungeon/dungeon';
+import { createCharacter, type Character } from '../character/character';
+import { type ItemName } from '../character/items';
+import { LevelCharacter, createStats } from '../character/stats';
+import { Dungeon, type DungeonInfo, type DungeonParent } from '../dungeon/dungeon';
 import { getKeybinding } from '../keybindings';
+import { Renderer } from '../renderer';
 import { campaignUI } from '../ui/campaignUI';
 import { ColorText, JoinSpanEl } from '../ui/components';
-import { Inventory, InventoryUI } from '../ui/inventoryUI';
-import { expGainNotification, NotEnoughMoneyNotification } from '../ui/notifications';
+import { InventoryUI, type Inventory } from '../ui/inventoryUI';
+import { LoaderUI } from '../ui/loaderUI';
+import { NotEnoughMoneyNotification, expGainNotification } from '../ui/notifications';
 import { QuestBoardUI } from '../ui/questBoard';
 import { NOTIFICATIONS } from '../ui/ui';
-import { CampaignQuestNames, Quest } from './quests';
-import { town1, Town1Dungeons } from './town1';
-import { town2, Town2Dungeons } from './town2';
-import { town3, Town3Dungeons } from './town3';
-import { town4, Town4Dungeons } from './town4';
+import { error, getGLTFLoader } from '../utils';
+import type { CampaignQuestNames, Quest } from './quests';
+import { town1, type Town1Dungeons } from './town1';
+import { town2, type Town2Dungeons } from './town2';
+import { town3, type Town3Dungeons } from './town3';
+import { town4, type Town4Dungeons } from './town4';
 
 export interface Towns {
   'camera_1': Town1Dungeons
@@ -112,8 +110,8 @@ export class Campaign extends Renderer implements DungeonParent {
       const t = elapsedTime * elapsedTime * elapsedTime
       this.camera.quaternion.slerp(endRot, t);
       this.camera.position.lerp(endPos, t);
-      this.camera.fov = lerp(startFOV, newCamera.fov, t);
-      this.camera.focus = lerp(startFocus, newCamera.fov, t);
+      this.camera.fov = MathUtils.lerp(startFOV, newCamera.fov, t);
+      this.camera.focus = MathUtils.lerp(startFocus, newCamera.fov, t);
       this.camera.updateProjectionMatrix();
 
       if (elapsedTime === 1) {
@@ -242,7 +240,7 @@ export class Campaign extends Renderer implements DungeonParent {
     }
     const completeDungeon = quest.objective.completeDungeon;
     if (completeDungeon) {
-      if (this.towns[completeDungeon.town].dungeons[completeDungeon.dungeon].hasBeenCompleted) {
+      if (this.towns[completeDungeon.town].dungeons[completeDungeon.dungeon]?.hasBeenCompleted) {
         hasCompletedDungeon = true
       } else {
         canBeCompleted = false
@@ -263,8 +261,7 @@ export class Campaign extends Renderer implements DungeonParent {
           this.quests.push(unlockedQuests)
           UnlockedQuestNotification(unlockedQuests)
         } else {
-          for (let i = 0; i < unlockedQuests.length; i++) {
-            const unlockedQuest = unlockedQuests[i]
+          for (const unlockedQuest of unlockedQuests) {
             UnlockedQuestNotification(unlockedQuest)
           }
           this.quests.push(...unlockedQuests)

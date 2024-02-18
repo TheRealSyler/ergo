@@ -1,7 +1,7 @@
 import { BoxGeometry, Group, Mesh, MeshBasicMaterial, Object3D } from 'three';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import chest from '../assets/rooms/items/chest.glb';
 import { addModelWithCollision } from '../utils';
-import chest from '../assets/rooms/items/chest.glb'
 
 export type RoomItemNames = 'chest' | 'enemy'
 
@@ -22,7 +22,7 @@ export async function loadRoomItem(loader: GLTFLoader, name: RoomItemNames): Pro
         collisionObjects.push(mesh)
         group.add(mesh)
         return {
-          collision: collisionObjects[0],
+          collision: collisionObjects[0]!,
           scene: group
         }
       }
@@ -32,7 +32,7 @@ export async function loadRoomItem(loader: GLTFLoader, name: RoomItemNames): Pro
         const collisionObjects: Object3D[] = []
         addModelWithCollision(await loader.loadAsync(chest), collisionObjects, group)
         return {
-          collision: collisionObjects[0],
+          collision: collisionObjects[0]!,
           scene: group
         }
       }

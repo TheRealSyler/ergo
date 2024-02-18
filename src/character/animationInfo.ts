@@ -1,4 +1,4 @@
-import { Character } from './character';
+import type { Character } from './character';
 import { ITEMS } from './items';
 
 import glib_animations from '../assets/glib/glib_animations.glb';

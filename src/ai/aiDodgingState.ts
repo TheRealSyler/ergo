@@ -1,9 +1,9 @@
-import { AttackStance, CharacterController } from '../character/characterController';
-import { Input } from '../playerInput';
+import { type DodgeAnimations } from '../animation/types';
+import { CharacterController, type AttackStance } from '../character/characterController';
 import { FiniteStateMachine, State } from '../finiteStateMachine';
-import { DodgeAnimations } from '../animation/types';
+import type { Input } from '../playerInput';
 import { checkChance, chooseRandomArrayEl } from '../utils';
-import { AiStates, DODGE_POSSIBILITIES } from './aiCharacterInput';
+import { DODGE_POSSIBILITIES, type AiStates } from './aiCharacterInput';
 
 export class AiDodgingState extends State<AiStates> {
   constructor(private aiChar: CharacterController, private playerChar: CharacterController, private keysRef: Input['keys']) {

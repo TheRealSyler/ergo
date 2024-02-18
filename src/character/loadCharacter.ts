@@ -1,11 +1,11 @@
-import { SkinnedMesh, AnimationMixer, Group } from 'three';
-import { GLTF, GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
-import { Animations, AnimationTypes } from '../animation/types';
+import { AnimationMixer, Group, SkinnedMesh } from 'three';
+import { GLTFLoader, type GLTF } from 'three/addons/loaders/GLTFLoader.js';
+import type { AnimationTypes, Animations } from '../animation/types';
 import { error } from '../utils';
 import { getCharacterAnimationInfo } from './animationInfo';
-import { Character } from './character';
-import { ITEM_MODEL_LOCATION } from './itemModelInfo';
+import type { Character } from './character';
 import { CLASS_MODEL_INFO } from './classModelInfo';
+import { ITEM_MODEL_LOCATION } from './itemModelInfo';
 
 export type LoadedCharacter = {
   mixer: AnimationMixer;
@@ -45,9 +45,7 @@ export async function loadCharacter(loader: GLTFLoader, character: Character): P
   let sharedSkeleton = mainModelMesh.skeleton
   // mainModelMesh.castShadow = true
   // mainModelMesh.receiveShadow = true
-
-  for (let i = 0; i < loadedItems.length; i++) {
-    const item = loadedItems[i];
+  for (const item of loadedItems) {
     const itemMesh = item.getObjectByName(EXPORT_NAME) as any as SkinnedMesh
     if (itemMesh.type === 'Group') {
       while (itemMesh.children.length) {

@@ -1,6 +1,6 @@
 import { h } from 'dom-chef'
-import { Campaign, TownName } from '../campaign/campaign'
-import { CAMPAIGN_QUESTS, Quest } from '../campaign/quests'
+import { Campaign, type TownName } from '../campaign/campaign'
+import { CAMPAIGN_QUESTS, type Quest } from '../campaign/quests'
 import { getKeybinding, getKeybindingUI } from '../keybindings'
 import { StatEl } from './components'
 import './questBoard.sass'
@@ -31,8 +31,7 @@ export class QuestBoardUI {
     MAIN_UI_ELEMENT.appendChild(this.mainEl)
     this.questsEl.textContent = ''
     this.questsEl.appendChild(<h1>Quest Board</h1>)
-    for (let i = 0; i < this.campaign.quests.length; i++) {
-      const quest = this.campaign.quests[i];
+    for (const quest of this.campaign.quests) {
       this.questsEl.appendChild(this.addQuest(CAMPAIGN_QUESTS[quest], quest))
     }
 

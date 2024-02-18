@@ -2,7 +2,7 @@ import { CharacterController } from '../character/characterController';
 import { BLOCK_DIRECTIONS } from '../fight/fightController';
 import { FiniteStateMachine, State } from '../finiteStateMachine';
 import { checkChance, randomInRange } from '../utils';
-import { AiStates } from './aiCharacterInput';
+import type { AiStates } from './aiCharacterInput';
 
 export class AiIdleState extends State<AiStates> {
   private timeToAttack = -1;

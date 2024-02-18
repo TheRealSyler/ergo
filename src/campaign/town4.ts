@@ -1,5 +1,5 @@
-import { DungeonInfo } from '../dungeon/dungeon';
-import { Town } from './campaign';
+import { type DungeonInfo } from '../dungeon/dungeon';
+import { type Town } from './campaign';
 
 const d1: DungeonInfo<'Room1'> = {
   entryDir: 'north',

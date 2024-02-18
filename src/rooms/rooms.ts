@@ -1,11 +1,10 @@
 import { EquirectangularReflectionMapping, Group, LoadingManager, Object3D, PointLight, sRGBEncoding, Texture, TextureLoader } from 'three';
-
-import test from '../assets/untitled.glb'
-import test2 from '../assets/rooms/room_test2.glb'
-import test3 from '../assets/rooms/room_test3.glb'
-import awd from '../assets/rooms/awd.jpg'
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import awd from '../assets/rooms/awd.jpg';
+import test2 from '../assets/rooms/room_test2.glb';
+import test3 from '../assets/rooms/room_test3.glb';
+import test from '../assets/untitled.glb';
 import { addModelWithCollision } from '../utils';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 
 export type RoomNames = 'basic' | 'test' | 'test3';
 

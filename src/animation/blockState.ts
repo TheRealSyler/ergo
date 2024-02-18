@@ -1,8 +1,8 @@
-import { State, FiniteStateMachine } from '../finiteStateMachine';
-import { getAnimAction } from "../utils";
-import { AnimationTypes, BlockAnimations } from './types';
-import { BlockStance, CharacterController } from '../character/characterController';
 import { LoopOnce } from 'three';
+import { CharacterController, type BlockStance } from '../character/characterController';
+import { FiniteStateMachine, State } from '../finiteStateMachine';
+import { getAnimAction } from "../utils";
+import type { AnimationTypes, BlockAnimations } from './types';
 
 export const BLOCK_TIME = 0.15
 export class BlockState extends State<AnimationTypes> {

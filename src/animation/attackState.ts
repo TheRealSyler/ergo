@@ -1,8 +1,8 @@
 import { LoopOnce } from 'three';
-import { State, FiniteStateMachine } from '../finiteStateMachine';
+import { CharacterController, type AttackStance } from '../character/characterController';
+import { FiniteStateMachine, State } from '../finiteStateMachine';
 import { getAnimAction } from "../utils";
-import { AnimationTypes, AttackAnimations } from './types';
-import { AttackStance, CharacterController } from '../character/characterController';
+import type { AnimationTypes, AttackAnimations } from './types';
 
 export const ATTACK_ACTIVE_TIME = 0.7;
 export const ATTACK_FINISHED_TIME = 0.85;

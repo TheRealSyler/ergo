@@ -1,9 +1,8 @@
-import { AnimationAction, Group, LoadingManager, Mesh, Object3D, PointLight } from 'three'
-import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader'
-import { GLTF, GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
-import { degToRad } from 'three/src/math/MathUtils'
-import { Animations } from './animation/types'
-import { DungeonDir } from './dungeon/dungeon'
+import { AnimationAction, Group, LoadingManager, MathUtils, Mesh, Object3D, PointLight } from 'three';
+import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
+import { GLTFLoader, type GLTF } from 'three/addons/loaders/GLTFLoader.js';
+import type { Animations } from './animation/types';
+import type { DungeonDir } from './dungeon/dungeon';
 
 export interface Position3 {
   x: number,
@@ -24,7 +23,7 @@ export function error(message: string, tip?: string) {
 }
 
 export function chooseRandomArrayEl<T>(arr: T[]): T {
-  return arr[Math.floor(Math.random() * arr.length)];
+  return arr[Math.floor(Math.random() * arr.length)]!;
 }
 export interface NumberRange {
   min: number
@@ -82,11 +81,11 @@ export function dirToRadians(dir: DungeonDir) {
     case 'north':
       return 0
     case 'east':
-      return degToRad(90)
+      return MathUtils.degToRad(90)
     case 'west':
-      return degToRad(-90)
+      return MathUtils.degToRad(-90)
     case 'south':
-      return degToRad(180)
+      return MathUtils.degToRad(180)
   }
 }
 

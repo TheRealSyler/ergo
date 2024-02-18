@@ -1,7 +1,7 @@
-import { State, FiniteStateMachine } from '../finiteStateMachine';
-import { getAnimAction } from "../utils";
-import { AnimationTypes } from './types';
 import { CharacterController } from '../character/characterController';
+import { FiniteStateMachine, State } from '../finiteStateMachine';
+import { getAnimAction } from "../utils";
+import type { AnimationTypes } from './types';
 
 export class VictoryState extends State<AnimationTypes> {
   constructor(private charRef: CharacterController) {

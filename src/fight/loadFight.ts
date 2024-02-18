@@ -1,12 +1,11 @@
 import { LoadingManager } from 'three';
-import { loadCharacter } from '../character/loadCharacter';
-
-import { Game, Player } from '../game';
+import type { Character } from '../character/character';
 import { CharacterController } from '../character/characterController';
+import { loadCharacter } from '../character/loadCharacter';
+import type { Game, Player } from '../game';
+import { loadRoom, type RoomNames } from '../rooms/rooms';
 import { FightUI } from '../ui/fightUI';
 import { LoaderUI } from '../ui/loaderUI';
-import { Character } from '../character/character';
-import { loadRoom, RoomNames } from '../rooms/rooms';
 import { getGLTFLoader } from '../utils';
 import { FightControllerStandalone } from './fightControllerStandalone';
 

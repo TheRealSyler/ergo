@@ -1,9 +1,9 @@
-import { Character, createCharacter } from '../character/character';
-import { CharacterStats, createStats } from '../character/stats';
+import { createCharacter, type Character } from '../character/character';
+import { createStats, type CharacterStats } from '../character/stats';
 import { Game } from '../game';
 import { Renderer } from '../renderer';
-import { Inventory, InventoryUI } from '../ui/inventoryUI';
-import { Dungeon, DungeonInfo, DungeonParent } from './dungeon';
+import { InventoryUI, type Inventory } from '../ui/inventoryUI';
+import { Dungeon, type DungeonInfo, type DungeonParent } from './dungeon';
 
 export default class StandaloneDungeon<R extends string> extends Renderer implements DungeonParent {
   private dungeon: Dungeon<R>;

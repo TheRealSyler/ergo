@@ -69,6 +69,7 @@ export class campaignUI {
     for (const key in this.campaign.towns[this.campaign.currentTown].dungeons) {
       if (Object.prototype.hasOwnProperty.call(this.campaign.towns[this.campaign.currentTown].dungeons, key)) {
         const dungeon = this.campaign.towns[this.campaign.currentTown].dungeons[key]
+        if (!dungeon) continue
         const el = <div className="button" onClick={() => {
           if (this.enabled) {
             this.campaign.loadDungeon(dungeon)
@@ -92,8 +93,7 @@ export class campaignUI {
 
     this.shopsEl.textContent = ''
     // TODO add keybindings for opening a shop.
-    for (let i = 0; i < this.campaign.towns[this.campaign.currentTown].shops.length; i++) {
-      const shop = this.campaign.towns[this.campaign.currentTown].shops[i];
+    for (const shop of this.campaign.towns[this.campaign.currentTown].shops) {
       const el = <div className="button" onClick={() => {
         this.campaign.inventoryUI.showShop(shop)
       }}>

@@ -1,8 +1,7 @@
-import { Vector3 } from 'three';
-import { degToRad } from 'three/src/math/MathUtils';
+import { MathUtils, Vector3 } from 'three';
 import { createCharacter } from '../character/character';
-import { DungeonInfo } from '../dungeon/dungeon';
-import { Town } from './campaign';
+import type { DungeonInfo } from '../dungeon/dungeon';
+import type { Town } from './campaign';
 
 const banditCamp: DungeonInfo<'Entry' | 'Room 1' | 'Room 2' | 'Room 3'> = {
   entryDir: 'north',
@@ -45,7 +44,7 @@ const d2: DungeonInfo<'Entry' | 'Room North' | 'Room1' | 'Room2' | 'Room3'> = {
         south: { type: 'exit', asset: 'basic' },
         west: { type: 'room', roomId: 'Room1', asset: 'basic' }
       },
-      objectInfos: [{ asset: 'chest', items: { items: ['Bandage', 'Bandage'], size: 12 }, position: new Vector3(-2, 0, 0), rotation: new Vector3(0, degToRad(-90)) }],
+      objectInfos: [{ asset: 'chest', items: { items: ['Bandage', 'Bandage'], size: 12 }, position: new Vector3(-2, 0, 0), rotation: new Vector3(0, MathUtils.degToRad(-90)) }],
       name: 'test'
     },
     'Room North': {

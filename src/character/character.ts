@@ -1,6 +1,6 @@
-import { CharacterClass } from './stats';
-import { Items, } from './items';
-import { CharacterSkills } from './skills';
+import type { Items } from './items';
+import type { CharacterSkills } from './skills';
+import type { CharacterClass } from './stats';
 
 export interface Character {
   items: Partial<Items>

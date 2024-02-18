@@ -1,6 +1,6 @@
-import { NumberRange } from '../utils'
+import { NumberRange } from '../utils';
 import { expGainAtLevel } from './character';
-import { CharacterStats } from './stats'
+import type { CharacterStats } from './stats';
 
 type StatChanges = Partial<Omit<CharacterStats, 'health' | 'stamina' | 'aiDodgeReactionTime' | 'aiTimeToAttack'>>;
 
@@ -39,9 +39,9 @@ export type ArmorNames = 'BasicArmor';
 export type QuestItemNames = 'BanditBounty';
 export type ConsumableNames = 'Bandage' | 'Scroll' | 'ScrollLevel';
 
-export type EquipAbleItems = GloveNames | WeaponNames | ArmorNames;
+export type EquipableItems = GloveNames | WeaponNames | ArmorNames;
 
-export type ItemName = EquipAbleItems | QuestItemNames | ConsumableNames;
+export type ItemName = EquipableItems | QuestItemNames | ConsumableNames;
 
 export interface Items {
   weapon: WeaponNames,

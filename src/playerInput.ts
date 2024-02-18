@@ -1,4 +1,4 @@
-import { AttackAnimations, BlockAnimations, DodgeAnimations } from './animation/types';
+import type { AttackAnimations, BlockAnimations, DodgeAnimations } from './animation/types';
 import { getOption } from './options';
 import { MAIN_UI_ELEMENT } from './ui/ui';
 

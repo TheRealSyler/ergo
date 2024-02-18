@@ -1,12 +1,11 @@
 import { h } from 'dom-chef'
 import { CharacterController } from '../character/characterController'
+import type { Difficulty } from '../character/stats'
+import type { Player } from '../game'
 import { wait } from '../utils'
-import { MAIN_UI_ELEMENT } from './ui'
-
+import { BAR_COLORS, BarComponent } from './barComponent'
 import './fightUI.sass'
-import { Player } from '../game'
-import { BarComponent, BAR_COLORS } from './barComponent'
-import { Difficulty } from '../character/stats'
+import { MAIN_UI_ELEMENT } from './ui'
 
 export class FightUI {
   private health: Record<Player, BarComponent> = {
