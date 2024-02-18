@@ -1,12 +1,12 @@
-import { h } from 'dom-chef';
-import { ATTACK_ACTIVE_TIME } from '../animation/attackState';
-import { BLOCK_TIME } from '../animation/blockState';
-import { ColorText } from '../ui/components';
-import { expGainNotification } from '../ui/notifications';
-import { NOTIFICATIONS } from '../ui/ui';
-import { NumberRange } from '../utils';
-import { BaseExponent, expGainAtLevel, expToNextLevel, type Character } from './character';
-import { ITEMS, type ConsumableItem, type Item, type ItemWithStatChange } from './items';
+import { h } from 'dom-chef'
+import { ATTACK_ACTIVE_TIME } from '../animation/attackState'
+import { BLOCK_TIME } from '../animation/blockState'
+import { ColorText } from '../ui/components'
+import { expGainNotification } from '../ui/notifications'
+import { NOTIFICATIONS } from '../ui/ui'
+import { NumberRange } from '../utils'
+import { BaseExponent, expGainAtLevel, expToNextLevel, type Character } from './character'
+import { ITEMS, type ConsumableItem, type Item, type ItemWithStatChange } from './items'
 
 export interface CharacterStats {
   aiTimeToAttack: NumberRange
@@ -29,7 +29,7 @@ export interface CharacterStats {
   stamina: number
 }
 
-export type CharacterClass = 'base' | 'awd2' | 'boss';
+export type CharacterClass = 'base' | 'awd2' | 'boss'
 // TODO find better name.
 export const FLIPPED_STAT_SIGN: Partial<Record<keyof CharacterStats, true>> = {
   dodgeStaminaCost: true,
@@ -58,7 +58,7 @@ const BASE_STATS: CharacterStats = {
 }
 
 function getCharacterBaseStats(charClass: CharacterClass): CharacterStats {
-  const baseCopy = JSON.parse(JSON.stringify(BASE_STATS)) as CharacterStats;
+  const baseCopy = JSON.parse(JSON.stringify(BASE_STATS)) as CharacterStats
   switch (charClass) {
     case 'base':
       return baseCopy
@@ -80,9 +80,9 @@ function getCharacterBaseStats(charClass: CharacterClass): CharacterStats {
 }
 
 export function createStats(character: Character): CharacterStats {
-  const stats = getCharacterBaseStats(character.class);
+  const stats = getCharacterBaseStats(character.class)
 
-  applyCharacterItems(character, stats);
+  applyCharacterItems(character, stats)
   applyLevel(character.level, stats, true)
   stats.health = stats.maxHealth
   stats.stamina = stats.maxStamina
@@ -100,15 +100,15 @@ function applyLevel(level: number, stats: CharacterStats, add: boolean) {
 }
 
 export function useConsumable(character: Character, stats: CharacterStats, item: ConsumableItem) {
-  const health = item.effect.health;
-  const exp = item.effect.exp;
+  const health = item.effect.health
+  const exp = item.effect.exp
   if (health === 'Full') {
-    stats.health = stats.maxHealth;
+    stats.health = stats.maxHealth
   } else if (health) {
-    stats.health = Math.min(stats.maxHealth, stats.health + (stats.maxHealth * (health / 100)));
+    stats.health = Math.min(stats.maxHealth, stats.health + (stats.maxHealth * (health / 100)))
   }
   if (exp === 'Level') {
-    const expGain = expGainAtLevel(character.level);
+    const expGain = expGainAtLevel(character.level)
     expGainNotification(expGain)
     LevelCharacter(character, stats, expGain)
   } else if (exp) {
@@ -120,7 +120,7 @@ export function useConsumable(character: Character, stats: CharacterStats, item:
 
 export function LevelCharacter(character: Character, stats: CharacterStats, exp: number) {
   const totalExp = character.exp + exp
-  const expToLevelUp = expToNextLevel(character.level);
+  const expToLevelUp = expToNextLevel(character.level)
   if (totalExp >= expToLevelUp) {
     character.level++
     character.skillPoints++
@@ -142,9 +142,9 @@ export function updateStatsWithItem(stats: CharacterStats, item: Item, add = tru
 function applyCharacterItems(character: Character, stats: CharacterStats) {
   for (const key in character.items) {
     if (Object.prototype.hasOwnProperty.call(character.items, key)) {
-      const itemName = character.items[key as keyof Character['items']];
+      const itemName = character.items[key as keyof Character['items']]
       if (itemName) {
-        applyItemToStats(stats, ITEMS[itemName]);
+        applyItemToStats(stats, ITEMS[itemName])
       }
     }
   }
@@ -155,43 +155,44 @@ function applyItemToStats(stats: CharacterStats, item: Item, add = true) {
 
   for (const k in item.statChanges) {
     if (Object.prototype.hasOwnProperty.call(item.statChanges, k)) {
-      const key = k as keyof ItemWithStatChange['statChanges'];
-      const change = item.statChanges[key];
+      const key = k as keyof ItemWithStatChange['statChanges']
+      const change = item.statChanges[key]
       if (!change) continue
 
-      applyStatChange(stats, key, change, add);
+      applyStatChange(stats, key, change, add)
     }
   }
 }
 
 function applyStatChange(stats: CharacterStats, key: keyof CharacterStats, change: number | NumberRange, add: boolean) {
   if (key === 'maxHealth') {
-    const healthPercentage = stats.health / stats.maxHealth;
-    stats.maxHealth += (add ? change : -change) as number;
-    stats.health = stats.maxHealth * healthPercentage;
+    const healthPercentage = stats.health / stats.maxHealth
+    stats.maxHealth += (add ? change : -change) as number
+    stats.health = stats.maxHealth * healthPercentage
   } else if (key === 'maxStamina') {
-    const staminaPercentage = stats.stamina / stats.maxStamina;
-    stats.maxStamina += (add ? change : -change) as number;
-    stats.stamina = stats.maxStamina * staminaPercentage;
+    const staminaPercentage = stats.stamina / stats.maxStamina
+    stats.maxStamina += (add ? change : -change) as number
+    stats.stamina = stats.maxStamina * staminaPercentage
 
   } else {
     switch (typeof change) {
       case 'number':
         if (add) {
-          (stats[key] as number) += change;
+          (stats[key] as number) += change
         } else {
-          (stats[key] as number) -= change;
+          (stats[key] as number) -= change
         }
 
-        break;
-      case 'object':
-        const old = (stats[key] as NumberRange);
+        break
+      case 'object': {
+        const old = (stats[key] as NumberRange)
         if (add) {
-          (stats[key] as NumberRange) = NumberRange(old.min + change.min, old.max + change.max);
+          (stats[key] as NumberRange) = NumberRange(old.min + change.min, old.max + change.max)
         } else {
-          (stats[key] as NumberRange) = NumberRange(old.min - change.min, old.max - change.max);
+          (stats[key] as NumberRange) = NumberRange(old.min - change.min, old.max - change.max)
         }
-        break;
+      }
+        break
     }
   }
 }
@@ -203,7 +204,7 @@ export interface Difficulty {
   playerTimeToBlock: number
 }
 export function checkAiDifficulty(playerStats: CharacterStats, aiStats: CharacterStats): Difficulty {
-  const aiAttackSpeed = (1000 / aiStats.attackSpeed);
+  const aiAttackSpeed = (1000 / aiStats.attackSpeed)
   return {
     playerTimeToDodge: (aiAttackSpeed * ATTACK_ACTIVE_TIME) - (playerStats.dodgeSpeed * 1000),
     playerTimeToBlock: (aiAttackSpeed * ATTACK_ACTIVE_TIME) - (BLOCK_TIME * 1000),

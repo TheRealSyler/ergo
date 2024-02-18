@@ -1,8 +1,8 @@
-import { AnimationAction, Group, LoadingManager, MathUtils, Mesh, Object3D, PointLight } from 'three';
-import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
-import { GLTFLoader, type GLTF } from 'three/addons/loaders/GLTFLoader.js';
-import type { Animations } from './animation/types';
-import type { DungeonDir } from './dungeon/dungeon';
+import { AnimationAction, Group, LoadingManager, MathUtils, Mesh, Object3D, PointLight } from 'three'
+import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js'
+import { GLTFLoader, type GLTF } from 'three/addons/loaders/GLTFLoader.js'
+import type { Animations } from './animation/types'
+import type { DungeonDir } from './dungeon/dungeon'
 
 export interface Position3 {
   x: number,
@@ -12,10 +12,10 @@ export interface Position3 {
 
 export function getAnimAction<T extends string>(animations: Animations<T>, name: T): AnimationAction {
   if (animations[name]) {
-    return animations[name]!.action;
+    return animations[name]!.action
   }
-  error(`Failed to get animation action: ${name}.`, getAnimAction.name);
-  return undefined as any as AnimationAction;
+  error(`Failed to get animation action: ${name}.`, getAnimAction.name)
+  return undefined as never as AnimationAction
 }
 
 export function error(message: string, tip?: string) {
@@ -23,7 +23,7 @@ export function error(message: string, tip?: string) {
 }
 
 export function chooseRandomArrayEl<T>(arr: T[]): T {
-  return arr[Math.floor(Math.random() * arr.length)]!;
+  return arr[Math.floor(Math.random() * arr.length)]!
 }
 export interface NumberRange {
   min: number
@@ -42,7 +42,7 @@ export function randomInRange(range: NumberRange) {
 }
 
 export function checkChance(chance: number): boolean {
-  return Math.random() < chance;
+  return Math.random() < chance
 }
 
 export function toPx(t: string | number) {
@@ -62,17 +62,17 @@ export function addModelWithCollision(gltf: GLTF, collisionObjects: Object3D[], 
   gltf.scene.traverse((o) => {
     if ((o as Mesh).isMesh) {
       if (o.name.startsWith('collision_')) {
-        collisionObjects.push(o);
-        o.visible = false;
+        collisionObjects.push(o)
+        o.visible = false
       }
-      objects.push(o); // DO NOT directly add to group, it will mess with the traverse function.
+      objects.push(o) // DO NOT directly add to group, it will mess with the traverse function.
     } else if ((o as PointLight).isLight) {
-      objects.push(o);
+      objects.push(o)
     }
 
-  });
+  })
 
-  group.add(...objects);
+  group.add(...objects)
 
 }
 
@@ -91,7 +91,7 @@ export function dirToRadians(dir: DungeonDir) {
 
 export async function wait(time: number): Promise<void> {
   return new Promise((res) => {
-    setTimeout(res, time);
+    setTimeout(res, time)
   })
 }
 

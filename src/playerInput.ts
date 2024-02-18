@@ -1,16 +1,16 @@
-import type { AttackAnimations, BlockAnimations, DodgeAnimations } from './animation/types';
-import { getOption } from './options';
-import { MAIN_UI_ELEMENT } from './ui/ui';
+import type { AttackAnimations, BlockAnimations, DodgeAnimations } from './animation/types'
+import { getOption } from './options'
+import { MAIN_UI_ELEMENT } from './ui/ui'
 
-type InputKeys = (AttackAnimations | DodgeAnimations | BlockAnimations);
+type InputKeys = (AttackAnimations | DodgeAnimations | BlockAnimations)
 
 export interface Input {
-  keys: { [key in InputKeys]: boolean };
+  keys: { [key in InputKeys]: boolean }
   aiBlockDirection?: BlockAnimations
   aiSuccessfullyBlocked?: boolean
-  pause: () => void;
-  unpause: () => void;
-  dispose: () => void;
+  pause: () => void
+  unpause: () => void
+  dispose: () => void
 }
 
 export const EMPTY_INPUT: Input = {
@@ -35,19 +35,19 @@ Object.freeze(EMPTY_INPUT)
 Object.freeze(EMPTY_INPUT.keys)
 
 export class PlayerInput implements Input {
-  keys = { ...EMPTY_INPUT.keys };
+  keys = { ...EMPTY_INPUT.keys }
 
   constructor() {
-    this.addListeners();
+    this.addListeners()
   }
 
   private addListeners() {
-    document.addEventListener('keydown', this.keydown);
-    document.addEventListener('keyup', this.keyup);
+    document.addEventListener('keydown', this.keydown)
+    document.addEventListener('keyup', this.keyup)
 
-    document.addEventListener('mouseup', this.mouseup);
-    document.addEventListener('mousedown', this.mousedown);
-    document.addEventListener('mousemove', this.mousemove);
+    document.addEventListener('mouseup', this.mouseup)
+    document.addEventListener('mousedown', this.mousedown)
+    document.addEventListener('mousemove', this.mousemove)
 
   }
 
@@ -67,40 +67,40 @@ export class PlayerInput implements Input {
     switch (e.key) {
       case 'ArrowRight':
         if (e.shiftKey) {
-          this.keys.block_right = true;
+          this.keys.block_right = true
           break
         }
-        this.keys.attack_right = true;
-        break;
+        this.keys.attack_right = true
+        break
       case 'ArrowLeft':
         if (e.shiftKey) {
-          this.keys.block_left = true;
+          this.keys.block_left = true
           break
         }
-        this.keys.attack_left = true;
-        break;
+        this.keys.attack_left = true
+        break
       case 'ArrowUp':
         if (e.shiftKey) {
-          this.keys.block_up = true;
+          this.keys.block_up = true
           break
         }
-        this.keys.attack_up = true;
-        break;
+        this.keys.attack_up = true
+        break
       case 'ArrowDown':
         if (e.shiftKey) {
-          this.keys.block_down = true;
+          this.keys.block_down = true
           break
         }
-        this.keys.attack_down = true;
-        break;
+        this.keys.attack_down = true
+        break
       case 'a':
       case 'A':
-        this.keys.dodge_left = true;
-        break;
+        this.keys.dodge_left = true
+        break
       case 'd':
       case 'D':
-        this.keys.dodge_right = true;
-        break;
+        this.keys.dodge_right = true
+        break
     }
   }
 
@@ -108,29 +108,29 @@ export class PlayerInput implements Input {
     // TODO add keybindings
     switch (event.key) {
       case 'ArrowRight':
-        this.keys.attack_right = false;
-        this.keys.block_right = false;
-        break;
+        this.keys.attack_right = false
+        this.keys.block_right = false
+        break
       case 'ArrowLeft':
-        this.keys.attack_left = false;
+        this.keys.attack_left = false
         this.keys.block_left = false
-        break;
+        break
       case 'ArrowUp':
-        this.keys.attack_up = false;
+        this.keys.attack_up = false
         this.keys.block_up = false
-        break;
+        break
       case 'ArrowDown':
-        this.keys.attack_down = false;
+        this.keys.attack_down = false
         this.keys.block_down = false
-        break;
+        break
       case 'a':
       case 'A':
-        this.keys.dodge_left = false;
-        break;
+        this.keys.dodge_left = false
+        break
       case 'd':
       case 'D':
-        this.keys.dodge_right = false;
-        break;
+        this.keys.dodge_right = false
+        break
     }
   }
   private mousePos = { x: 0, y: 0 }
@@ -143,28 +143,28 @@ export class PlayerInput implements Input {
 
       if (Math.abs(x) > Math.abs(y)) {
         if (x > 0) {
-          this.setKeyWithWithTimer('attack_left');
+          this.setKeyWithWithTimer('attack_left')
         } else {
-          this.setKeyWithWithTimer('attack_right');;
+          this.setKeyWithWithTimer('attack_right')
         }
       } else {
         if (y > 0) {
-          this.setKeyWithWithTimer('attack_up');
+          this.setKeyWithWithTimer('attack_up')
         } else {
-          this.setKeyWithWithTimer('attack_down');
+          this.setKeyWithWithTimer('attack_down')
         }
       }
     }
-  };
+  }
 
-  private mousedown = (e: MouseEvent) => {
+  private mousedown = () => {
     if (getOption('input', 'enableMouseAttacks')) {
       if (!document.pointerLockElement) {
         MAIN_UI_ELEMENT.requestPointerLock()
       }
       this.startPos = { ...this.mousePos }
     }
-  };
+  }
 
   private mousemove = (e: MouseEvent) => {
     if (getOption('input', 'enableMouseAttacks')) {
@@ -172,12 +172,12 @@ export class PlayerInput implements Input {
       this.mousePos.y += e.movementY
     }
 
-  };
+  }
 
   private setKeyWithWithTimer(key: keyof Input['keys']) {
-    this.keys[key] = true;
+    this.keys[key] = true
     setTimeout(() => {
-      this.keys[key] = false;
-    }, 50);
+      this.keys[key] = false
+    }, 50)
   }
-};
+}

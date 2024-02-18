@@ -1,10 +1,10 @@
-import type { Character } from '../character/character';
-import type { RoomNames } from '../rooms/rooms';
-import type { Inventory } from '../ui/inventoryUI';
-import type { Position3 } from '../utils';
-import type { RoomDoorName } from './doors';
-import type { DungeonDir } from './dungeon';
-import type { RoomItemNames } from './dungeonRoomItem';
+import type { Character } from '../character/character'
+import type { RoomNames } from '../rooms/rooms'
+import type { Inventory } from '../ui/inventoryUI'
+import type { Position3 } from '../utils'
+import type { RoomDoorName } from './doors'
+import type { DungeonDir } from './dungeon'
+import type { RoomItemNames } from './dungeonRoomItem'
 
 export type DungeonDoor<Rooms extends string> = { type: 'exit' | 'exit-completed'; asset: RoomDoorName } | { type: 'room'; roomId: Rooms; asset: RoomDoorName };
 

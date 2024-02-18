@@ -1,9 +1,9 @@
-import { expGainAtLevel } from '../character/character';
-import type { QuestItemNames } from '../character/items';
-import type { Inventory } from '../ui/inventoryUI';
-import type { TownName, Towns } from './campaign';
-import type { Town1Dungeons } from './town1';
-import type { Town2Dungeons } from './town2';
+import { expGainAtLevel } from '../character/character'
+import type { QuestItemNames } from '../character/items'
+import type { Inventory } from '../ui/inventoryUI'
+import type { TownName, Towns } from './campaign'
+import type { Town1Dungeons } from './town1'
+import type { Town2Dungeons } from './town2'
 
 
 export type Quest<TownName, Locations> = {
@@ -30,7 +30,7 @@ class CompleteDungeon<A extends Towns, K extends keyof A> {
 export type CampaignQuestNames = 'GetBanditBounty' | 'ExploreRuins'
 export type QuestLocations = Town1Dungeons | Town2Dungeons
 
-export type MainQuests = Record<CampaignQuestNames, Quest<TownName, QuestLocations>>;
+export type MainQuests = Record<CampaignQuestNames, Quest<TownName, QuestLocations>>
 
 export const CAMPAIGN_QUESTS: MainQuests = {
   GetBanditBounty: {

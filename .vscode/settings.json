@@ -4,5 +4,5 @@
     "GLTF",
     "Regen"
   ],
-  "typescript.format.semicolons": "ignore"
+  "typescript.format.semicolons": "remove"
 }

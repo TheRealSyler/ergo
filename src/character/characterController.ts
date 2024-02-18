@@ -1,20 +1,20 @@
-import { AnimationMixer, Group } from 'three';
-import { AiInput } from '../ai/aiCharacterInput';
-import { AttackState } from "../animation/attackState";
-import { BlockState } from '../animation/blockState';
-import { DeathState } from '../animation/deathState';
-import { DodgeState } from "../animation/dodgeState";
-import { HitState } from '../animation/hitState';
-import { IdleState } from "../animation/idleState";
-import { StunnedState } from '../animation/stunnedState';
-import type { AnimationTypes, Animations, AttackAnimations, BlockAnimations, DodgeAnimations } from '../animation/types';
-import { VictoryState } from '../animation/victoryState';
-import { FiniteStateMachine } from "../finiteStateMachine";
-import type { Player } from '../game';
-import { EMPTY_INPUT, type Input } from '../playerInput';
-import { FightUI } from '../ui/fightUI';
-import type { LoadedCharacter } from './loadCharacter';
-import { createStats, type CharacterStats } from './stats';
+import { AnimationMixer, Group } from 'three'
+import { AiInput } from '../ai/aiCharacterInput'
+import { AttackState } from '../animation/attackState'
+import { BlockState } from '../animation/blockState'
+import { DeathState } from '../animation/deathState'
+import { DodgeState } from '../animation/dodgeState'
+import { HitState } from '../animation/hitState'
+import { IdleState } from '../animation/idleState'
+import { StunnedState } from '../animation/stunnedState'
+import type { AnimationTypes, Animations, AttackAnimations, BlockAnimations, DodgeAnimations } from '../animation/types'
+import { VictoryState } from '../animation/victoryState'
+import { FiniteStateMachine } from '../finiteStateMachine'
+import type { Player } from '../game'
+import { EMPTY_INPUT, type Input } from '../playerInput'
+import { FightUI } from '../ui/fightUI'
+import type { LoadedCharacter } from './loadCharacter'
+import { createStats, type CharacterStats } from './stats'
 
 export type CharStance = DodgeStance | AttackStance | IdleStance | HitStance | EndStance | BlockStance | StunnedStance
 
@@ -49,34 +49,34 @@ export interface EndStance {
 }
 
 export class CharacterController {
-  animations: Animations<AnimationTypes>;
-  stateMachine: FiniteStateMachine<AnimationTypes>;
-  model: Group;
-  input: Input = EMPTY_INPUT;
-  private mixer: AnimationMixer;
+  animations: Animations<AnimationTypes>
+  stateMachine: FiniteStateMachine<AnimationTypes>
+  model: Group
+  input: Input = EMPTY_INPUT
+  private mixer: AnimationMixer
 
   public get hp(): number {
     return this.stats.health
   }
   public set hp(v: number) {
-    this.stats.health = v;
+    this.stats.health = v
   }
   public get stamina(): number {
     return this.stats.stamina
   }
 
   public set stamina(v: number) {
-    this.stats.stamina = v;
+    this.stats.stamina = v
   }
 
-  stance: CharStance = { type: 'idle' };
-  private initialHpPercent = 1;
-  private initialStaminaPercent = 1;
+  stance: CharStance = { type: 'idle' }
+  private initialHpPercent = 1
+  private initialStaminaPercent = 1
   constructor(public player: Player, public ui: FightUI, char: LoadedCharacter, public stats: CharacterStats = createStats(char.character)) {
 
-    this.mixer = char.mixer;
-    this.animations = char.animations;
-    this.model = char.model;
+    this.mixer = char.mixer
+    this.animations = char.animations
+    this.model = char.model
     this.initialHpPercent = this.hp / this.stats.maxHealth
     this.initialStaminaPercent = this.stamina / this.stats.maxStamina
     this.stateMachine = new FiniteStateMachine({
@@ -95,7 +95,7 @@ export class CharacterController {
       block_left: new BlockState('block_left', this),
       block_up: new BlockState('block_up', this),
       stunned: new StunnedState(this)
-    });
+    })
     this.stateMachine.SetState('idle')
   }
 
@@ -107,7 +107,7 @@ export class CharacterController {
   }
 
   dispose() {
-    this.input.dispose();
+    this.input.dispose()
   }
 
   pause() {
@@ -119,12 +119,12 @@ export class CharacterController {
 
   update(timeInSeconds: number) {
 
-    this.stateMachine.Update(timeInSeconds);
+    this.stateMachine.Update(timeInSeconds)
     if (this.input instanceof AiInput) {
       this.input.update(timeInSeconds)
     }
 
-    this.mixer.update(timeInSeconds);
+    this.mixer.update(timeInSeconds)
 
     if (this.stance.type === 'idle' && this.stamina < this.stats.maxStamina) {
       this.stamina = Math.min(this.stamina + this.stats.staminaRegenRate * timeInSeconds, this.stats.maxStamina)
@@ -132,4 +132,4 @@ export class CharacterController {
     }
 
   }
-};
+}

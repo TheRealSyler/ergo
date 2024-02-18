@@ -1,61 +1,61 @@
-import { NumberRange } from '../utils';
-import { expGainAtLevel } from './character';
-import type { CharacterStats } from './stats';
+import { NumberRange } from '../utils'
+import { expGainAtLevel } from './character'
+import type { CharacterStats } from './stats'
 
-type StatChanges = Partial<Omit<CharacterStats, 'health' | 'stamina' | 'aiDodgeReactionTime' | 'aiTimeToAttack'>>;
+type StatChanges = Partial<Omit<CharacterStats, 'health' | 'stamina' | 'aiDodgeReactionTime' | 'aiTimeToAttack'>>
 
-type QuestType = 'quest';
-type ConsumableType = 'consumable';
-type NormalItemType = 'armor' | 'gloves';
+type QuestType = 'quest'
+type ConsumableType = 'consumable'
+type NormalItemType = 'armor' | 'gloves'
 type WeaponType = 'weapon'
 type ItemType = NormalItemType | WeaponType | ConsumableType | QuestType
 interface WeaponItem {
-  type: WeaponType
-  statChanges: StatChanges
-  weaponHands: 'single' | 'double'
+    type: WeaponType
+    statChanges: StatChanges
+    weaponHands: 'single' | 'double'
 }
 interface NormalItem {
-  type: NormalItemType
-  statChanges: StatChanges
+    type: NormalItemType
+    statChanges: StatChanges
 }
 
 export type ConsumableEffect = {
-  health?: number | 'Full';
-  exp?: number | 'Level'
-};
+    health?: number | 'Full'
+    exp?: number | 'Level'
+}
 
 export interface ConsumableItem {
-  type: ConsumableType
-  effect: ConsumableEffect
+    type: ConsumableType
+    effect: ConsumableEffect
 }
 interface QuestItem {
-  type: QuestType
+    type: QuestType
 }
 export type ItemWithStatChange = NormalItem | WeaponItem
 export type Item = ItemWithStatChange | ConsumableItem | QuestItem
-export type WeaponNames = 'BasicSword' | 'SuperSword' | 'Axe';
-export type GloveNames = 'BasicGloves' | 'SuperGloves';
-export type ArmorNames = 'BasicArmor';
-export type QuestItemNames = 'BanditBounty';
-export type ConsumableNames = 'Bandage' | 'Scroll' | 'ScrollLevel';
+export type WeaponNames = 'BasicSword' | 'SuperSword' | 'Axe'
+export type GloveNames = 'BasicGloves' | 'SuperGloves'
+export type ArmorNames = 'BasicArmor'
+export type QuestItemNames = 'BanditBounty'
+export type ConsumableNames = 'Bandage' | 'Scroll' | 'ScrollLevel'
 
-export type EquipableItems = GloveNames | WeaponNames | ArmorNames;
+export type EquipableItems = GloveNames | WeaponNames | ArmorNames
 
-export type ItemName = EquipableItems | QuestItemNames | ConsumableNames;
+export type ItemName = EquipableItems | QuestItemNames | ConsumableNames
 
 export interface Items {
-  weapon: WeaponNames,
-  gloves: GloveNames,
-  armor: ArmorNames
+    weapon: WeaponNames,
+    gloves: GloveNames,
+    armor: ArmorNames
 }
 
-export const ITEM_TYPES: { [key in ItemType]: any } = {
+export const ITEM_TYPES = {
   armor: true,
   gloves: true,
   weapon: true,
   consumable: true,
   quest: true,
-}
+} satisfies { [key in ItemType]: boolean }
 
 export const ITEMS: { [key in ItemName]: Item } = {
   BasicArmor: {

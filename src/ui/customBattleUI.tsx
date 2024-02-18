@@ -13,7 +13,7 @@ export function CustomBattleUI(goToFight: Game['goToFight']) {
   MAIN_UI_ELEMENT.textContent = ''
 
   let stage: RoomNames = 'test'
-  let humanPlayer: Player = 'player1'
+  const humanPlayer: Player = 'player1'
   const allItems = (Object.keys(ITEMS) as ItemName[]).filter((key) => {
     const type = ITEMS[key].type
     return type !== 'consumable' && type !== 'quest'
@@ -69,7 +69,7 @@ export function CustomBattleUI(goToFight: Game['goToFight']) {
   </div>)
 }
 
-function createOptions<T extends string>(obj: Record<T, any>, onClick: (key: string) => void, defaultKey?: T) {
+function createOptions<T extends string>(obj: Record<T, unknown>, onClick: (key: string) => void, defaultKey?: T) {
   const items = []
   for (const key in obj) {
     if (Object.prototype.hasOwnProperty.call(obj, key)) {

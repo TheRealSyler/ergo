@@ -49,7 +49,7 @@ export class campaignUI {
           if (town.hasBeenVisited) {
             this.addTooltip(el, <span> Travel to {key}</span>)
           } else {
-            this.addTooltip(el, <span> Travel to {key} (Travel cost {ColorText(town.travelCost, 'Money')}) <br />{!this.campaign.EnoughMoneyCheck(town.travelCost) && ColorText(" You don't have enough money.", 'StatNeg')}</span>)
+            this.addTooltip(el, <span> Travel to {key} (Travel cost {ColorText(town.travelCost, 'Money')}) <br />{!this.campaign.EnoughMoneyCheck(town.travelCost) && ColorText(' You don\'t have enough money.', 'StatNeg')}</span>)
           }
         } else {
           this.addTooltip(el, <span>You cannot travel to {key}</span>)
@@ -81,7 +81,7 @@ export class campaignUI {
         if (dungeon.cost) {
           this.addTooltip(el, <span> Travel to {key}{
             dungeon.cost ? <span> (Travel cost {ColorText(dungeon.cost, 'Money')})</span> : null}{dungeon.hasBeenCompleted && ' (Completed)'}
-            <br />{!this.campaign.EnoughMoneyCheck(dungeon.cost) && ColorText(" You don't have enough money.", 'StatNeg')}
+          <br />{!this.campaign.EnoughMoneyCheck(dungeon.cost) && ColorText(' You don\'t have enough money.', 'StatNeg')}
           </span>)
           this.dungeonsEl.appendChild(el)
         } else {

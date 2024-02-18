@@ -1,15 +1,15 @@
-import type { Items } from './items';
-import type { CharacterSkills } from './skills';
-import type { CharacterClass } from './stats';
+import type { Items } from './items'
+import type { CharacterSkills } from './skills'
+import type { CharacterClass } from './stats'
 
 export interface Character {
-  items: Partial<Items>
-  class: CharacterClass
-  money: number
-  level: number
-  exp: number
-  skills: CharacterSkills
-  skillPoints: number
+    items: Partial<Items>
+    class: CharacterClass
+    money: number
+    level: number
+    exp: number
+    skills: CharacterSkills
+    skillPoints: number
 }
 
 export function createCharacter(char?: Partial<Character>): Character {

@@ -1,12 +1,12 @@
-import { createCharacter, type Character } from '../character/character';
-import { createStats, type CharacterStats } from '../character/stats';
-import { Game } from '../game';
-import { Renderer } from '../renderer';
-import { InventoryUI, type Inventory } from '../ui/inventoryUI';
-import { Dungeon, type DungeonInfo, type DungeonParent } from './dungeon';
+import { createCharacter, type Character } from '../character/character'
+import { createStats, type CharacterStats } from '../character/stats'
+import { Game } from '../game'
+import { Renderer } from '../renderer'
+import { InventoryUI, type Inventory } from '../ui/inventoryUI'
+import { Dungeon, type DungeonInfo, type DungeonParent } from './dungeon'
 
 export default class StandaloneDungeon<R extends string> extends Renderer implements DungeonParent {
-  private dungeon: Dungeon<R>;
+  private dungeon: Dungeon<R>
 
   character: Character = createCharacter()
 
@@ -15,7 +15,7 @@ export default class StandaloneDungeon<R extends string> extends Renderer implem
   inventory: Inventory = {
     items: [],
     size: 12
-  };
+  }
 
   inventoryUI = new InventoryUI(this.inventory, this.character, this.stats)
 
@@ -27,7 +27,7 @@ export default class StandaloneDungeon<R extends string> extends Renderer implem
     this.dungeon.update((delta - this.previousRAF) * 0.001)
   }
   private exit() {
-    this.disposeRenderer();
+    this.disposeRenderer()
     this.game.goToMainMenu()
   }
 }

@@ -20,11 +20,11 @@ export function OptionsUI(onClose: () => void) {
   </div>
   const listener = (e: KeyboardEvent) => {
     switch (e.key.toUpperCase()) {
-      case getKeybinding('PauseMenu', 'Options'):
-        mainEL.remove()
-        window.removeEventListener('keydown', listener)
-        onClose()
-        break;
+    case getKeybinding('PauseMenu', 'Options'):
+      mainEL.remove()
+      window.removeEventListener('keydown', listener)
+      onClose()
+      break
     }
   }
   window.addEventListener('keydown', listener)

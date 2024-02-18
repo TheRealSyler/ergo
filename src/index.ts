@@ -1,6 +1,6 @@
-import { Game } from './game';
-import './index.sass';
+import { Game } from './game'
+import './index.sass'
 
 window.addEventListener('DOMContentLoaded', () => {
-  new Game();
-});
+  new Game()
+})

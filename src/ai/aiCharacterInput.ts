@@ -1,11 +1,11 @@
-import type { AttackAnimations, DodgeAnimations } from '../animation/types';
-import { CharacterController } from '../character/characterController';
-import { FiniteStateMachine } from '../finiteStateMachine';
-import { EMPTY_INPUT, type Input } from '../playerInput';
-import { AiAttackingState } from './aiAttackingState';
-import { AiBlockState } from './aiBlockState';
-import { AiDodgingState } from './aiDodgingState';
-import { AiIdleState } from './aiIdleState';
+import type { AttackAnimations, DodgeAnimations } from '../animation/types'
+import { CharacterController } from '../character/characterController'
+import { FiniteStateMachine } from '../finiteStateMachine'
+import { EMPTY_INPUT, type Input } from '../playerInput'
+import { AiAttackingState } from './aiAttackingState'
+import { AiBlockState } from './aiBlockState'
+import { AiDodgingState } from './aiDodgingState'
+import { AiIdleState } from './aiIdleState'
 
 export type AiStates = 'ai_idle' | 'ai_dodging' | 'ai_attacking' | 'ai_block';
 
@@ -17,7 +17,7 @@ export const DODGE_POSSIBILITIES: { [key in AttackAnimations]: DodgeAnimations |
 }
 
 export class AiInput implements Input {
-  keys = { ...EMPTY_INPUT.keys };
+  keys = { ...EMPTY_INPUT.keys }
 
   private aiStateMachine: FiniteStateMachine<AiStates> = new FiniteStateMachine<AiStates>({
     ai_attacking: new AiAttackingState(this.aiChar, this.keys),
@@ -37,4 +37,4 @@ export class AiInput implements Input {
   update(elapsedTimeInSeconds: number) {
     this.aiStateMachine.Update(elapsedTimeInSeconds)
   }
-};
+}

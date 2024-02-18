@@ -38,10 +38,10 @@ export class QuestBoardUI {
     window.addEventListener('keydown', this.keydown)
     this.visible = true
   }
-  private addQuest(quest: Quest<TownName, any>, questName: string) {
+  private addQuest(quest: Quest<TownName, string>, questName: string) {
     const { canBeCompleted, getItem: hasItem, travelToTown: hasTraveledTo, completeDungeon } = this.campaign.checkQuest(quest)
 
-    let status;
+    let status
     if (canBeCompleted) {
       status = <span className="button" onClick={() => {
         this.campaign.completeQuest(quest, questName)
@@ -71,7 +71,7 @@ export class QuestBoardUI {
       case getKeybinding('Campaign', 'OpenQuestBoard'):
         e.preventDefault()
         this.toggle()
-        break;
+        break
     }
   }
 }

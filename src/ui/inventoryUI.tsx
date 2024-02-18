@@ -13,7 +13,7 @@ import { MAIN_UI_ELEMENT } from './ui'
 
 export interface Inventory {
   items: (ItemName | undefined)[],
-  size?: number;
+  size?: number
 }
 
 type SlotTypeInventoryOrLoot = 'inventory' | 'loot'
@@ -89,8 +89,8 @@ export class InventoryUI {
       [CTRL + MOUSE CLICK] Equip/Use |
       [SHIFT + MOUSE CLICK] Move to Inventory {this.lootInfo} </div>
   </div>
-  private lootInventory?: Inventory;
-  private shop?: Shop;
+  private lootInventory?: Inventory
+  private shop?: Shop
   constructor(private inventory: Inventory, private character: Character, private stats: CharacterStats, private isModal = true, private parentEl: HTMLElement = MAIN_UI_ELEMENT) {
     this.lootName.style.whiteSpace = 'nowrap'
     this.shopMoneyEl.style.display = 'none'
@@ -137,7 +137,7 @@ export class InventoryUI {
       this.lootNameInfo.textContent = lootOrShop.name
       this.lootInfo.style.display = 'inline'
       this.lootEl.style.display = 'inherit'
-      this.lootInventory = lootOrShop.inventory;
+      this.lootInventory = lootOrShop.inventory
       this.lootItemsEl.append(...this.addItemSlots(this.lootInventory, 'loot'))
     } else {
       this.lootEl.style.display = 'none'
@@ -174,22 +174,22 @@ export class InventoryUI {
       if (Object.prototype.hasOwnProperty.call(this.stats, key)) {
         const stat = this.stats[key as keyof CharacterStats]
         switch (key as keyof CharacterStats) {
-          case 'aiDodgeChance':
-          case 'aiTimeToAttack':
-          case 'aiBlockChance':
-          case 'aiUseDodge':
-          case 'hitTime':
-          case 'health':
-          case 'stamina':
-          case 'maxHealth':
-          case 'maxStamina':
-            break
-          default:
-            // TODO add icons.
-            this.statsEl.appendChild(<span className="inventory-stat">
-              <span>{key}:</span> <span>{this.displayStat(stat)}</span>
-            </span>)
-            break
+        case 'aiDodgeChance':
+        case 'aiTimeToAttack':
+        case 'aiBlockChance':
+        case 'aiUseDodge':
+        case 'hitTime':
+        case 'health':
+        case 'stamina':
+        case 'maxHealth':
+        case 'maxStamina':
+          break
+        default:
+          // TODO add icons.
+          this.statsEl.appendChild(<span className="inventory-stat">
+            <span>{key}:</span> <span>{this.displayStat(stat)}</span>
+          </span>)
+          break
         }
       }
     }
@@ -215,10 +215,10 @@ export class InventoryUI {
 
   private displayStat(stat: CharacterStats[keyof CharacterStats]) {
     switch (typeof stat) {
-      case 'number':
-        return toFixedIfNotZero(stat, 1)
-      case 'object':
-        return `${toFixedIfNotZero(stat.min, 1)} - ${toFixedIfNotZero(stat.max, 1)}`
+    case 'number':
+      return toFixedIfNotZero(stat, 1)
+    case 'object':
+      return `${toFixedIfNotZero(stat.min, 1)} - ${toFixedIfNotZero(stat.max, 1)}`
     }
   }
 
@@ -276,24 +276,26 @@ export class InventoryUI {
 
   private equipOrUseItem(slot: SlotInfo, item: ItemName) {
     switch (slot.type) {
-      case 'character':
-        const size = this.inventory.size || this.inventory.items.length
-        for (let i = 0; i < size; i++) {
-          if (!this.inventory.items[i]) {
-            const target = document.getElementById(`${this.inventoryItemId}${i}`)
-            target && this.dropItem(target, slot, { type: 'inventory', id: i })
-            return true;
-          }
+    case 'character': {
+      const size = this.inventory.size || this.inventory.items.length
+      for (let i = 0; i < size; i++) {
+        if (!this.inventory.items[i]) {
+          const target = document.getElementById(`${this.inventoryItemId}${i}`)
+          target && this.dropItem(target, slot, { type: 'inventory', id: i })
+          return true
         }
-        break;
-      case 'inventory':
-      case 'loot':
+      }
+    }
+      break
+    case 'inventory':
+    case 'loot':
+      {
         for (const key in ITEM_TYPES) {
           if (Object.prototype.hasOwnProperty.call(ITEM_TYPES, key)) {
             const target = document.getElementById(`${this.characterItemId}${key}`)
             if (target && ITEMS[item].type === key) {
-              this.dropItem(target, slot, { type: 'character', id: key as any })
-              return true;
+              this.dropItem(target, slot, { type: 'character', id: key as never })
+              return true
             }
           }
         }
@@ -306,7 +308,8 @@ export class InventoryUI {
           this.tooltip.hide()
           return true
         }
-        break;
+      }
+      break
     }
   }
 
@@ -315,84 +318,85 @@ export class InventoryUI {
   }
   private moveItemToInventory(slot: SlotInfo) {
     switch (slot.type) {
-      case 'character':
-      case 'loot':
-        const size = this.inventory.size || this.inventory.items.length
-        for (let i = 0; i < size; i++) {
-          // console.log('INVENTORY', this.inventory.items[i])
-          if (!this.inventory.items[i]) {
-            const target = document.getElementById(`${this.inventoryItemId}${i}`)
-            // console.log('INVENTORY TARGET', target)
-            target && this.dropItem(target, slot, { type: 'inventory', id: i })
-            return true;
-          }
+    case 'character':
+    case 'loot': {
+      const size = this.inventory.size || this.inventory.items.length
+      for (let i = 0; i < size; i++) {
+        // console.log('INVENTORY', this.inventory.items[i])
+        if (!this.inventory.items[i]) {
+          const target = document.getElementById(`${this.inventoryItemId}${i}`)
+          // console.log('INVENTORY TARGET', target)
+          target && this.dropItem(target, slot, { type: 'inventory', id: i })
+          return true
         }
-        break;
+      }
+    }
+      break
     }
   }
   private moveItemToLoot(slot: SlotInfo) {
     if (this.lootInventory) {
       switch (slot.type) {
-        case 'inventory':
-        case 'character':
-          const size = this.lootInventory.size || this.lootInventory.items.length
-          for (let i = 0; i < size; i++) {
-            if (!this.lootInventory.items[i]) {
-              const target = document.getElementById(`${this.lootItemId}${i}`)
-              target && this.dropItem(target, slot, { type: 'loot', id: i })
-              return true;
-            }
+      case 'inventory':
+      case 'character': {
+        const size = this.lootInventory.size || this.lootInventory.items.length
+        for (let i = 0; i < size; i++) {
+          if (!this.lootInventory.items[i]) {
+            const target = document.getElementById(`${this.lootItemId}${i}`)
+            target && this.dropItem(target, slot, { type: 'loot', id: i })
+            return true
           }
-          break;
+        }
+      }
+        break
       }
     }
   }
 
   private getSlotId(slot: SlotInfo) {
     switch (slot.type) {
-      case 'character':
-        return this.characterItemId
-      case 'inventory':
-        return this.inventoryItemId
-      case 'loot':
-        return this.lootItemId
+    case 'character':
+      return this.characterItemId
+    case 'inventory':
+      return this.inventoryItemId
+    case 'loot':
+      return this.lootItemId
     }
   }
 
   private getItem(slot: SlotInfo) {
     switch (slot.type) {
-      case 'loot':
-        return this.lootInventory?.items[slot.id]
-      case 'inventory':
-        return this.inventory.items[slot.id]
-      case 'character':
-        return this.character.items[slot.id]
+    case 'loot':
+      return this.lootInventory?.items[slot.id]
+    case 'inventory':
+      return this.inventory.items[slot.id]
+    case 'character':
+      return this.character.items[slot.id]
     }
   }
   private setItem(slot: SlotInfo, item?: ItemName) {
     switch (slot.type) {
-      case 'loot':
-        if (this.lootInventory) {
-          this.lootInventory.items[slot.id] = item
-        }
-        break;
-      case 'inventory':
-        this.inventory.items[slot.id] = item
-        break;
-      case 'character':
-        //@ts-ignore
-        this.character.items[slot.id] = item
-        break;
+    case 'loot':
+      if (this.lootInventory) {
+        this.lootInventory.items[slot.id] = item
+      }
+      break
+    case 'inventory':
+      this.inventory.items[slot.id] = item
+      break
+    case 'character':
+      this.character.items[slot.id] = item as never
+      break
     }
   }
 
   private getEmptySlotName(slot: SlotInfo) {
     switch (slot.type) {
-      case 'inventory':
-      case 'loot':
-        return 'EMPTY'
-      case 'character':
-        return slot.id.toUpperCase()
+    case 'inventory':
+    case 'loot':
+      return 'EMPTY'
+    case 'character':
+      return slot.id.toUpperCase()
     }
   }
 
@@ -415,9 +419,9 @@ export class InventoryUI {
   private keydown = (e: KeyboardEvent) => {
     e.preventDefault()
     switch (e.key.toUpperCase()) {
-      case getKeybinding('Inventory', 'ToggleInventory'):
-        this.toggle()
-        break;
+    case getKeybinding('Inventory', 'ToggleInventory'):
+      this.toggle()
+      break
     }
   }
   private mousemove = (e: MouseEvent) => {
@@ -429,7 +433,7 @@ export class InventoryUI {
   }
   private mouseup = (e: MouseEvent) => {
     if (this.draggedSlotInfo) {
-      const target = e.target as any as HTMLElement
+      const target = e.target as HTMLElement
 
       if (target.id.startsWith(this.inventoryItemId)) {
         this.dropItem(target, this.draggedSlotInfo, { id: parseInt(target.id.replace(this.inventoryItemId, '')), type: 'inventory' })
@@ -438,7 +442,7 @@ export class InventoryUI {
 
       } else if (target.id.startsWith(this.characterItemId)) {
         const droppedItem = this.getItem(this.draggedSlotInfo)
-        if (!droppedItem) return;
+        if (!droppedItem) return
         const id = target.id.replace(this.characterItemId, '') as keyof Character['items']
         const itemStats = ITEMS[droppedItem]
         if (itemStats && itemStats.type === id) {
@@ -463,56 +467,57 @@ export class InventoryUI {
     const droppedItemName = this.getItem(draggedSlotInfo)
     if (!droppedItemName) return // just to be sure, this should never happen, since you can't drag an empty slot.
     const oldItemName = this.getItem(targetSlotInfo)
-    if (droppedItemName === oldItemName) { this.cancelDrop(draggedSlotInfo); return };
+    if (droppedItemName === oldItemName) { this.cancelDrop(draggedSlotInfo); return }
     if (this.shop) {
       // check if item can be sold.
       // and check if sold and char or shop has enough money.
       switch (draggedSlotInfo.type) {
-        case 'loot':
-          if (targetSlotInfo.type === 'loot') break;
+      case 'loot': {
+        if (targetSlotInfo.type === 'loot') break
 
+        const price = this.shop.prices[droppedItemName]
+        if (!price) {
+          this.cancelDrop(draggedSlotInfo)
+          return
+        }
+
+        const oldItemPrice = oldItemName && this.shop.prices[oldItemName]?.sell || 0
+        const buyPrice = price.buy - oldItemPrice
+
+        // buy
+        if (this.character.money - buyPrice >= 0) {
+          this.character.money -= buyPrice
+          this.shop.money += buyPrice
+          this.updateMoney()
+        } else {
+          this.cancelDrop(draggedSlotInfo)
+          return // not enough money to buy.
+        }
+      }
+        break
+      case 'character':
+      case 'inventory':
+        if (targetSlotInfo.type === 'loot') {
           const price = this.shop.prices[droppedItemName]
           if (!price) {
             this.cancelDrop(draggedSlotInfo)
             return
           }
 
-          const oldItemPrice = oldItemName && this.shop.prices[oldItemName]?.sell || 0
-          const buyPrice = price.buy - oldItemPrice
+          const oldItemPrice = oldItemName && this.shop.prices[oldItemName]?.buy || 0
+          const sellPrice = price.sell - oldItemPrice
 
-          // buy
-          if (this.character.money - buyPrice >= 0) {
-            this.character.money -= buyPrice
-            this.shop.money += buyPrice
+          // sell
+          if (this.shop.money - sellPrice >= 0) {
+            this.shop.money -= sellPrice
+            this.character.money += sellPrice
             this.updateMoney()
           } else {
             this.cancelDrop(draggedSlotInfo)
-            return // not enough money to buy.
+            return // not enough money to sell.
           }
-          break;
-        case 'character':
-        case 'inventory':
-          if (targetSlotInfo.type === 'loot') {
-            const price = this.shop.prices[droppedItemName]
-            if (!price) {
-              this.cancelDrop(draggedSlotInfo)
-              return
-            }
-
-            const oldItemPrice = oldItemName && this.shop.prices[oldItemName]?.buy || 0
-            const sellPrice = price.sell - oldItemPrice
-
-            // sell
-            if (this.shop.money - sellPrice >= 0) {
-              this.shop.money -= sellPrice
-              this.character.money += sellPrice
-              this.updateMoney()
-            } else {
-              this.cancelDrop(draggedSlotInfo)
-              return // not enough money to sell.
-            }
-          }
-          break;
+        }
+        break
       }
     }
 
@@ -531,8 +536,8 @@ export class InventoryUI {
     if (droppedItemTarget) {
       updateStatsWithItem(this.stats, droppedItemTarget, true)
     }
-    let oldItemDrag = this.getItemStatChanges(draggedSlotInfo, oldItemName)
-    let oldItemTarget = this.getItemStatChanges(targetSlotInfo, oldItemName)
+    const oldItemDrag = this.getItemStatChanges(draggedSlotInfo, oldItemName)
+    const oldItemTarget = this.getItemStatChanges(targetSlotInfo, oldItemName)
     if (oldItemDrag) {
       updateStatsWithItem(this.stats, oldItemDrag, true)
     }
@@ -543,13 +548,13 @@ export class InventoryUI {
   }
 
   private updateSlot(element: HTMLElement, slotInfo: Required<SlotInfo>, itemName?: ItemName, updateClasses = true) {
-    updateClasses && (element.className = inventorySlotClassList(!itemName));
+    updateClasses && (element.className = inventorySlotClassList(!itemName))
     element.textContent = itemName || this.getEmptySlotName(slotInfo)
     element.appendChild(this.getPriceTag(slotInfo.type, itemName))
   }
 
   private getItemStatChanges(slot: Required<SlotInfo>, itemName?: ItemName) {
-    if (!itemName) return;
+    if (!itemName) return
     const itemStatChanges = ITEMS[itemName]
     return slot.type === 'character' && itemStatChanges.type === slot.id && itemStatChanges
   }

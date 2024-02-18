@@ -1,7 +1,7 @@
-import { MathUtils, Vector3 } from 'three';
-import { createCharacter } from '../character/character';
-import type { DungeonInfo } from '../dungeon/dungeon';
-import type { Town } from './campaign';
+import { MathUtils, Vector3 } from 'three'
+import { createCharacter } from '../character/character'
+import type { DungeonInfo } from '../dungeon/dungeon'
+import type { Town } from './campaign'
 
 const banditCamp: DungeonInfo<'Entry' | 'Room 1' | 'Room 2' | 'Room 3'> = {
   entryDir: 'north',
@@ -75,7 +75,7 @@ const d2: DungeonInfo<'Entry' | 'Room North' | 'Room1' | 'Room2' | 'Room3'> = {
   }
 }
 
-export type Town1Dungeons = 'Bandit Camp' | 'Ruins';
+export type Town1Dungeons = 'Bandit Camp' | 'Ruins'
 
 
 export const town1: Town<Town1Dungeons> = {

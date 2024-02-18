@@ -1,8 +1,8 @@
-import { Campaign } from './campaign/campaign';
-import { createCharacter, type Character } from './character/character';
-import { LoadFight } from './fight/loadFight';
-import type { RoomNames } from './rooms/rooms';
-import { MainMenuUi } from './ui/mainMenuUI';
+import { Campaign } from './campaign/campaign'
+import { createCharacter, type Character } from './character/character'
+import { LoadFight } from './fight/loadFight'
+import type { RoomNames } from './rooms/rooms'
+import { MainMenuUi } from './ui/mainMenuUI'
 
 export type Player = 'player1' | 'player2'
 
@@ -31,7 +31,7 @@ export class Game {
   }
 
   goToFight = async (humanPlayer?: Player, player1?: Character, player2?: Character, room?: RoomNames) => {
-    await LoadFight(humanPlayer || 'player1', this, player1 || createCharacter(), player2 || createCharacter(), room || 'test');
+    await LoadFight(humanPlayer || 'player1', this, player1 || createCharacter(), player2 || createCharacter(), room || 'test')
   }
 
 }

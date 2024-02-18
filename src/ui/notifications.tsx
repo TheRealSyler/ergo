@@ -38,7 +38,7 @@ export class Notifications {
   }
   private findFreeSlot() {
     for (let i = 0; i < this.slots.length; i++) {
-      const slot = this.slots[i];
+      const slot = this.slots[i]
       if (slot === false) {
         return i
       }
@@ -51,7 +51,7 @@ export function NotEnoughMoneyNotification(money: number) {
   NOTIFICATIONS.Show(
     JoinSpanEl(ColorText('You Don\'t have enough money, you need', 'StatNeg'),
       JoinSpanEl(ColorText(money, 'Money'), ColorText('more.', 'StatNeg')))
-  );
+  )
 }
 
 export function expGainNotification(exp: number, from?: string | HTMLElement) {

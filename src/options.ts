@@ -11,7 +11,7 @@ export function getOption<T extends keyof Options>(section: T, key: keyof Option
 
 const OPTIONS = {
   input: {
-    enableMouseAttacks: !!window.localStorage.getItem(`input-enableMouseAttacks`)
+    enableMouseAttacks: !!window.localStorage.getItem('input-enableMouseAttacks')
   }
 }
 

@@ -7,19 +7,19 @@ dotEnv()
 // DO NOT DELETE THIS SPACER COMMENT 
 
 
-import { visualizer } from "rollup-plugin-visualizer"
+import { visualizer } from 'rollup-plugin-visualizer'
 import type { PluginOption } from 'vite'
 
 
 export default defineConfig({
   plugins: [
-    checker({ typescript: true }), // , eslint: { lintCommand: 'eslint "./src/**/*.{ts,tsx}"' } 
+    checker({ typescript: true, eslint: { lintCommand: 'eslint "./src/**/*.{ts,tsx}"' } }),
     visualizer({
-      template: "treemap",
+      template: 'treemap',
       open: false,
       gzipSize: true,
       brotliSize: true,
-      filename: "bundleSizeAnalysis.html",
+      filename: 'bundleSizeAnalysis.html',
     }) as PluginOption,
   ],
   build: {

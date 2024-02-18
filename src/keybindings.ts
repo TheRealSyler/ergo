@@ -51,10 +51,10 @@ const KEYBINDINGS = {
 function checkDefaultKeybindings(keybindings: Keybindings) {
   for (const sectionKey in keybindings) {
     if (Object.prototype.hasOwnProperty.call(keybindings, sectionKey)) {
-      const section = keybindings[sectionKey as keyof Keybindings];
+      const section = keybindings[sectionKey as keyof Keybindings]
       for (const key in section) {
         if (Object.prototype.hasOwnProperty.call(section, key)) {
-          const keybinding = section[key as keyof typeof section] as string;
+          const keybinding = section[key as keyof typeof section] as string
           if (typeof keybinding !== 'string') {
             console.error(`Keybinding [${sectionKey}] -> ${key}: "${keybinding}" is not a string`)
           } else if (keybinding !== keybinding.toUpperCase()) {

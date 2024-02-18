@@ -1,5 +1,5 @@
-import type { DungeonInfo } from '../dungeon/dungeon';
-import type { Town } from './campaign';
+import type { DungeonInfo } from '../dungeon/dungeon'
+import type { Town } from './campaign'
 
 
 

@@ -1,35 +1,35 @@
-import { CharacterController } from '../character/characterController';
-import { FiniteStateMachine, State } from '../finiteStateMachine';
-import { getAnimAction } from "../utils";
-import type { AnimationTypes } from './types';
+import { CharacterController } from '../character/characterController'
+import { FiniteStateMachine, State } from '../finiteStateMachine'
+import { getAnimAction } from '../utils'
+import type { AnimationTypes } from './types'
 
 export class IdleState extends State<AnimationTypes> {
   constructor(private charRef: CharacterController) {
-    super('idle');
+    super('idle')
   }
 
   Enter(fsm: FiniteStateMachine<AnimationTypes>, prevState?: State<AnimationTypes>) {
-    this.charRef.stance = { type: 'idle' };
+    this.charRef.stance = { type: 'idle' }
 
-    const curAction = getAnimAction(this.charRef.animations, 'idle');
-    const mixer = curAction.getMixer();
+    const curAction = getAnimAction(this.charRef.animations, 'idle')
+    const mixer = curAction.getMixer()
     mixer.timeScale = 0.8
     if (prevState) {
-      const prevAction = getAnimAction(this.charRef.animations, prevState.name);
-      curAction.time = 0.0;
-      curAction.enabled = true;
-      curAction.setEffectiveTimeScale(1.0);
-      curAction.setEffectiveWeight(1.0);
-      curAction.crossFadeFrom(prevAction, 0.2, true);
-      curAction.play();
+      const prevAction = getAnimAction(this.charRef.animations, prevState.name)
+      curAction.time = 0.0
+      curAction.enabled = true
+      curAction.setEffectiveTimeScale(1.0)
+      curAction.setEffectiveWeight(1.0)
+      curAction.crossFadeFrom(prevAction, 0.2, true)
+      curAction.play()
     } else {
-      curAction.play();
+      curAction.play()
     }
   }
 
   Exit() {
-    const curAction = getAnimAction(this.charRef.animations, 'idle');
-    const mixer = curAction.getMixer();
+    const curAction = getAnimAction(this.charRef.animations, 'idle')
+    const mixer = curAction.getMixer()
     mixer.timeScale = 1
   }
 
@@ -62,7 +62,7 @@ export class IdleState extends State<AnimationTypes> {
     if (this.charRef.stamina - cost > 0) {
       this.charRef.stamina -= cost
       this.charRef.ui.update('stamina', this.charRef)
-      fsm.SetState(state);
+      fsm.SetState(state)
     }
   }
-};
+}

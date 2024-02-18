@@ -1,17 +1,17 @@
-import { CharacterController } from '../character/characterController';
-import type { Player } from '../game';
-import { Renderer } from '../renderer';
-import type { Room } from '../rooms/rooms';
-import { FightUI } from '../ui/fightUI';
-import { FightController } from './fightController';
+import { CharacterController } from '../character/characterController'
+import type { Player } from '../game'
+import { Renderer } from '../renderer'
+import type { Room } from '../rooms/rooms'
+import { FightUI } from '../ui/fightUI'
+import { FightController } from './fightController'
 
 export class FightControllerStandalone extends Renderer {
-  con: FightController;
+  con: FightController
   constructor(private exitFunc: () => void, players: Record<Player, CharacterController>, ui: FightUI, humanPlayer: Player, room: Room) {
-    super();
-    this.scene.add(room.scene);
+    super()
+    this.scene.add(room.scene)
 
-    this.scene.environment = room.background;
+    this.scene.environment = room.background
     // TODO research this RoughnessMipmapper thing.
     // the code is from https://github.com/mrdoob/three.js/blob/master/examples/webgl_loader_gltf.html
     // const roughnessMipmapper = new RoughnessMipmapper(this.renderer);
@@ -23,19 +23,19 @@ export class FightControllerStandalone extends Renderer {
     //   }
     // });
     // roughnessMipmapper.dispose();
-    this.scene.add(players.player1.model);
-    this.scene.add(players.player2.model);
+    this.scene.add(players.player1.model)
+    this.scene.add(players.player2.model)
 
-    this.con = new FightController(players, ui, humanPlayer, this, { exitToMainMenu: this.exit.bind(this) });
+    this.con = new FightController(players, ui, humanPlayer, this, { exitToMainMenu: this.exit.bind(this) })
     this.updateRenderer(0)
   }
 
   private exit() {
-    this.disposeRenderer();
-    this.exitFunc();
+    this.disposeRenderer()
+    this.exitFunc()
   }
 
   protected update(delta: number) {
-    this.con.update((delta - this.previousRAF) * 0.001);
+    this.con.update((delta - this.previousRAF) * 0.001)
   }
 }
